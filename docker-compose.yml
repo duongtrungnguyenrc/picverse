@@ -1,0 +1,75 @@
+services:
+  mongo-primary:
+    image: mongo:7.0
+    container_name: mongo-primary
+    volumes:
+      - mongo-primary-data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - picverse-network
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+
+
+  mongo-read-1:
+    image: mongo:7.0
+    container_name: mongo-read-1
+    volumes:
+      - mongo-read-1-data:/data/db
+    ports:
+      - "27018:27017"
+    networks:
+      - picverse-network
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+
+
+  mongo-read-2:
+    image: mongo:7.0
+    container_name: mongo-read-2
+    volumes:
+      - mongo-read-2-data:/data/db
+    ports:
+      - "27019:27017"
+    networks:
+      - picverse-network
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
+
+ 
+  redis-cache:
+    image: redis:7.0
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    networks:
+      - picverse-network
+
+  picverse-server:
+    container_name: picverse-server
+    build:
+      context: ./picverse-server
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - picverse-network
+    environment:
+      - REDIS_URL=redis://redis-cache:6379
+
+  picverse-web:
+    container_name: picverse-web
+    build:
+      context: ./picverse-web
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    networks:
+      - picverse-network
+
+volumes:
+  mongo-primary-data:
+  mongo-read-1-data:
+  mongo-read-2-data:
+
+networks:
+  picverse-network:
+    

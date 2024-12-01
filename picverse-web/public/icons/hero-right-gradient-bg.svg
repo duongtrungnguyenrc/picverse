@@ -1,0 +1,35 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="1132"
+    height="641"
+    fill="none"
+>
+    <g filter="url(#sh2a)" opacity=".48">
+    <circle cx="566" cy="540" r="246" fill="#7E5FFB"></circle>
+    </g>
+    <defs>
+    <filter
+        id="sh2a"
+        width="1132"
+        height="1132"
+        x="0"
+        y="-26"
+        colorInterpolationFilters="sRGB"
+        filterUnits="userSpaceOnUse"
+    >
+        <feFlood
+        floodOpacity="0"
+        result="BackgroundImageFix"
+        ></feFlood>
+        <feBlend
+        in="SourceGraphic"
+        in2="BackgroundImageFix"
+        result="shape"
+        ></feBlend>
+        <feGaussianBlur
+        result="effect1_foregroundBlur_2010_54"
+        stdDeviation="160"
+        ></feGaussianBlur>
+    </filter>
+    </defs>
+</svg> 
