@@ -21,7 +21,7 @@ export class PaginationResponse<T> {
   @ApiProperty({
     type: "array",
     items: { type: "object" },
-    description: "Array of rating objects",
+    description: "Array of objects",
   })
   data: T[];
 }

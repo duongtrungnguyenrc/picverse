@@ -1,5 +1,5 @@
 import { ApiBody, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { Body, Controller, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 
 import {
   ForgotPasswordDto,
@@ -11,14 +11,19 @@ import {
   SignInResponseDto,
   SignUpRequestDto,
 } from "../dtos";
-import { Auth, AuthToken, AuthUid, IpAddress, RequestAgent } from "@common/decorators";
+import { ApiPagination, Auth, AuthToken, AuthUid, IpAddress, Pagination, RequestAgent } from "@common/decorators";
+import { AccessRecordService, AccountService } from "../services";
+import { PaginationResponse } from "@common/dtos";
 import { AuthApiDescription } from "../enums";
-import { AccountService } from "../services";
+import { AccessRecord } from "../schemas";
 
 @Controller("account")
 @ApiTags("Account")
 export class AccountController {
-  constructor(private readonly accountService: AccountService) {}
+  constructor(
+    private readonly accountService: AccountService,
+    private readonly accessRecordService: AccessRecordService,
+  ) {}
 
   @Post("/sign-up")
   @ApiResponse({ status: 200, description: AuthApiDescription.SIGN_UP_SUCCESS, type: Boolean })
@@ -59,16 +64,24 @@ export class AccountController {
     return await this.accountService.lockAccount(userId, payload);
   }
 
-  @Post("request-activation")
+  @Post("/request-activation")
   @ApiResponse({ status: 200, description: AuthApiDescription.REQUEST_ACTIVATE_ACCOUNT_SUCCESS, type: Boolean })
   async requestActivationOtp(@Body() payload: RequestActiveAccountDto, @IpAddress() ipAddress: string): Promise<boolean> {
     return this.accountService.requestActivateAccount(payload, ipAddress);
   }
 
-  @Post("activate-account")
+  @Post("/activate-account")
   @ApiParam({ name: "session" })
   @ApiResponse({ status: 200, description: AuthApiDescription.ACTIVATE_ACCOUNT_SUCCESS, type: Boolean })
   async activateAccount(@Param("session") sessionId: string, @IpAddress() ipAddress: string): Promise<boolean> {
     return this.accountService.activateAccount(sessionId, ipAddress);
+  }
+
+  @Auth()
+  @Get("/access")
+  @ApiPagination()
+  @ApiResponse({ status: 200, description: AuthApiDescription.ACTIVATE_ACCOUNT_SUCCESS, type: PaginationResponse<AccessRecord> })
+  async getAccessRecords(@AuthUid() accountId: DocumentId, @Pagination() pagination: Pagination): Promise<PaginationResponse<AccessRecord>> {
+    return this.accessRecordService.findMultiplePaging({ account: accountId }, pagination);
   }
 }

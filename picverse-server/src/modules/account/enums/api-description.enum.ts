@@ -8,8 +8,5 @@ export enum AuthApiDescription {
   REQUEST_ACTIVATE_ACCOUNT_SUCCESS = "Successfully request activate account Return status",
   ACTIVATE_ACCOUNT_SUCCESS = "Successfully activate account Return status",
   LOCK_ACCOUNT_SUCCESS = "Successfully lock account. Return status",
-  AUTH_TOKEN = "JWT Authorization token with any role",
-  AUTH_ADMIN_TOKEN = "JWT Authorization token with admin role",
-  AUTH_CUSTOMER_TOKEN = "JWT Authorization token with customer role",
-  TARGET_UID = "Target user id",
+  GET_ACCESS_RECORDS_SUCCESS = "Successfully lto get access records. Return pagination records",
 }
