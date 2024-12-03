@@ -5,9 +5,14 @@ declare type Pagination = {
   limit: number;
 };
 
-
 declare type JwtPayload = {
   exp?: number;
   iat?: number;
+  uid: DocumentId;
   sub: string;
+};
+
+declare type RequestAgent = {
+  deviceInfo: string;
+  browserInfo: string;
 };

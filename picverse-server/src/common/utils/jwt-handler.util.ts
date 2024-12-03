@@ -21,12 +21,17 @@ export class JwtHandler {
     this.cacheService.set(joinCacheKey(this.cachePrefix, sid), uid, this.ttl);
 
     return this.jwtService.sign({
+      uid: uid,
       sub: sid,
     });
   }
 
   async verify(token: string): Promise<JwtPayload> {
     return this.jwtService.verify<JwtPayload>(token);
+  }
+
+  async revoke(sid: string): Promise<void> {
+    await this.cacheService.del(joinCacheKey(this.cachePrefix, sid));
   }
 
   async getUid(sid: string): Promise<DocumentId> {

@@ -220,7 +220,7 @@ export class Repository<T extends Document> {
     const updatedDocument = await this._model.findOneAndUpdate(query, updateData, { ...options, new: true }).exec();
 
     if (updatedDocument) {
-      await this.refreshCache(updatedDocument._id.toString());
+      await this.invalidateCache(updatedDocument._id.toString());
     }
 
     return updatedDocument;
@@ -231,7 +231,7 @@ export class Repository<T extends Document> {
     const deletedDocument = await this._model.findOneAndDelete(query).exec();
 
     if (deletedDocument) {
-      await this.refreshCache(deletedDocument._id.toString());
+      await this.invalidateCache(deletedDocument._id.toString());
     }
 
     return !!deletedDocument;
@@ -246,7 +246,7 @@ export class Repository<T extends Document> {
     return this._model.exists(filter);
   }
 
-  private async refreshCache(id: string, pattern?: RegExp): Promise<void> {
+  private async invalidateCache(id: string, pattern?: RegExp): Promise<void> {
     if (!this.cacheService) return;
 
     const withIdPattern = pattern || new RegExp(`.*${id}.*$`);
