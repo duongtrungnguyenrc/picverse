@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotAcceptableException, UnauthorizedEx
 import { MailerService } from "@nestjs-modules/mailer";
 import { compareSync, genSalt, hash } from "bcrypt";
 import { InjectModel } from "@nestjs/mongoose";
+import { ConfigService } from "@nestjs/config";
 import { v4 as uuid } from "uuid";
 import { Model } from "mongoose";
 
@@ -15,12 +16,7 @@ import {
   SignInResponseDto,
   SignUpRequestDto,
 } from "../dtos";
-import {
-  ACTIVATE_ACCOUNT_TRANSACTION_CACHE_PREFIX,
-  OTP_LENGTH,
-  OTP_TTL,
-  RESET_PASSOWRD_TRANSACTION_CACHE_PREFIX,
-} from "../constants";
+import { ACTIVATE_ACCOUNT_TRANSACTION_CACHE_PREFIX, OTP_LENGTH, OTP_TTL, RESET_PASSOWRD_TRANSACTION_CACHE_PREFIX } from "../constants";
 import { AccessRecordService } from "./access-record.service";
 import { CacheService, joinCacheKey } from "@modules/cache";
 import { MailSubject, AccountErrorMessage } from "../enums";
@@ -28,7 +24,6 @@ import { JwtRefreshService } from "@modules/jwt-refresh";
 import { JwtAccessService } from "@modules/jwt-access";
 import { Repository } from "@common/utils";
 import { Account } from "../schemas";
-import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AccountService extends Repository<Account> {
@@ -47,12 +42,7 @@ export class AccountService extends Repository<Account> {
   async signIn(payload: SignInRequestDto, ipAddress: string, requestAgent: RequestAgent): Promise<SignInResponseDto> {
     const { emailOrUserName, password } = payload;
 
-    const account: Account = await this.find(
-      { $or: [{ email: emailOrUserName }, { userName: emailOrUserName }] },
-      ["_id", "password", "isActive"],
-      undefined,
-      true,
-    );
+    const account: Account = await this.find({ $or: [{ email: emailOrUserName }, { userName: emailOrUserName }] }, ["_id", "password", "isActive"], undefined, true);
 
     if (!account || !compareSync(password, account.password)) {
       throw new UnauthorizedException(AccountErrorMessage.WRONG_EMAIL_OR_PASSWORD);
@@ -163,11 +153,7 @@ export class AccountService extends Repository<Account> {
   async requestActivateAccount(payload: RequestActiveAccountDto, ipAddress: string): Promise<boolean> {
     const { emailOrUserName } = payload;
 
-    const account = await this.find({ $or: [{ email: emailOrUserName }, { userName: emailOrUserName }] }, [
-      "_id",
-      "email",
-      "isActive",
-    ]);
+    const account = await this.find({ $or: [{ email: emailOrUserName }, { userName: emailOrUserName }] }, ["_id", "email", "isActive"]);
 
     if (!account) {
       throw new BadRequestException(AccountErrorMessage.ACCOUNT_NOT_FOUND);
@@ -198,9 +184,7 @@ export class AccountService extends Repository<Account> {
   }
 
   async activateAccount(sessionId: string, ipAddress: string): Promise<boolean> {
-    const session: ResetPasswordSession = await this.cacheService.get(
-      joinCacheKey(ACTIVATE_ACCOUNT_TRANSACTION_CACHE_PREFIX, sessionId),
-    );
+    const session: ResetPasswordSession = await this.cacheService.get(joinCacheKey(ACTIVATE_ACCOUNT_TRANSACTION_CACHE_PREFIX, sessionId));
 
     if (!session) {
       throw new NotAcceptableException(AccountErrorMessage.INVALID_RESET_PASSWORD_SESSION);

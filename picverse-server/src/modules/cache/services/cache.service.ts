@@ -32,13 +32,7 @@ export class CacheService {
     let cursor: string = "0";
 
     do {
-      const scanResult: [string, Array<string>] = await redisClient.scan(
-        cursor,
-        "MATCH",
-        `*${namespace}:${prefix || ""}*`,
-        "COUNT",
-        100,
-      );
+      const scanResult: [string, Array<string>] = await redisClient.scan(cursor, "MATCH", `*${namespace}:${prefix || ""}*`, "COUNT", 100);
       cursor = scanResult[0];
       const keys: Array<string> = scanResult[1];
 

@@ -3,6 +3,4 @@ import { ApiTags } from "@nestjs/swagger";
 
 @Controller("profile")
 @ApiTags("Profile")
-export class ProfileController {
-    
-}
+export class ProfileController {}

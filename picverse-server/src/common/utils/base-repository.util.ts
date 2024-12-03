@@ -1,15 +1,4 @@
-import {
-  FilterQuery,
-  Model,
-  PopulateOptions,
-  Document,
-  UpdateQuery,
-  AnyKeys,
-  CreateOptions,
-  InferId,
-  SortOrder,
-  QueryOptions,
-} from "mongoose";
+import { FilterQuery, Model, PopulateOptions, Document, UpdateQuery, AnyKeys, CreateOptions, InferId, SortOrder, QueryOptions } from "mongoose";
 
 import { InfiniteResponse, PaginationResponse } from "@common/dtos";
 import { CacheService, joinCacheKey } from "@modules/cache";
@@ -38,9 +27,7 @@ export class Repository<T extends Document> {
   public async create(docOrDocs: AnyKeys<T> | Array<AnyKeys<T>>, options?: CreateOptions): Promise<T | Array<T>> {
     const isArrayInput = Array.isArray(docOrDocs);
 
-    const result = isArrayInput
-      ? await this._model.create(docOrDocs as Array<AnyKeys<T>>, options)
-      : await new this._model(docOrDocs as AnyKeys<T>).save(options);
+    const result = isArrayInput ? await this._model.create(docOrDocs as Array<AnyKeys<T>>, options) : await new this._model(docOrDocs as AnyKeys<T>).save(options);
 
     if (this.cacheService) {
       const docsToCache = isArrayInput ? (result as Array<T>) : [result as T];
@@ -126,16 +113,9 @@ export class Repository<T extends Document> {
   ): Promise<PaginationResponse<T>> {
     const { page, limit } = pagination;
 
-    const cacheKey = joinCacheKey(
-      this.cachePrefix,
-      "listing",
-      JSON.stringify({ pagination, filter, select, populate, sort }),
-      cachePostfix,
-    );
+    const cacheKey = joinCacheKey(this.cachePrefix, "listing", JSON.stringify({ pagination, filter, select, populate, sort }), cachePostfix);
 
-    const cachedDocuments: PaginationResponse<T> | null = force
-      ? null
-      : await this.cacheService?.get<PaginationResponse<T>>(cacheKey);
+    const cachedDocuments: PaginationResponse<T> | null = force ? null : await this.cacheService?.get<PaginationResponse<T>>(cacheKey);
 
     if (cachedDocuments) return cachedDocuments;
 
@@ -173,12 +153,7 @@ export class Repository<T extends Document> {
     force?: boolean,
     cachePostfix?: string,
   ): Promise<InfiniteResponse<T>> {
-    const cacheKey = joinCacheKey(
-      this.cachePrefix,
-      "infinite-listing",
-      JSON.stringify({ page, limit, filter, select, populate, sort }),
-      cachePostfix,
-    );
+    const cacheKey = joinCacheKey(this.cachePrefix, "infinite-listing", JSON.stringify({ page, limit, filter, select, populate, sort }), cachePostfix);
 
     if (!force && this.cacheService) {
       const cachedDocuments = await this.cacheService.get<InfiniteResponse<T>>(cacheKey);
@@ -211,11 +186,7 @@ export class Repository<T extends Document> {
     return response;
   }
 
-  public async update(
-    idOrFilter: string | FilterQuery<T>,
-    updateData: UpdateQuery<T>,
-    options?: QueryOptions,
-  ): Promise<T | null> {
+  public async update(idOrFilter: string | FilterQuery<T>, updateData: UpdateQuery<T>, options?: QueryOptions): Promise<T | null> {
     const query = typeof idOrFilter === "string" ? { _id: idOrFilter } : idOrFilter;
     const updatedDocument = await this._model.findOneAndUpdate(query, updateData, { ...options, new: true }).exec();
 
@@ -252,9 +223,6 @@ export class Repository<T extends Document> {
     const withIdPattern = pattern || new RegExp(`.*${id}.*$`);
     const allStringPattern = new RegExp(`.*listing.*$`);
 
-    await Promise.all([
-      this.cacheService.del(withIdPattern, this.cachePrefix),
-      this.cacheService.del(allStringPattern, this.cachePrefix),
-    ]);
+    await Promise.all([this.cacheService.del(withIdPattern, this.cachePrefix), this.cacheService.del(allStringPattern, this.cachePrefix)]);
   }
 }

@@ -28,21 +28,13 @@ export class AccountController {
 
   @Post("/sign-in")
   @ApiResponse({ status: 200, description: AuthApiDescription.SIGN_IN_SUCCESS, type: SignInResponseDto })
-  async signIn(
-    @Body() data: SignInRequestDto,
-    @IpAddress() ipAddress: string,
-    @RequestAgent() requestAgent: RequestAgent,
-  ): Promise<SignInResponseDto> {
+  async signIn(@Body() data: SignInRequestDto, @IpAddress() ipAddress: string, @RequestAgent() requestAgent: RequestAgent): Promise<SignInResponseDto> {
     return await this.accountService.signIn(data, ipAddress, requestAgent);
   }
 
   @Post("/refresh-token")
   @ApiResponse({ status: 200, description: AuthApiDescription.REFRESH_TOKEN_SUCCESS, type: RefreshTokenResponseDto })
-  async refreshToken(
-    @AuthToken() refreshToken: string,
-    @IpAddress() ipAddress: string,
-    @RequestAgent() requestAgent: RequestAgent,
-  ): Promise<SignInResponseDto> {
+  async refreshToken(@AuthToken() refreshToken: string, @IpAddress() ipAddress: string, @RequestAgent() requestAgent: RequestAgent): Promise<SignInResponseDto> {
     return await this.accountService.refreshToken(refreshToken, ipAddress, requestAgent);
   }
 
