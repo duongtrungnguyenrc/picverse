@@ -27,7 +27,7 @@ export class AccountController {
 
   @Post("/sign-up")
   @ApiResponse({ status: 200, description: AuthApiDescription.SIGN_UP_SUCCESS, type: Boolean })
-  async signUp(@Body() data: SignUpRequestDto): Promise<boolean> {
+  async signUp(@Body() data: SignUpRequestDto): Promise<void> {
     return this.accountService.signUp(data);
   }
 

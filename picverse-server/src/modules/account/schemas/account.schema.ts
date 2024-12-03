@@ -3,7 +3,7 @@ import { Document, Types } from "mongoose";
 
 @Schema({ timestamps: true })
 export class Account extends Document<Types.ObjectId> {
-  @Prop({ unique: true, required: true })
+  @Prop({ unique: true, required: true, index: true })
   email: string;
 
   @Prop({ unique: true, required: true })

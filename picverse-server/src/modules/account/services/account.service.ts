@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, NotAcceptableException, UnauthorizedException } from "@nestjs/common";
 import { MailerService } from "@nestjs-modules/mailer";
 import { compareSync, genSalt, hash } from "bcrypt";
+import { ClientSession, Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { ConfigService } from "@nestjs/config";
 import { v4 as uuid } from "uuid";
-import { Model } from "mongoose";
 
 import {
   ForgotPasswordDto,
@@ -17,12 +17,13 @@ import {
   SignUpRequestDto,
 } from "../dtos";
 import { ACTIVATE_ACCOUNT_TRANSACTION_CACHE_PREFIX, OTP_LENGTH, OTP_TTL, RESET_PASSOWRD_TRANSACTION_CACHE_PREFIX } from "../constants";
+import { Repository, withMutateTransaction } from "@common/utils";
 import { AccessRecordService } from "./access-record.service";
 import { CacheService, joinCacheKey } from "@modules/cache";
 import { MailSubject, AccountErrorMessage } from "../enums";
 import { JwtRefreshService } from "@modules/jwt-refresh";
 import { JwtAccessService } from "@modules/jwt-access";
-import { Repository } from "@common/utils";
+import { ProfileService } from "@modules/profile";
 import { Account } from "../schemas";
 
 @Injectable()
@@ -32,6 +33,7 @@ export class AccountService extends Repository<Account> {
     private readonly jwtAccessService: JwtAccessService,
     private readonly jwtRefreshService: JwtRefreshService,
     private readonly mailerService: MailerService,
+    private readonly profileService: ProfileService,
     private readonly accessRecordService: AccessRecordService,
     private readonly configService: ConfigService,
     cacheService: CacheService,
@@ -55,23 +57,32 @@ export class AccountService extends Repository<Account> {
     return this.generateTokenPair(account._id, ipAddress, requestAgent);
   }
 
-  async signUp(data: SignUpRequestDto): Promise<boolean> {
-    const { password, ...accountInfo } = data;
+  async signUp(data: SignUpRequestDto): Promise<void> {
+    return withMutateTransaction(this.getModel(), async (session: ClientSession) => {
+      const { email, userName, password, ...profileInfo } = data;
 
-    const hashedPassword: string = await this.hashPassword(password);
+      const hashedPassword: string = await this.hashPassword(password);
 
-    const createdAccount = await this.create({
-      ...accountInfo,
-      password: hashedPassword,
+      const createdAccount = await this.create(
+        {
+          email,
+          userName,
+          password: hashedPassword,
+        },
+        { session },
+      );
+
+      await this.profileService.create({ account: createdAccount._id, ...profileInfo }, { session });
+
+      this.mailerService.sendMail({
+        subject: MailSubject.ACCOUNT_REGISTERD,
+        to: createdAccount.email,
+        template: "account-registered",
+        context: {
+          fullName: `${profileInfo.firstName} ${profileInfo.lastName}`,
+        },
+      });
     });
-
-    await this.mailerService.sendMail({
-      subject: MailSubject.ACCOUNT_REGISTERD,
-      to: createdAccount.email,
-      template: "account-registered",
-    });
-
-    return true;
   }
 
   async refreshToken(refreshToken: string, ipAddress: string, requestAgent: RequestAgent): Promise<RefreshTokenResponseDto> {

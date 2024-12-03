@@ -1,5 +1,7 @@
+import { IsDateString, IsEmail, IsEnum, IsNotEmpty, IsPhoneNumber, IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+
+import { EGender } from "@modules/profile";
 
 export class SignUpRequestDto {
   @ApiProperty()
@@ -16,4 +18,26 @@ export class SignUpRequestDto {
   @IsString()
   @IsNotEmpty()
   userName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  firstName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
+
+  @ApiProperty()
+  @IsDateString()
+  birth: Date;
+
+  @IsString()
+  @IsEnum(EGender)
+  gender: string;
+
+  @IsNotEmpty()
+  @IsPhoneNumber("VN")
+  phone: string;
 }

@@ -1,2 +1,5 @@
 picverse-server/.git/
 picverse-web/.git/
+
+start-local-replset.bash
+init-replica.local.js

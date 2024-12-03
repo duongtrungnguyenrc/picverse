@@ -2,12 +2,12 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Module } from "@nestjs/common";
 
-import { CacheModule } from "@modules/cache/cache.module";
 import { AccountModule } from "@modules/account";
 import { JwtRefreshModule } from "@modules/jwt-refresh";
 import { JwtAccessModule } from "@modules/jwt-access";
 import { ProfileModule } from "@modules/profile";
 import { MailModule } from "@modules/mailer";
+import { CacheModule } from "@modules/cache";
 
 @Module({
   imports: [
@@ -16,16 +16,20 @@ import { MailModule } from "@modules/mailer";
       useFactory: async (configService: ConfigService) => {
         return {
           uri: configService.get<string>("MONGO_URI"),
+          replicaSet: configService.get<string>("MONGO_REPLICA_SET"),
+          readPreference: "secondaryPreferred",
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
         };
       },
       inject: [ConfigService],
     }),
     CacheModule.forRoot(),
+    JwtAccessModule,
+    JwtRefreshModule,
     MailModule,
     AccountModule,
     ProfileModule,
-    JwtAccessModule,
-    JwtRefreshModule,
   ],
   controllers: [],
   providers: [],
