@@ -18,8 +18,6 @@ import { CacheModule } from "@modules/cache";
           uri: configService.get<string>("MONGO_URI"),
           replicaSet: configService.get<string>("MONGO_REPLICA_SET"),
           readPreference: "secondaryPreferred",
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
         };
       },
       inject: [ConfigService],

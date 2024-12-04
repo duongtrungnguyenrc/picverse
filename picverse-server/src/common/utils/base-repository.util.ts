@@ -63,7 +63,7 @@ export class Repository<T extends Document> {
     if (select) query.select(select);
     if (populate) query.populate(populate);
 
-    const document = await query.exec();
+    const document: T = await query.lean<T>();
 
     if (document && this.cacheService) {
       await this.cacheService.set(boundCacheKey, document);

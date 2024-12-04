@@ -2,6 +2,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { Module } from "@nestjs/common";
 
 import { Profile, ProfileSchema } from "./schemas";
+import { ProfileController } from "./controllers";
 import { ProfileService } from "./services";
 
 @Module({
@@ -13,6 +14,7 @@ import { ProfileService } from "./services";
       },
     ]),
   ],
+  controllers: [ProfileController],
   providers: [ProfileService],
   exports: [ProfileService],
 })

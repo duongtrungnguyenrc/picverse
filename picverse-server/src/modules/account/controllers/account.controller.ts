@@ -1,4 +1,4 @@
-import { ApiBody, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiHeader, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 
 import {
@@ -26,18 +26,22 @@ export class AccountController {
   ) {}
 
   @Post("/sign-up")
+  @ApiBody({ type: SignUpRequestDto })
   @ApiResponse({ status: 200, description: AuthApiDescription.SIGN_UP_SUCCESS, type: Boolean })
   async signUp(@Body() data: SignUpRequestDto): Promise<void> {
     return this.accountService.signUp(data);
   }
 
   @Post("/sign-in")
+  @ApiBody({ type: SignInRequestDto })
   @ApiResponse({ status: 200, description: AuthApiDescription.SIGN_IN_SUCCESS, type: SignInResponseDto })
   async signIn(@Body() data: SignInRequestDto, @IpAddress() ipAddress: string, @RequestAgent() requestAgent: RequestAgent): Promise<SignInResponseDto> {
     return await this.accountService.signIn(data, ipAddress, requestAgent);
   }
 
   @Post("/refresh-token")
+  @ApiBearerAuth()
+  @ApiHeader({ name: "authorization", description: "Jwt Bearer refresh token" })
   @ApiResponse({ status: 200, description: AuthApiDescription.REFRESH_TOKEN_SUCCESS, type: RefreshTokenResponseDto })
   async refreshToken(@AuthToken() refreshToken: string, @IpAddress() ipAddress: string, @RequestAgent() requestAgent: RequestAgent): Promise<SignInResponseDto> {
     return await this.accountService.refreshToken(refreshToken, ipAddress, requestAgent);
@@ -59,12 +63,14 @@ export class AccountController {
 
   @Auth()
   @Post("/lock")
+  @ApiBody({ type: LockAccountDto })
   @ApiResponse({ status: 200, description: AuthApiDescription.LOCK_ACCOUNT_SUCCESS, type: Boolean })
   async lockAccount(@AuthUid() userId: DocumentId, @Body() payload: LockAccountDto): Promise<boolean> {
     return await this.accountService.lockAccount(userId, payload);
   }
 
   @Post("/request-activation")
+  @ApiBody({ type: RequestActiveAccountDto })
   @ApiResponse({ status: 200, description: AuthApiDescription.REQUEST_ACTIVATE_ACCOUNT_SUCCESS, type: Boolean })
   async requestActivationOtp(@Body() payload: RequestActiveAccountDto, @IpAddress() ipAddress: string): Promise<boolean> {
     return this.accountService.requestActivateAccount(payload, ipAddress);

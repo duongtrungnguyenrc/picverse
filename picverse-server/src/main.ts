@@ -5,6 +5,7 @@ import { NestFactory } from "@nestjs/core";
 
 import { HttpExceptionFilter, MongoExceptionFilter } from "@common/filters";
 import { AppModule } from "@modules/app";
+import { ResponseInterceptor } from "@common/interceptors";
 
 async function bootstrap() {
   const app: INestApplication = await NestFactory.create(AppModule);
@@ -14,6 +15,7 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalFilters(new MongoExceptionFilter());
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(new ResponseInterceptor());
   app.setGlobalPrefix("/api");
 
   const config = new DocumentBuilder()
@@ -33,7 +35,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("/", app, document, {
-    jsonDocumentUrl: "swagger/json",
+    jsonDocumentUrl: "/api/json",
   });
 
   await app.listen(configService.get<number>("APPLICATION_RUNNING_PORT"));
