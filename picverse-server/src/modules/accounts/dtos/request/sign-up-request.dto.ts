@@ -31,7 +31,7 @@ export class SignUpRequestDto {
 
   @ApiProperty()
   @IsDateString()
-  birth: Date;
+  birth: string;
 
   @IsString()
   @IsEnum(EGender)

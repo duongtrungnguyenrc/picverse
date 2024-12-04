@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
-import { Account } from "@modules/account";
+import { Account } from "@modules/accounts";
 import { EGender } from "../enums";
 
 @Schema({ timestamps: true })

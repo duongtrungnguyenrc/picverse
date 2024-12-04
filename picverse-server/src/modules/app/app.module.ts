@@ -2,12 +2,13 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Module } from "@nestjs/common";
 
-import { AccountModule } from "@modules/account";
+import { AccountModule } from "@modules/accounts";
 import { JwtRefreshModule } from "@modules/jwt-refresh";
 import { JwtAccessModule } from "@modules/jwt-access";
 import { ProfileModule } from "@modules/profile";
 import { MailModule } from "@modules/mailer";
 import { CacheModule } from "@modules/cache";
+import { SocialModule } from "@modules/social";
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CacheModule } from "@modules/cache";
     MailModule,
     AccountModule,
     ProfileModule,
+    SocialModule,
   ],
   controllers: [],
   providers: [],

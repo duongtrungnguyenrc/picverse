@@ -4,7 +4,7 @@ import { WsException } from "@nestjs/websockets";
 import { Request } from "express";
 
 import { TOKEN_TYPE } from "../constants";
-import { AccountErrorMessage } from "@modules/account";
+import { AccountErrorMessage } from "@modules/accounts";
 
 const extractAuthToken = (fullToken: string, raw: boolean = false) => {
   const [tokenType, authToken] = fullToken?.split(" ") ?? [];

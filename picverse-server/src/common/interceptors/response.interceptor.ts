@@ -2,6 +2,7 @@ import { Injectable, NestInterceptor, ExecutionContext, CallHandler, NotFoundExc
 import { map } from "rxjs/operators";
 import { Observable } from "rxjs";
 import { Request } from "express";
+import { Types } from "mongoose";
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
@@ -18,7 +19,7 @@ export class ResponseInterceptor implements NestInterceptor {
 
         const formatDate = (date: Date): string => (date.toISOString().includes("T00:00:00.000Z") ? date.toLocaleDateString("vi-VN") : date.toLocaleString("vi-VN"));
 
-        const transformDates = (obj: any): any => {
+        const transformResponseObject = (obj: any): any => {
           if (obj instanceof Date) {
             return formatDate(obj);
           }
@@ -28,17 +29,18 @@ export class ResponseInterceptor implements NestInterceptor {
           }
 
           if (Array.isArray(obj)) {
-            return obj.map(transformDates);
+            return obj.map(transformResponseObject);
           }
 
-          if (obj && typeof obj === "object") {
-            return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, transformDates(value)]));
-          }
+          if (obj instanceof Types.ObjectId)
+            if (obj && typeof obj === "object") {
+              return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, transformResponseObject(value)]));
+            }
 
           return obj;
         };
 
-        return transformDates(data);
+        return transformResponseObject(data);
       }),
     );
   }

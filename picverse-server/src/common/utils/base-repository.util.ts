@@ -25,7 +25,7 @@ export class Repository<T extends Document> {
   public async create(docs: Array<AnyKeys<T>>, options?: CreateOptions): Promise<Array<T>>;
   public async create(doc: AnyKeys<T>, options?: CreateOptions): Promise<T>;
   public async create(docOrDocs: AnyKeys<T> | Array<AnyKeys<T>>, options?: CreateOptions): Promise<T | Array<T>> {
-    const isArrayInput = Array.isArray(docOrDocs);
+    const isArrayInput: boolean = Array.isArray(docOrDocs);
 
     const result = isArrayInput ? await this._model.create(docOrDocs as Array<AnyKeys<T>>, options) : await new this._model(docOrDocs as AnyKeys<T>).save(options);
 
@@ -145,14 +145,15 @@ export class Repository<T extends Document> {
 
   public async findMultipleInfinite(
     filter: FilterQuery<T>,
-    page: number,
-    limit: number,
+    pagination: Pagination,
     select?: string | string[] | Record<string, number | boolean | string | object>,
     populate?: PopulateOptions | Array<PopulateOptions | string>,
     sort?: string | { [key: string]: SortOrder | { $meta: any } } | [string, SortOrder][] | undefined | null,
     force?: boolean,
     cachePostfix?: string,
   ): Promise<InfiniteResponse<T>> {
+    const { page, limit } = pagination;
+
     const cacheKey = joinCacheKey(this.cachePrefix, "infinite-listing", JSON.stringify({ page, limit, filter, select, populate, sort }), cachePostfix);
 
     if (!force && this.cacheService) {

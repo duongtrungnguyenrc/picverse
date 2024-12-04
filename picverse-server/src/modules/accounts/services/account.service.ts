@@ -57,13 +57,13 @@ export class AccountService extends Repository<Account> {
     return this.generateTokenPair(account._id, ipAddress, requestAgent);
   }
 
-  async signUp(data: SignUpRequestDto): Promise<void> {
-    return withMutateTransaction(this.getModel(), async (session: ClientSession) => {
+  async signUp(data: SignUpRequestDto): Promise<Account> {
+    return await withMutateTransaction<Account>(this.getModel(), async (session: ClientSession) => {
       const { email, userName, password, ...profileInfo } = data;
 
       const hashedPassword: string = await this.hashPassword(password);
 
-      const createdAccount = await this.create(
+      const createdAccount: Account = await this.create(
         {
           email,
           userName,
@@ -82,6 +82,13 @@ export class AccountService extends Repository<Account> {
           fullName: `${profileInfo.firstName} ${profileInfo.lastName}`,
         },
       });
+
+      const rawAcount: Account = createdAccount.toObject();
+
+      return {
+        ...rawAcount,
+        password: undefined,
+      } as Account;
     });
   }
 

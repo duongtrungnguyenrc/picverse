@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
-import { Account } from "../../account/schemas/account.schema";
+
+import { Account } from "./account.schema";
 
 @Schema({ timestamps: true })
 export class AccessRecord extends Document<Types.ObjectId> {

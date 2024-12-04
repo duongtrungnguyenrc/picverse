@@ -1,7 +1,10 @@
-import { Module } from "@nestjs/common";
-import { FollowService, NotificationService } from "./services";
 import { MongooseModule } from "@nestjs/mongoose";
+import { Module } from "@nestjs/common";
+
 import { Follow, FollowSchema, Notification, NotificationSchema } from "./schemas";
+import { FollowService, NotificationService } from "./services";
+import { ProfileModule } from "@modules/profile";
+import { SocialController } from "./controller";
 
 @Module({
   imports: [
@@ -15,7 +18,9 @@ import { Follow, FollowSchema, Notification, NotificationSchema } from "./schema
         schema: NotificationSchema,
       },
     ]),
+    ProfileModule,
   ],
+  controllers: [SocialController],
   providers: [FollowService, NotificationService],
   exports: [FollowService, NotificationService],
 })

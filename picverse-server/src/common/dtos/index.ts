@@ -1,2 +1,2 @@
-export * from "./pagination-response.dto";
-export * from "./infinite-response.dto";
+export * from "./request";
+export * from "./response";

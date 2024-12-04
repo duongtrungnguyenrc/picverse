@@ -1,4 +1,4 @@
-import { IsBoolean, IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString, IsUrl } from "class-validator";
+import { IsBoolean, IsDateString, IsEnum, IsOptional, IsString, IsUrl } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 import { EGender } from "@modules/profile";

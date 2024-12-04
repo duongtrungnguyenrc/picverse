@@ -1,4 +1,3 @@
-export enum NotificationType {
-  SYSTEM = "SYSTEM",
-  FOR_USER = "FOR_USER",
+export enum ENotificationType {
+  NEW_FOLLOW = "NEW_FOLLOW",
 }
