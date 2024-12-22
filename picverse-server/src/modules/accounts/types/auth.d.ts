@@ -4,12 +4,12 @@ declare type TokenPair = {
 };
 
 declare type ResetPasswordSession = {
-  accountId: string | DocumentId;
+  accountId: DocumentId | DocumentId;
   otpCode: string;
   ipAddress: string;
 };
 
 declare type ActivateAccountSession = {
-  accountId: string | DocumentId;
+  accountId: DocumentId | DocumentId;
   ipAddress: string;
 };

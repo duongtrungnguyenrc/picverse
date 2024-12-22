@@ -76,17 +76,17 @@ services:
       - REDIS_URL=redis://redis-cache:6379
       - MONGO_URI=mongodb://mongo-primary:27017,picverse-mongo-secondary:27017,mongo-arbiter:27017/picverse?replicaSet=rs0
 
-  picverse-web:
-    container_name: picverse-web
-    build:
-      context: ./picverse-web
-      dockerfile: Dockerfile
-    ports:
-      - "3001:3000"
-    depends_on:
-      - picverse-server
-    networks:
-      - picverse-network
+  # picverse-web:
+  #   container_name: picverse-web
+  #   build:
+  #     context: ./picverse-web
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3001:3000"
+  #   depends_on:
+  #     - picverse-server
+  #   networks:
+  #     - picverse-network
 
 volumes:
   mongo-primary-data:

@@ -16,3 +16,14 @@ declare type RequestAgent = {
   deviceInfo: string;
   browserInfo: string;
 };
+
+// Express global override
+
+declare namespace Express {
+  namespace Multer {
+    interface File {
+      id?: DocumentId;
+      bucketName?: string;
+    }
+  }
+}

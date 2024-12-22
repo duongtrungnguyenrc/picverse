@@ -9,6 +9,7 @@ import { ProfileModule } from "@modules/profile";
 import { MailModule } from "@modules/mailer";
 import { CacheModule } from "@modules/cache";
 import { SocialModule } from "@modules/social";
+import { CloudModule } from "@modules/cloud";
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { SocialModule } from "@modules/social";
         return {
           uri: configService.get<string>("MONGO_URI"),
           replicaSet: configService.get<string>("MONGO_REPLICA_SET"),
-          readPreference: "secondaryPreferred",
+          readPreference: configService.get<string>("MONGO_READ_PREFERENCE") as any,
+          dbName: configService.get<string>("MONGO_PRIMARY_NAME"),
         };
       },
       inject: [ConfigService],
@@ -30,6 +32,7 @@ import { SocialModule } from "@modules/social";
     AccountModule,
     ProfileModule,
     SocialModule,
+    CloudModule,
   ],
   controllers: [],
   providers: [],

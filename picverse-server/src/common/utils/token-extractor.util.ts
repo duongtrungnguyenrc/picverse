@@ -3,8 +3,8 @@ import { UnauthorizedException } from "@nestjs/common";
 import { WsException } from "@nestjs/websockets";
 import { Request } from "express";
 
-import { TOKEN_TYPE } from "../constants";
 import { AccountErrorMessage } from "@modules/accounts";
+import { TOKEN_TYPE } from "../constants";
 
 const extractAuthToken = (fullToken: string, raw: boolean = false) => {
   const [tokenType, authToken] = fullToken?.split(" ") ?? [];

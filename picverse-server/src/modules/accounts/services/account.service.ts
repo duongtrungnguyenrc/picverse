@@ -82,8 +82,7 @@ export class AccountService extends Repository<Account> {
           fullName: `${profileInfo.firstName} ${profileInfo.lastName}`,
         },
       });
-
-      const rawAcount: Account = createdAccount.toObject();
+      const { password: _, ...rawAcount }: Account = createdAccount.toObject();
 
       return {
         ...rawAcount,

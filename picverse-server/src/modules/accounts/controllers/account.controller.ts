@@ -1,4 +1,4 @@
-import { ApiBearerAuth, ApiBody, ApiHeader, ApiParam, ApiOkResponse, ApiTags, ApiCreatedResponse } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiHeader, ApiParam, ApiOkResponse, ApiTags, ApiCreatedResponse, ApiOperation } from "@nestjs/swagger";
 import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 
 import {
@@ -25,6 +25,7 @@ export class AccountController {
   ) {}
 
   @Post("/sign-up")
+  @ApiOperation({ summary: "Register new account & profile" })
   @ApiBody({ type: SignUpRequestDto })
   @ApiCreatedResponse({ description: "Sign up account success. Return new account", type: Account })
   async signUp(@Body() data: SignUpRequestDto): Promise<Account> {
@@ -32,6 +33,7 @@ export class AccountController {
   }
 
   @Post("/sign-in")
+  @ApiOperation({ summary: "Sign in to web" })
   @ApiBody({ type: SignInRequestDto })
   @ApiCreatedResponse({ description: "Sign in success. Return token pair", type: SignInResponseDto })
   async signIn(@Body() data: SignInRequestDto, @IpAddress() ipAddress: string, @RequestAgent() requestAgent: RequestAgent): Promise<SignInResponseDto> {
@@ -39,6 +41,7 @@ export class AccountController {
   }
 
   @Post("/refresh-token")
+  @ApiOperation({ summary: "Refresh new access token pair" })
   @ApiBearerAuth()
   @ApiHeader({ name: "authorization", description: "Jwt Bearer refresh token" })
   @ApiCreatedResponse({ description: "Refresh token success. Return new token pair", type: RefreshTokenResponseDto })
@@ -47,6 +50,7 @@ export class AccountController {
   }
 
   @Post("/forgot-password")
+  @ApiOperation({ summary: "Create forgot password session" })
   @ApiBody({ type: ForgotPasswordDto })
   @ApiCreatedResponse({ description: "Forgot password success. Return session id", type: String })
   async forgotPassword(@Body() payload: ForgotPasswordDto, @IpAddress() ipAddress: string): Promise<string> {
@@ -54,6 +58,7 @@ export class AccountController {
   }
 
   @Post("/reset-password")
+  @ApiOperation({ summary: "Reset password" })
   @ApiBody({ type: ResetPasswordDto })
   @ApiCreatedResponse({ description: "Reset password success. Return status", type: Boolean })
   async resetPassword(@Body() payload: ResetPasswordDto, @IpAddress() ipAddress: string): Promise<boolean> {
@@ -62,6 +67,7 @@ export class AccountController {
 
   @Auth()
   @Post("/lock")
+  @ApiOperation({ summary: "Lock account" })
   @ApiBody({ type: LockAccountDto })
   @ApiCreatedResponse({ description: "Lock account success. Return status", type: Boolean })
   async lockAccount(@AuthUid() userId: DocumentId, @Body() payload: LockAccountDto): Promise<boolean> {
@@ -69,6 +75,7 @@ export class AccountController {
   }
 
   @Post("/request-activation")
+  @ApiOperation({ summary: "Rquest reactivate account" })
   @ApiBody({ type: RequestActiveAccountDto })
   @ApiCreatedResponse({ description: "Successfully request activate account Return status", type: Boolean })
   async requestActivationOtp(@Body() payload: RequestActiveAccountDto, @IpAddress() ipAddress: string): Promise<boolean> {
@@ -76,6 +83,7 @@ export class AccountController {
   }
 
   @Post("/activate-account")
+  @ApiOperation({ summary: "activate account" })
   @ApiParam({ name: "session" })
   @ApiCreatedResponse({ description: "Successfully activate account Return status", type: Boolean })
   async activateAccount(@Param("session") sessionId: string, @IpAddress() ipAddress: string): Promise<boolean> {
@@ -84,6 +92,7 @@ export class AccountController {
 
   @Auth()
   @Get("/access")
+  @ApiOperation({ summary: "Get access histories" })
   @ApiPagination()
   @ApiOkResponse({ description: "Successfully lto get access records. Return pagination records", type: PaginationResponse<AccessRecord> })
   async getAccessRecords(@AuthUid() accountId: DocumentId, @Pagination() pagination: Pagination): Promise<PaginationResponse<AccessRecord>> {

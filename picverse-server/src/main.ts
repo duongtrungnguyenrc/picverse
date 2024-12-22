@@ -4,8 +4,8 @@ import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 
 import { HttpExceptionFilter, MongoExceptionFilter } from "@common/filters";
-import { AppModule } from "@modules/app";
 import { ResponseInterceptor } from "@common/interceptors";
+import { AppModule } from "@modules/app";
 
 async function bootstrap() {
   const app: INestApplication = await NestFactory.create(AppModule);
