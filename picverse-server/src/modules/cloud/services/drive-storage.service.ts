@@ -12,6 +12,7 @@ import { ECloudStorage, EResourceType } from "../enums";
 import { Response } from "express";
 import { Readable } from "stream";
 import { ResourceService } from "./resource.service";
+import { UploadFileDto } from "../dtos";
 
 @Injectable()
 export class DriveStorageService implements IExternalStorageService {
@@ -146,7 +147,7 @@ export class DriveStorageService implements IExternalStorageService {
     }
   }
 
-  async uploadFile(accountId: DocumentId, file: Express.Multer.File, parentId?: DocumentId): Promise<boolean> {
+  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto): Promise<boolean> {
     const drive = await this.getDriveInstance(accountId);
 
     if (!drive) throw new BadRequestException(`Please link drive storage to continue`);
@@ -195,7 +196,7 @@ export class DriveStorageService implements IExternalStorageService {
       const createdResource: Resource = await this.resourceService.create({
         referenceId: result.id,
         name: file.originalname,
-        parentId: parentId || null,
+        parentId: payload.parentId,
         type: EResourceType.FILE,
         storage: ECloudStorage.DRIVE,
         accountId,

@@ -1,30 +1,27 @@
 import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { InjectConnection, InjectModel } from "@nestjs/mongoose";
-import { Connection, Model } from "mongoose";
-import { GridFSBucket } from "mongodb";
+import { Connection, Model, Types } from "mongoose";
+import { GridFSBucket, GridFSBucketWriteStream, GridFSBucketWriteStreamOptions } from "mongodb";
 import { Response } from "express";
 import * as multer from "multer";
+import * as pump from "pump";
 
+import { CreateFolderDto, UploadFileDto } from "../dtos";
 import { ResourceService } from "./resource.service";
-import { GridFsStorage } from "@common/libs/gridfs";
 import { Resource, CloudStorage } from "../schemas";
 import { IStorageService } from "../interfaces";
-import { CreateFolderDto } from "../dtos";
 import { EResourceType } from "../enums";
+import { Readable } from "stream";
 
 @Injectable()
 export class LocalStorageService implements IStorageService {
-  private storage: multer.StorageEngine;
 
   constructor(
     @InjectModel(CloudStorage.name) private cloudStorageModel: Model<CloudStorage>,
     @InjectConnection("cloud") private connection: Connection,
     private readonly resourceService: ResourceService,
   ) {
-    this.storage = new GridFsStorage({
-      client: connection.getClient(),
-      db: connection.db,
-    });
+
   }
 
   async getAvailableSpace(accountId: DocumentId): Promise<number> {
@@ -63,24 +60,29 @@ export class LocalStorageService implements IStorageService {
     return folder;
   }
 
-  async uploadFile(accountId: DocumentId, file: Express.Multer.File, parentId?: DocumentId) {
+  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto) {
     const storage = await this.getStorageInfo(accountId);
 
     if (storage.usedSpace + file.size > storage.totalSpace) {
       throw new BadRequestException("Insufficient storage space.");
     }
 
-    if (parentId) {
-      const parent = await this.resourceService.find(parentId);
+    if (payload.parentId) {
+      const parent = await this.resourceService.find(payload.parentId);
 
       if (!parent || parent.type !== EResourceType.FOLDER || parent.accountId.toString() !== accountId.toString()) {
         throw new BadRequestException("Invalid or unauthorized parent folder.");
       }
     }
 
+    const fileName: string = payload.fileName || file.originalname;
+
+    const uploadResult = await this._uploadFromMulterStream(file, fileName);
+
     const uploadedFile = await this.resourceService.create({
-      name: file.originalname,
-      parentId: parentId || null,
+      name: fileName,
+      parentId: payload.parentId || null,
+      referenceId: uploadResult.id,
       type: EResourceType.FILE,
       accountId,
       size: file.size,
@@ -97,13 +99,13 @@ export class LocalStorageService implements IStorageService {
     try {
       const bucket = new GridFSBucket(this.connection.db);
 
-      const fileExists = await bucket.find({ filename: file.name }).toArray();
+      const fileExists = await bucket.find({ _id: new Types.ObjectId(file.referenceId) }).toArray();
 
       if (!fileExists || fileExists.length === 0) {
         throw new NotFoundException("File not found in storage.");
       }
 
-      const downloadStream = bucket.openDownloadStreamByName(file.name);
+      const downloadStream = bucket.openDownloadStream(new Types.ObjectId(file.referenceId));
 
       downloadStream.on("error", (err) => {
         response.status(500).send("Error downloading file." + err);
@@ -114,6 +116,8 @@ export class LocalStorageService implements IStorageService {
 
       downloadStream.pipe(response);
     } catch (error) {
+      console.log(error);
+
       throw new NotFoundException("An error occurred while downloading the file.");
     }
   }
@@ -135,11 +139,14 @@ export class LocalStorageService implements IStorageService {
       file = fetchedResource;
     }
 
+    await this.resourceService.delete(file._id);
+    const bucket = new GridFSBucket(this.connection.db);
+
+    bucket.delete;
+
     const storage = await this.getStorageInfo(accountId);
     storage.usedSpace -= file.size;
     await storage.save();
-
-    await this.resourceService.delete(file._id);
 
     return true;
   }
@@ -155,6 +162,44 @@ export class LocalStorageService implements IStorageService {
     );
   }
 
+  private async _uploadFromMulterStream(file: Express.Multer.File, fileName: string): Promise<LocalStorage.GridFsFile> {
+    const streamOptions: LocalStorage.GridFsUploadOptions = {
+      ...file,
+      fileName: fileName,
+      contentType: file.mimetype,
+      id: new Types.ObjectId(),
+      chunkSize: 261_120,
+      bucketName: "fs",
+    };
+
+    return new Promise((resolve, reject) => {
+      const writeStream = this._createUploadStream(streamOptions);
+      const readStream = Readable.from(file.buffer);
+
+      writeStream.on("error", reject);
+      writeStream.on("finish", () => {
+        resolve({
+          id: writeStream.id,
+          mimeType: file.mimetype,
+          size: file.size,
+        } as any);
+      });
+
+      pump([readStream, writeStream]);
+    });
+  }
+
+  private _createUploadStream(options: LocalStorage.GridFsUploadOptions): GridFSBucketWriteStream {
+    const settings: GridFSBucketWriteStreamOptions = {
+      id: options.id,
+      chunkSizeBytes: options.chunkSize,
+      contentType: options.contentType,
+    };
+
+    const gfs = new GridFSBucket(this.connection.db, { bucketName: options.bucketName });
+    return gfs.openUploadStream(options.fileName, settings);
+  }
+
   private async getStorageInfo(accountId: DocumentId) {
     const storage = (await this.cloudStorageModel.findOne({ accountId })) || (await this.cloudStorageModel.create({ accountId }));
 
@@ -162,9 +207,5 @@ export class LocalStorageService implements IStorageService {
       throw new NotFoundException("Storage not found for this account.");
     }
     return storage;
-  }
-
-  public getStorage(): multer.StorageEngine {
-    return this.storage;
   }
 }

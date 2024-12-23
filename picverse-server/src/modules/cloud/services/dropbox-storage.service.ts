@@ -10,6 +10,7 @@ import { getExpiredTime } from "@common/utils";
 import { ECloudStorage, EResourceType } from "../enums";
 import { Response } from "express";
 import { ResourceService } from "./resource.service";
+import { UploadFileDto } from "../dtos";
 
 @Injectable()
 export class DropboxStorageService implements IExternalStorageService {
@@ -149,7 +150,7 @@ export class DropboxStorageService implements IExternalStorageService {
     }
   }
 
-  async uploadFile(accountId: DocumentId, file: Express.Multer.File, parentId?: DocumentId): Promise<boolean> {
+  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto): Promise<boolean> {
     const dropbox = await this.getDropboxInstance(accountId);
     const response = await dropbox.filesUpload({ path: `/picverse/${file.originalname}`, contents: file.buffer });
 
@@ -159,7 +160,7 @@ export class DropboxStorageService implements IExternalStorageService {
       const createdResource: Resource = await this.resourceService.create({
         referenceId: result.id,
         name: file.originalname,
-        parentId: parentId || null,
+        parentId: payload.parentId,
         type: EResourceType.FILE,
         storage: ECloudStorage.DROPBOX,
         accountId,

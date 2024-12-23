@@ -1,11 +1,11 @@
 import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { Controller, Param, Query, Get, Res, UseInterceptors, Post, Body, UploadedFile, Delete, Put } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { Response } from "express";
 
 import { ApiPagination, Auth, AuthUid, Pagination } from "@common/decorators";
 import { CreateFolderDto, UpdateFolderDto, UploadFileDto } from "../dtos";
 import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
-import { FileUploadInterceptor } from "../interceptors";
 import { CloudService } from "../services";
 import { ECloudStorage } from "../enums";
 import { Resource } from "../schemas";
@@ -84,7 +84,7 @@ export class CloudStorageController {
 
   @Auth()
   @Post("/file")
-  @UseInterceptors(FileUploadInterceptor)
+  @UseInterceptors(FileInterceptor("file"))
   @ApiOperation({ summary: "Upload file to cloud" })
   @ApiConsumes("multipart/form-data")
   @ApiQuery({ description: "Storage provider" })

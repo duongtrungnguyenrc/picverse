@@ -6,8 +6,8 @@ export class CloudStorage extends Document<DocumentId> {
   @Prop({ type: Types.ObjectId, ref: "Account" })
   accountId: DocumentId;
 
-  @Prop({ default: 2000 })
-  totalSpace: number;
+  @Prop({ type: Number, default: 2147483648 /* default with 2gb */ })
+  totalSpace: number; // byte
 
   @Prop({ default: 0 })
   usedSpace: number;
