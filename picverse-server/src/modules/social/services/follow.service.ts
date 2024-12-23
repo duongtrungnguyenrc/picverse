@@ -21,7 +21,12 @@ export class FollowService extends Repository<Follow> {
   }
 
   async createFollow(accountId: DocumentId, targetProfileId: DocumentId): Promise<Follow> {
-    const profile: Profile = await this.profileService.find({ account: accountId }, ["_id", "firstName", "lastName"]);
+    const profile: Profile = await this.profileService.find(
+      { account: accountId },
+      {
+        select: ["_id", "firstName", "lastName"],
+      },
+    );
 
     if (!profile) throw new BadRequestException(SocialErrorMessages.PROFILE_NOT_FOUND);
 
@@ -42,7 +47,12 @@ export class FollowService extends Repository<Follow> {
   }
 
   async unfollow(accountId: DocumentId, targetProfileId: DocumentId): Promise<boolean> {
-    const profile: Profile = await this.profileService.find({ account: accountId }, ["_id", "firstName", "lastName"]);
+    const profile: Profile = await this.profileService.find(
+      { account: accountId },
+      {
+        select: ["_id", "firstName", "lastName"],
+      },
+    );
 
     if (!profile) throw new BadRequestException(SocialErrorMessages.PROFILE_NOT_FOUND);
 

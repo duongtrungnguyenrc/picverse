@@ -44,7 +44,13 @@ export class AccountService extends Repository<Account> {
   async signIn(payload: SignInRequestDto, ipAddress: string, requestAgent: RequestAgent): Promise<SignInResponseDto> {
     const { emailOrUserName, password } = payload;
 
-    const account: Account = await this.find({ $or: [{ email: emailOrUserName }, { userName: emailOrUserName }] }, ["_id", "password", "isActive"], undefined, true);
+    const account: Account = await this.find(
+      { $or: [{ email: emailOrUserName }, { userName: emailOrUserName }] },
+      {
+        select: ["_id", "password", "isActive"],
+        force: true,
+      },
+    );
 
     if (!account || !compareSync(password, account.password)) {
       throw new UnauthorizedException(AccountErrorMessage.WRONG_EMAIL_OR_PASSWORD);
@@ -110,7 +116,9 @@ export class AccountService extends Repository<Account> {
       {
         $or: [{ email: emailOrUserName }, { phone: emailOrUserName }],
       },
-      ["_id", ""],
+      {
+        select: ["_id", ""],
+      },
     );
 
     if (!account) throw new BadRequestException(AccountErrorMessage.ACCOUNT_NOT_FOUND);
@@ -150,7 +158,9 @@ export class AccountService extends Repository<Account> {
   }
 
   async lockAccount(accountId: DocumentId, payload: LockAccountDto): Promise<boolean> {
-    const account: Account = await this.find(accountId, ["_id", "password", "isActive"]);
+    const account: Account = await this.find(accountId, {
+      select: ["_id", "password", "isActive"],
+    });
 
     if (!account) {
       throw new UnauthorizedException(AccountErrorMessage.ACCOUNT_NOT_FOUND);
@@ -170,7 +180,7 @@ export class AccountService extends Repository<Account> {
   async requestActivateAccount(payload: RequestActiveAccountDto, ipAddress: string): Promise<boolean> {
     const { emailOrUserName } = payload;
 
-    const account = await this.find({ $or: [{ email: emailOrUserName }, { userName: emailOrUserName }] }, ["_id", "email", "isActive"]);
+    const account = await this.find({ $or: [{ email: emailOrUserName }, { userName: emailOrUserName }] }, { select: ["_id", "email", "isActive"] });
 
     if (!account) {
       throw new BadRequestException(AccountErrorMessage.ACCOUNT_NOT_FOUND);

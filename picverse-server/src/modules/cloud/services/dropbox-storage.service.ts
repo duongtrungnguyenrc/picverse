@@ -1,7 +1,7 @@
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { Dropbox, DropboxAuth, DropboxResponse } from "dropbox";
 import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
-import { BadRequestException, Injectable } from "@nestjs/common";
 import { Model } from "mongoose";
 
 import { CloudCredentials, CloudCredentialsDocument, Resource } from "../schemas";
@@ -9,33 +9,34 @@ import { IExternalStorageService } from "../interfaces";
 import { getExpiredTime } from "@common/utils";
 import { ECloudStorage, EResourceType } from "../enums";
 import { Response } from "express";
+import { ResourceService } from "./resource.service";
 
 @Injectable()
 export class DropboxStorageService implements IExternalStorageService {
+  private dropboxAuth: DropboxAuth;
+
   constructor(
     @InjectModel(CloudCredentials.name) private oauthCredentialsModel: Model<CloudCredentialsDocument>,
-    @InjectModel(Resource.name) private resourceModel: Model<Resource>,
+    private readonly resourceService: ResourceService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    this.dropboxAuth = new DropboxAuth({
+      clientId: this.configService.get<string>("DROPBOX_APP_KEY"),
+      clientSecret: this.configService.get<string>("DROPBOX_APP_SECRET"),
+    });
+  }
 
   async getAuthUrl(accountId: DocumentId): Promise<string> {
-    const dropboxAuth: DropboxAuth = new DropboxAuth({ clientId: this.configService.get<string>("DROPBOX_APP_KEY") });
-
     const state: string = Buffer.from(JSON.stringify({ accountId })).toString("base64");
 
-    const authUrl: String = await dropboxAuth.getAuthenticationUrl(this.configService.get<string>("DROPBOX_REDIRECT_URI"), state, "code", "offline");
+    const authUrl: String = await this.dropboxAuth.getAuthenticationUrl(this.configService.get<string>("DROPBOX_REDIRECT_URI"), state, "code", "offline");
 
     return authUrl.toString();
   }
 
   async handleAuthCallback(code: string, state: string): Promise<CloudModule.StorageAuthCallbackResponse> {
-    const dropboxAuth: DropboxAuth = new DropboxAuth({
-      clientId: this.configService.get<string>("DROPBOX_APP_KEY"),
-      clientSecret: this.configService.get<string>("DROPBOX_APP_SECRET"),
-    });
-
     const decodedState: CloudModule.CloudAuthState = JSON.parse(Buffer.from(state, "base64").toString("utf8"));
-    const response: DropboxResponse<object> = await dropboxAuth.getAccessTokenFromCode(this.configService.get<string>("DROPBOX_REDIRECT_URI"), code);
+    const response: DropboxResponse<object> = await this.dropboxAuth.getAccessTokenFromCode(this.configService.get<string>("DROPBOX_REDIRECT_URI"), code);
 
     return {
       accountId: decodedState.accountId,
@@ -52,7 +53,7 @@ export class DropboxStorageService implements IExternalStorageService {
       refreshToken: credentials.refreshToken,
     });
 
-    dropboxAuth.refreshAccessToken();
+    await dropboxAuth.refreshAccessToken();
 
     const newAccessToken = dropboxAuth.getAccessToken();
     const newRefreshToken = dropboxAuth.getRefreshToken() || credentials.refreshToken;
@@ -82,10 +83,13 @@ export class DropboxStorageService implements IExternalStorageService {
 
     const updates: CloudModule.StorageRefreshTokenResponse = await this.refreshAuthToken(credentials);
 
-    await this.oauthCredentialsModel.updateOne(accountId, {
-      ...updates,
-      expiresAt: getExpiredTime(updates.expiresIn),
-    });
+    await this.oauthCredentialsModel.updateOne(
+      { _id: accountId },
+      {
+        ...updates,
+        expiresAt: getExpiredTime(updates.expiresIn),
+      },
+    );
 
     return updates.accessToken;
   }
@@ -147,12 +151,12 @@ export class DropboxStorageService implements IExternalStorageService {
 
   async uploadFile(accountId: DocumentId, file: Express.Multer.File, parentId?: DocumentId): Promise<boolean> {
     const dropbox = await this.getDropboxInstance(accountId);
-    const response = await dropbox.filesUpload({ path: `/picverse/${file.originalname}`, contents: file });
+    const response = await dropbox.filesUpload({ path: `/picverse/${file.originalname}`, contents: file.buffer });
 
     if (response.result && "id" in response.result) {
       const result = response.result;
 
-      const createdResource: Resource = await this.resourceModel.create({
+      const createdResource: Resource = await this.resourceService.create({
         referenceId: result.id,
         name: file.originalname,
         parentId: parentId || null,

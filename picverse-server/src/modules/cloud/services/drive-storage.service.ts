@@ -11,6 +11,7 @@ import { EOAuthScopes } from "@common/enums";
 import { ECloudStorage, EResourceType } from "../enums";
 import { Response } from "express";
 import { Readable } from "stream";
+import { ResourceService } from "./resource.service";
 
 @Injectable()
 export class DriveStorageService implements IExternalStorageService {
@@ -18,7 +19,7 @@ export class DriveStorageService implements IExternalStorageService {
 
   constructor(
     @InjectModel(CloudCredentials.name) private oauthCredentialsModel: Model<CloudCredentialsDocument>,
-    @InjectModel(Resource.name) private resourceModel: Model<Resource>,
+    private readonly resourceService: ResourceService,
     private readonly configService: ConfigService,
   ) {
     this.authClient = new google.auth.OAuth2(
@@ -191,7 +192,7 @@ export class DriveStorageService implements IExternalStorageService {
     if (response.data.id) {
       const result = response.data;
 
-      const createdResource: Resource = await this.resourceModel.create({
+      const createdResource: Resource = await this.resourceService.create({
         referenceId: result.id,
         name: file.originalname,
         parentId: parentId || null,

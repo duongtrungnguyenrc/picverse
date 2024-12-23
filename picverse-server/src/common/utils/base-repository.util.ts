@@ -42,14 +42,10 @@ export class Repository<T extends Document> {
     return result;
   }
 
-  public async find(
-    idOrFilter: string | FilterQuery<T>,
-    select?: string | string[] | Record<string, number | boolean | string | object>,
-    populate?: PopulateOptions | Array<PopulateOptions | string>,
-    force: boolean = false,
-    cachePostfix: string = "",
-  ): Promise<T | null> {
+  public async find(idOrFilter: string | FilterQuery<T>, options: Repository.FindOptions = {}): Promise<T | null> {
     if (!idOrFilter) return null;
+
+    const { select, populate, force, cachePostfix } = options;
 
     const boundCacheKey = joinCacheKey(this.cachePrefix, JSON.stringify({ idOrFilter, select }), cachePostfix);
 
@@ -72,14 +68,9 @@ export class Repository<T extends Document> {
     return document;
   }
 
-  public async findMultiple(
-    filter: FilterQuery<T>,
-    select?: string | string[] | Record<string, number | boolean | string | object>,
-    populate?: PopulateOptions | Array<PopulateOptions | string>,
-    sort?: string | { [key: string]: SortOrder | { $meta: any } } | [string, SortOrder][] | undefined | null,
-    force: boolean = false,
-    cachePostfix: string = "",
-  ): Promise<Array<T>> {
+  public async findMultiple(filter: FilterQuery<T>, options: Repository.FindMultipleOptions = {}): Promise<Array<T>> {
+    const { select, populate, sort, force, cachePostfix } = options;
+
     const cacheKey = joinCacheKey(this.cachePrefix, "listing", JSON.stringify({ filter, select, populate, sort }), cachePostfix);
 
     if (!force && this.cacheService) {
@@ -102,16 +93,9 @@ export class Repository<T extends Document> {
     return documents;
   }
 
-  public async findMultiplePaging(
-    filter: FilterQuery<T>,
-    pagination: Pagination,
-    select?: string | string[] | Record<string, number | boolean | string | object>,
-    populate?: PopulateOptions | Array<PopulateOptions | string>,
-    sort?: string | { [key: string]: SortOrder | { $meta: any } } | [string, SortOrder][] | undefined | null,
-    force?: boolean,
-    cachePostfix?: string,
-  ): Promise<PaginationResponse<T>> {
+  public async findMultiplePaging(filter: FilterQuery<T>, pagination: Pagination, options: Repository.FindMultipleOptions = {}): Promise<PaginationResponse<T>> {
     const { page, limit } = pagination;
+    const { select, populate, sort, force, cachePostfix } = options;
 
     const cacheKey = joinCacheKey(this.cachePrefix, "listing", JSON.stringify({ pagination, filter, select, populate, sort }), cachePostfix);
 
@@ -143,15 +127,8 @@ export class Repository<T extends Document> {
     return response;
   }
 
-  public async findMultipleInfinite(
-    filter: FilterQuery<T>,
-    pagination: Pagination,
-    select?: string | string[] | Record<string, number | boolean | string | object>,
-    populate?: PopulateOptions | Array<PopulateOptions | string>,
-    sort?: string | { [key: string]: SortOrder | { $meta: any } } | [string, SortOrder][] | undefined | null,
-    force?: boolean,
-    cachePostfix?: string,
-  ): Promise<InfiniteResponse<T>> {
+  public async findMultipleInfinite(filter: FilterQuery<T>, pagination: Pagination, options: Repository.FindMultipleOptions = {}): Promise<InfiniteResponse<T>> {
+    const { select, populate, sort, force, cachePostfix } = options;
     const { page, limit } = pagination;
 
     const cacheKey = joinCacheKey(this.cachePrefix, "infinite-listing", JSON.stringify({ page, limit, filter, select, populate, sort }), cachePostfix);
@@ -204,6 +181,27 @@ export class Repository<T extends Document> {
 
     if (deletedDocument) {
       await this.invalidateCache(deletedDocument._id.toString());
+    }
+
+    return !!deletedDocument;
+  }
+
+  public async deleteMultiple(idOrFilter: string | FilterQuery<T>): Promise<boolean> {
+    const query = typeof idOrFilter === "string" ? { _id: idOrFilter } : idOrFilter;
+    const deletedDocument = await this._model.find(query, "_id").exec();
+
+    if (deletedDocument.length === 0) {
+      return false;
+    }
+
+    await this._model.deleteMany(query);
+
+    if (deletedDocument) {
+      await Promise.all(
+        deletedDocument.map(async (doc) => {
+          return this.invalidateCache(doc._id.toString());
+        }),
+      );
     }
 
     return !!deletedDocument;

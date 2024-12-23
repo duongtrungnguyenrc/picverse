@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, BadRequestException, UnauthorizedException } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { InjectConnection, InjectModel } from "@nestjs/mongoose";
 import { Connection, Model } from "mongoose";
 import { GridFSBucket } from "mongodb";
 import { Response } from "express";
 import * as multer from "multer";
 
+import { ResourceService } from "./resource.service";
 import { GridFsStorage } from "@common/libs/gridfs";
 import { Resource, CloudStorage } from "../schemas";
 import { IStorageService } from "../interfaces";
@@ -17,8 +18,8 @@ export class LocalStorageService implements IStorageService {
 
   constructor(
     @InjectModel(CloudStorage.name) private cloudStorageModel: Model<CloudStorage>,
-    @InjectModel(Resource.name) private resourceModel: Model<Resource>,
     @InjectConnection("cloud") private connection: Connection,
+    private readonly resourceService: ResourceService,
   ) {
     this.storage = new GridFsStorage({
       client: connection.getClient(),
@@ -46,19 +47,17 @@ export class LocalStorageService implements IStorageService {
     const { name, parentId } = createFolderDto;
 
     if (parentId) {
-      const parent = await this.resourceModel.findById(parentId);
+      const parent = await this.resourceService.find(parentId);
       if (!parent || parent.type !== EResourceType.FOLDER || !parent.isPrivate || parent.accountId.toString() !== accountId.toString()) {
         throw new BadRequestException("Invalid or unauthorized parent folder.");
       }
     }
 
-    const folder = await this.resourceModel.create({
+    const folder = await this.resourceService.create({
       name,
       parentId: parentId || null,
       type: EResourceType.FOLDER,
-      path: parentId ? `${parentId}/${name}` : `/${name}`,
       accountId,
-      size: 0,
     });
 
     return folder;
@@ -72,14 +71,14 @@ export class LocalStorageService implements IStorageService {
     }
 
     if (parentId) {
-      const parent = await this.resourceModel.findById(parentId);
+      const parent = await this.resourceService.find(parentId);
 
       if (!parent || parent.type !== EResourceType.FOLDER || parent.accountId.toString() !== accountId.toString()) {
         throw new BadRequestException("Invalid or unauthorized parent folder.");
       }
     }
 
-    const uploadedFile = await this.resourceModel.create({
+    const uploadedFile = await this.resourceService.create({
       name: file.originalname,
       parentId: parentId || null,
       type: EResourceType.FILE,
@@ -120,7 +119,7 @@ export class LocalStorageService implements IStorageService {
   }
 
   async getItems(accountId: DocumentId, parentId: string | null) {
-    const items = await this.resourceModel.find({
+    const items = await this.resourceService.findMultiple({
       accountId,
       parentId: parentId || null,
     });
@@ -130,7 +129,7 @@ export class LocalStorageService implements IStorageService {
 
   async deleteFile(accountId: DocumentId, file: Resource | DocumentId): Promise<boolean> {
     if (!(file instanceof Resource)) {
-      const fetchedResource: Resource = await this.resourceModel.findById(file);
+      const fetchedResource: Resource = await this.resourceService.find(file);
 
       if (!fetchedResource) return false;
       file = fetchedResource;
@@ -140,7 +139,7 @@ export class LocalStorageService implements IStorageService {
     storage.usedSpace -= file.size;
     await storage.save();
 
-    await this.resourceModel.findByIdAndDelete(file._id);
+    await this.resourceService.delete(file._id);
 
     return true;
   }

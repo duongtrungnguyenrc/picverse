@@ -9,15 +9,16 @@ import { DropboxStorageService } from "./dropbox-storage.service";
 import { DriveStorageService } from "./drive-storage.service";
 import { LocalStorageService } from "./local-storage.service";
 import { ECloudStorage, EResourceType } from "../enums";
-import { StatusResponseDto } from "@common/dtos";
+import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { getExpiredTime } from "@common/utils";
 import { Response } from "express";
+import { ResourceService } from "./resource.service";
 
 @Injectable()
 export class CloudService {
   constructor(
     @InjectModel(CloudCredentials.name) private readonly oauthCredentialsModel: Model<CloudCredentialsDocument>,
-    @InjectModel(Resource.name) private readonly resourceModel: Model<Resource>,
+    private readonly resourceService: ResourceService,
     private readonly dropboxStorageService: DropboxStorageService,
     private readonly driveStorageService: DriveStorageService,
     private readonly localStorageService: LocalStorageService,
@@ -26,6 +27,18 @@ export class CloudService {
   async getExternalStorageAuthUrl(accountId: DocumentId, storage: ECloudStorage): Promise<string> {
     const cloudStorage: IExternalStorageService = this.getStorage(storage, true);
     return await cloudStorage.getAuthUrl(accountId);
+  }
+
+  async unlinkExternalStorage(accountId: DocumentId, storage: ECloudStorage): Promise<StatusResponseDto> {
+    const credentials = await this.oauthCredentialsModel.findByIdAndDelete({ accountId, storage });
+
+    if (!credentials) {
+      throw new BadRequestException(`You do not link with ${storage} storage to unlink`);
+    }
+
+    await this.resourceService.deleteMultiple({ accountId });
+
+    return { message: `Unlink ${storage} storage success` };
   }
 
   async handleExternalStorageCallback(code: string, state: string, storage: ECloudStorage): Promise<StatusResponseDto> {
@@ -38,22 +51,22 @@ export class CloudService {
     return { message: `${storage} storage linked success.` };
   }
 
-  async getFolderItems(accountId: DocumentId, folderId: DocumentId): Promise<Array<Resource>> {
-    return [];
+  async getResources(accountId: DocumentId, folderId: DocumentId | undefined, pagination: Pagination): Promise<InfiniteResponse<Resource>> {
+    return await this.resourceService.findMultipleInfinite({ parentId: folderId, accountId }, pagination, { select: "-referenceId" });
   }
 
   async createFolder(accountId: DocumentId, payload: CreateFolderDto): Promise<StatusResponseDto> {
     const { parentId, ...folder } = payload;
 
     if (parentId) {
-      const parentResource: Resource = await this.resourceModel.findById(parentId);
+      const parentResource: Resource = await this.resourceService.find(parentId);
 
       if (!parentResource || parentResource.type != EResourceType.FOLDER) {
         throw new BadRequestException("Parent folder not found.");
       }
     }
 
-    await this.resourceModel.create({
+    await this.resourceService.create({
       ...folder,
       type: EResourceType.FOLDER,
       parentId: parentId ? new Types.ObjectId(parentId) : undefined,
@@ -67,14 +80,16 @@ export class CloudService {
     const { parentId, ...updates } = payload;
 
     if (parentId) {
-      const parentResource: Resource = await this.resourceModel.findById(parentId, ["type"]);
+      const parentResource: Resource = await this.resourceService.find(parentId, {
+        select: ["type"],
+      });
 
       if (!parentResource || parentResource.type != EResourceType.FOLDER) {
         throw new BadRequestException("Parent folder not found.");
       }
     }
 
-    const updatedFolder = await this.resourceModel.findOneAndUpdate(
+    const updatedFolder = await this.resourceService.update(
       {
         _id: folderId,
         accountId: accountId,
@@ -93,7 +108,7 @@ export class CloudService {
   }
 
   async deleteFolder(accountId: DocumentId, folderId: DocumentId): Promise<StatusResponseDto> {
-    const children: Array<Resource> = await this.resourceModel.find({
+    const children: Array<Resource> = await this.resourceService.findMultiple({
       accountId,
       parentId: folderId,
     });
@@ -108,7 +123,7 @@ export class CloudService {
       }
     }
 
-    await this.resourceModel.findByIdAndDelete(folderId);
+    await this.resourceService.delete(folderId);
 
     return { message: "Folder deleted success" };
   }
@@ -122,7 +137,7 @@ export class CloudService {
   }
 
   async getFile(accountId: DocumentId, fileId: DocumentId, response: Response): Promise<void> {
-    const file: Resource = await this.resourceModel.findById(fileId);
+    const file: Resource = await this.resourceService.find(fileId);
 
     if (!file) {
       throw new NotFoundException("File not found");

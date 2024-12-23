@@ -1,16 +1,16 @@
-import { Controller, Param, Query, Get, Res, UseInterceptors, Post, Body, UploadedFile, Delete, Put } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
+import { Controller, Param, Query, Get, Res, UseInterceptors, Post, Body, UploadedFile, Delete, Put } from "@nestjs/common";
 import { Response } from "express";
 
+import { ApiPagination, Auth, AuthUid, Pagination } from "@common/decorators";
 import { CreateFolderDto, UpdateFolderDto, UploadFileDto } from "../dtos";
+import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { FileUploadInterceptor } from "../interceptors";
-import { Auth, AuthUid } from "@common/decorators";
-import { StatusResponseDto } from "@common/dtos";
 import { CloudService } from "../services";
 import { ECloudStorage } from "../enums";
 import { Resource } from "../schemas";
 
-@Controller("/cloud")
+@Controller("cloud")
 @ApiTags("Cloud")
 export class CloudStorageController {
   constructor(private readonly cloudService: CloudService) {}
@@ -27,10 +27,13 @@ export class CloudStorageController {
   }
 
   @Auth()
-  @Delete("/storage/unlink")
+  @Delete("/storage/unlink:storage")
   @ApiOperation({ summary: "Link external cloud storage" })
+  @ApiParam({ name: "storage", description: "Storage name" })
   @ApiOkResponse({ type: StatusResponseDto })
-  async unlinkExternalStorage(@AuthUid() accountId: DocumentId, @Query("storage") storage: ECloudStorage, @Res() res: Response) {}
+  async unlinkExternalStorage(@AuthUid() accountId: DocumentId, @Param("storage") storage: ECloudStorage) {
+    return this.unlinkExternalStorage(accountId, storage);
+  }
 
   @Get("/webhooks/:storage-callback")
   @ApiOperation({ summary: "External cloud storage auth callback" })
@@ -48,10 +51,17 @@ export class CloudStorageController {
     return await this.cloudService.createFolder(accountId, payload);
   }
 
-  @Get("/folder/:folderId")
+  @Get("/resources")
   @ApiOperation({ summary: "Get folder items" })
-  async getFolderItems(@AuthUid() accountId: DocumentId, @Body("folderId") folderId: DocumentId): Promise<Array<Resource>> {
-    return await this.cloudService.getFolderItems(accountId, folderId);
+  @ApiPagination()
+  @ApiQuery({ name: "folderId", required: false, description: "Parent folder id" })
+  @ApiOkResponse({ type: InfiniteResponse<Resource> })
+  async getFolderItems(
+    @AuthUid() accountId: DocumentId,
+    @Query("folderId") folderId: DocumentId | undefined,
+    @Pagination() pagination: Pagination,
+  ): Promise<InfiniteResponse<Resource>> {
+    return await this.cloudService.getResources(accountId, folderId, pagination);
   }
 
   @Auth()
@@ -77,7 +87,7 @@ export class CloudStorageController {
   @UseInterceptors(FileUploadInterceptor)
   @ApiOperation({ summary: "Upload file to cloud" })
   @ApiConsumes("multipart/form-data")
-  @ApiQuery({description: "Storage provider"})
+  @ApiQuery({ description: "Storage provider" })
   @ApiBody({ type: UploadFileDto })
   @ApiOkResponse({ type: StatusResponseDto })
   async uploadFile(
