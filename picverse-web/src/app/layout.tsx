@@ -1,9 +1,10 @@
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
+import { Toaster } from "react-hot-toast";
 
 import { Providers } from "@app/components";
 import "@app/styles/globals.scss";
-import { cn } from "@app/utils";
+import { cn } from "@app/lib/utils";
 
 export const metadata: Metadata = {
   title: "Picverse",
@@ -26,6 +27,7 @@ export default function RootLayout({
       <html lang="en">
         <body className={cn(inter.className, "font-inter antialiased")}>
           {children}
+          <Toaster position="bottom-center" />
         </body>
       </html>
     </Providers>

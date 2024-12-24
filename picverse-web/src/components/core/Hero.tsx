@@ -22,24 +22,19 @@ const Hero: FC<HeroProps> = ({}) => {
         />
       </div>
 
-      <div className="max-w-6xl mx-auto">
+      <div className="container mx-auto">
         <div className="relative pt-28 md:pt-36 pb-12 md:pb-16 p-5 lg:px-0">
           <div className="max-w-[620px] flex flex-col">
-            <h1 className="h1 mb-5 max-w-full text-wrap">
-              Tailwind CSS templates for your next project
-            </h1>
+            <h1 className="h1 mb-5 max-w-full text-wrap">Tailwind CSS templates for your next project</h1>
             <p className="text-lg text-gray-500">
               Landing pages, websites, and dashboards built on top of
-              <strong className="font-normal text-gray-900 whitespace-nowrap">
-                Tailwind CSS
-              </strong>
+              <strong className="font-normal text-gray-900 whitespace-nowrap">Tailwind CSS</strong>
               and fully coded in
               <strong className="font-normal text-gray-900">HTML</strong>,
               <strong className="font-normal text-gray-900">React</strong>,
-              <strong className="font-normal text-gray-900">Next.js</strong>,
-              and <strong className="font-normal text-gray-900">Vue</strong>. A
-              great starting point for your next project, saving you weeks of
-              development time.
+              <strong className="font-normal text-gray-900">Next.js</strong>, and{" "}
+              <strong className="font-normal text-gray-900">Vue</strong>. A great starting point for your next project,
+              saving you weeks of development time.
             </p>
             <div className="-order-1">
               <div className="inline-flex mb-6">
@@ -102,16 +97,8 @@ const Hero: FC<HeroProps> = ({}) => {
               </Link>
             </div>
           </div>
-          <div
-            className="absolute bottom-0 left-[520px] pointer-events-none -z-10"
-            aria-hidden="true"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="1132"
-              height="641"
-              fill="none"
-            >
+          <div className="absolute bottom-0 left-[520px] pointer-events-none -z-10" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1132" height="641" fill="none">
               <g filter="url(#sh2a)" opacity=".48">
                 <circle cx="566" cy="540" r="246" fill="#7E5FFB"></circle>
               </g>
@@ -125,19 +112,9 @@ const Hero: FC<HeroProps> = ({}) => {
                   colorInterpolationFilters="sRGB"
                   filterUnits="userSpaceOnUse"
                 >
-                  <feFlood
-                    floodOpacity="0"
-                    result="BackgroundImageFix"
-                  ></feFlood>
-                  <feBlend
-                    in="SourceGraphic"
-                    in2="BackgroundImageFix"
-                    result="shape"
-                  ></feBlend>
-                  <feGaussianBlur
-                    result="effect1_foregroundBlur_2010_54"
-                    stdDeviation="160"
-                  ></feGaussianBlur>
+                  <feFlood floodOpacity="0" result="BackgroundImageFix"></feFlood>
+                  <feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend>
+                  <feGaussianBlur result="effect1_foregroundBlur_2010_54" stdDeviation="160"></feGaussianBlur>
                 </filter>
               </defs>
             </svg>

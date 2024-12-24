@@ -4,9 +4,7 @@ import { CollectionListing } from "@app/components";
 
 type CreatedCollectionParralelPageProps = {};
 
-const CreatedCollectionParralelPage: FC<
-  CreatedCollectionParralelPageProps
-> = ({}) => {
+const CreatedCollectionParralelPage: FC<CreatedCollectionParralelPageProps> = ({}) => {
   return <CollectionListing />;
 };
 

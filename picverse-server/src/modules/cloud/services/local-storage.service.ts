@@ -1,9 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from "@nestjs/common";
+import { GridFSBucket, GridFSBucketWriteStream, GridFSBucketWriteStreamOptions } from "mongodb";
 import { InjectConnection, InjectModel } from "@nestjs/mongoose";
 import { Connection, Model, Types } from "mongoose";
-import { GridFSBucket, GridFSBucketWriteStream, GridFSBucketWriteStreamOptions } from "mongodb";
 import { Response } from "express";
-import * as multer from "multer";
 import * as pump from "pump";
 
 import { CreateFolderDto, UploadFileDto } from "../dtos";
@@ -15,14 +14,11 @@ import { Readable } from "stream";
 
 @Injectable()
 export class LocalStorageService implements IStorageService {
-
   constructor(
     @InjectModel(CloudStorage.name) private cloudStorageModel: Model<CloudStorage>,
     @InjectConnection("cloud") private connection: Connection,
     private readonly resourceService: ResourceService,
-  ) {
-
-  }
+  ) {}
 
   async getAvailableSpace(accountId: DocumentId): Promise<number> {
     const storage: CloudStorage = await this.getStorageInfo(accountId);
@@ -62,26 +58,25 @@ export class LocalStorageService implements IStorageService {
 
   async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto) {
     const storage = await this.getStorageInfo(accountId);
+    const { parentId, fileName } = payload;
 
     if (storage.usedSpace + file.size > storage.totalSpace) {
-      throw new BadRequestException("Insufficient storage space.");
+      throw new ConflictException("Insufficient storage space.");
     }
 
-    if (payload.parentId) {
-      const parent = await this.resourceService.find(payload.parentId);
+    if (parentId) {
+      const parent = await this.resourceService.find(parentId);
 
       if (!parent || parent.type !== EResourceType.FOLDER || parent.accountId.toString() !== accountId.toString()) {
-        throw new BadRequestException("Invalid or unauthorized parent folder.");
+        throw new BadRequestException("Invalid parent folder or unauthorized.");
       }
     }
-
-    const fileName: string = payload.fileName || file.originalname;
 
     const uploadResult = await this._uploadFromMulterStream(file, fileName);
 
     const uploadedFile = await this.resourceService.create({
       name: fileName,
-      parentId: payload.parentId || null,
+      parentId: parentId,
       referenceId: uploadResult.id,
       type: EResourceType.FILE,
       accountId,

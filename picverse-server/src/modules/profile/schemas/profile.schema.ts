@@ -15,19 +15,19 @@ export class Profile extends Document<Types.ObjectId> {
   @Prop({ required: true })
   lastName: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   birth: Date;
 
-  @Prop({ type: String, enum: EGender, required: true })
+  @Prop({ type: String, enum: EGender, required: false })
   gender: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   phone: string;
 
-  @Prop()
+  @Prop({ required: false })
   profilePicture: string;
 
-  @Prop()
+  @Prop({ required: false })
   bio: string;
 
   @Prop({ default: true })

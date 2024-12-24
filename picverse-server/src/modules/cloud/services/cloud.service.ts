@@ -130,10 +130,14 @@ export class CloudService {
 
   async uploadFile(accountId: DocumentId, file: Express.Multer.File, toStorage: ECloudStorage, payload: UploadFileDto): Promise<StatusResponseDto> {
     const storage: IStorageService = this.getStorage(toStorage);
+    const fileName = payload.fileName || file.originalname;
 
-    await storage.uploadFile(accountId, file, payload);
+    await storage.uploadFile(accountId, file, {
+      ...payload,
+      fileName: fileName,
+    });
 
-    return { message: `File ${file.filename} uploaded success` };
+    return { message: `File ${fileName} uploaded success` };
   }
 
   async getFile(accountId: DocumentId, fileId: DocumentId, response: Response): Promise<void> {

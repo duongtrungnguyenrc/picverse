@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
+import { isValidObjectId, Types } from "mongoose";
 import { decode } from "jsonwebtoken";
 import { Request } from "express";
-import { isValidObjectId, Types } from "mongoose";
 
 import { getTokenFromRequest } from "@common/utils";
 

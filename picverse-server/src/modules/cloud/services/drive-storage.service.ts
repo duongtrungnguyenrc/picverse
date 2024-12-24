@@ -1,17 +1,17 @@
-import { ConfigService } from "@nestjs/config";
-import { InjectModel } from "@nestjs/mongoose";
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { Auth, drive_v3, google } from "googleapis";
+import { ConfigService } from "@nestjs/config";
+import { InjectModel } from "@nestjs/mongoose";
+import { Response } from "express";
+import { Readable } from "stream";
 import { Model } from "mongoose";
 
 import { CloudCredentials, CloudCredentialsDocument, Resource } from "../schemas";
 import { IExternalStorageService } from "../interfaces";
+import { ECloudStorage, EResourceType } from "../enums";
+import { ResourceService } from "./resource.service";
 import { getExpiredTime } from "@common/utils";
 import { EOAuthScopes } from "@common/enums";
-import { ECloudStorage, EResourceType } from "../enums";
-import { Response } from "express";
-import { Readable } from "stream";
-import { ResourceService } from "./resource.service";
 import { UploadFileDto } from "../dtos";
 
 @Injectable()
@@ -26,12 +26,12 @@ export class DriveStorageService implements IExternalStorageService {
     this.authClient = new google.auth.OAuth2(
       this.configService.get<string>("OAUTH_CLIENT_ID"),
       this.configService.get<string>("OAUTH_CLIENT_SECRET"),
-      this.configService.get<string>("DRIVE_REDIRECT_URL"),
+      this.configService.get<string>("DRIVE_CALLBACK_URL"),
     );
   }
 
   getAuthUrl(accountId: DocumentId): string {
-    const scopes = [EOAuthScopes.DRIVE, EOAuthScopes.USER_INFO];
+    const scopes = [EOAuthScopes.DRIVE, EOAuthScopes.USER_INFO_PROFILE];
 
     const state: string = Buffer.from(JSON.stringify({ accountId })).toString("base64");
 

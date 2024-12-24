@@ -11,21 +11,14 @@ type ProfilePageLayoutProps = {
   savedcollections: ReactNode;
 };
 
-const ProfilePageLayout: FC<ProfilePageLayoutProps> = async ({
-  params,
-  createdcollections,
-  savedcollections,
-}) => {
+const ProfilePageLayout: FC<ProfilePageLayoutProps> = async ({ params, createdcollections, savedcollections }) => {
   const { username } = await params;
 
   return (
     <div className="container">
       <Profile username={username} />
 
-      <Tabs
-        defaultValue="created"
-        className="mx-auto flex flex-col items-center mt-5"
-      >
+      <Tabs defaultValue="created" className="mx-auto flex flex-col items-center mt-5">
         <TabsList>
           <TabsTrigger value="created">Created collections</TabsTrigger>
           <TabsTrigger value="saved">Saved collections</TabsTrigger>

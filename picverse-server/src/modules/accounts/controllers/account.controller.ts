@@ -1,5 +1,5 @@
-import { ApiBearerAuth, ApiBody, ApiHeader, ApiParam, ApiOkResponse, ApiTags, ApiCreatedResponse, ApiOperation } from "@nestjs/swagger";
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { ApiBearerAuth, ApiBody, ApiHeader, ApiParam, ApiOkResponse, ApiTags, ApiCreatedResponse, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { Body, Controller, Get, Param, Post, Query, Res } from "@nestjs/common";
 
 import {
   ForgotPasswordDto,
@@ -10,11 +10,13 @@ import {
   SignInRequestDto,
   SignInResponseDto,
   SignUpRequestDto,
+  ThirdPartyAuthCallbackDto,
 } from "../dtos";
-import { ApiPagination, Auth, AuthToken, AuthUid, IpAddress, Pagination, RequestAgent } from "@common/decorators";
+import { ApiPagination, Auth, AuthToken, AuthTokenPayload, AuthUid, IpAddress, Pagination, RequestAgent } from "@common/decorators";
 import { AccessRecordService, AccountService } from "../services";
 import { AccessRecord, Account } from "../schemas";
-import { PaginationResponse } from "@common/dtos";
+import { PaginationResponse, StatusResponseDto } from "@common/dtos";
+import { Response } from "express";
 
 @Controller("accounts")
 @ApiTags("Accounts")
@@ -32,12 +34,46 @@ export class AccountController {
     return this.accountService.signUp(data);
   }
 
+  @Auth()
+  @Post("/authorize")
+  @ApiOperation({ summary: "Authorize client" })
+  auth(@AuthUid() accountId: DocumentId): Pick<Account, "_id"> {
+    return { _id: accountId };
+  }
+
   @Post("/sign-in")
   @ApiOperation({ summary: "Sign in to web" })
   @ApiBody({ type: SignInRequestDto })
   @ApiCreatedResponse({ description: "Sign in success. Return token pair", type: SignInResponseDto })
   async signIn(@Body() data: SignInRequestDto, @IpAddress() ipAddress: string, @RequestAgent() requestAgent: RequestAgent): Promise<SignInResponseDto> {
     return await this.accountService.signIn(data, ipAddress, requestAgent);
+  }
+
+  @Get("/sign-in")
+  @ApiOperation({ summary: "Sign in to web with third party" })
+  @ApiQuery({ name: "secret", description: "Secret key for validate client" })
+  signInWithThirdParty(@Query("secret") secret: string, @Res() response: Response): void {
+    this.accountService.getGoogleOAuthUrl(secret, response);
+  }
+
+  @Auth()
+  @Post("/sign-out")
+  @ApiOperation({ summary: "Sign out" })
+  @ApiOkResponse({ type: StatusResponseDto })
+  async signOut(@AuthTokenPayload("sub") sub: string): Promise<StatusResponseDto> {
+    return await this.accountService.signOut(sub);
+  }
+
+  @Get("/webhooks/auth-callback")
+  @ApiOperation({ summary: "Third party sign in callback" })
+  async thirdPartyAuthCallback(
+    @Query("code") code: string,
+    @Query("state") state: string,
+    @IpAddress() ipAddress: string,
+    @RequestAgent() requestAgent: RequestAgent,
+    @Res() response: Response,
+  ) {
+    return await this.accountService.handleGoogleAuthCallback(code, state, ipAddress, requestAgent, response);
   }
 
   @Post("/refresh-token")

@@ -4,7 +4,11 @@ import { compareSync, genSalt, hash } from "bcrypt";
 import { ClientSession, Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { ConfigService } from "@nestjs/config";
+import { Auth, google } from "googleapis";
+import { randomInt } from "crypto";
+import { Response } from "express";
 import { v4 as uuid } from "uuid";
+import { sign } from "jsonwebtoken";
 
 import {
   ForgotPasswordDto,
@@ -24,10 +28,14 @@ import { MailSubject, AccountErrorMessage } from "../enums";
 import { JwtRefreshService } from "@modules/jwt-refresh";
 import { JwtAccessService } from "@modules/jwt-access";
 import { ProfileService } from "@modules/profile";
+import { EOAuthScopes } from "@common/enums";
 import { Account } from "../schemas";
+import { StatusResponseDto } from "@common/dtos";
 
 @Injectable()
 export class AccountService extends Repository<Account> {
+  private oAuthClient: Auth.OAuth2Client;
+
   constructor(
     @InjectModel(Account.name) AccountModel: Model<Account>,
     private readonly jwtAccessService: JwtAccessService,
@@ -39,6 +47,61 @@ export class AccountService extends Repository<Account> {
     cacheService: CacheService,
   ) {
     super(AccountModel, cacheService);
+
+    this.oAuthClient = new google.auth.OAuth2(
+      this.configService.get<string>("OAUTH_CLIENT_ID"),
+      this.configService.get<string>("OAUTH_CLIENT_SECRET"),
+      this.configService.get<string>("OAUTH_CALLBACK_URL"),
+    );
+  }
+
+  async getGoogleOAuthUrl(secret: string, response: Response): Promise<void> {
+    const scopes: Array<string> = [EOAuthScopes.USER_INFO_PROFILE, EOAuthScopes.USER_INFO_EMAIL];
+
+    const authUrl: string = this.oAuthClient.generateAuthUrl({
+      scope: scopes,
+      state: Buffer.from(secret).toString("base64"),
+    });
+
+    response.redirect(authUrl);
+  }
+
+  async handleGoogleAuthCallback(code: string, state: string, ipAddress: string, requestAgent: RequestAgent, response: Response): Promise<void> {
+    try {
+      const { tokens } = await this.oAuthClient.getToken(code);
+      this.oAuthClient.setCredentials(tokens);
+
+      const oauth2 = google.oauth2("v2");
+      const userInfoResponse = await oauth2.userinfo.get({
+        auth: this.oAuthClient,
+      });
+      const userInfo = userInfoResponse.data;
+
+      const account: Account = await this.find({ email: userInfo.email });
+      const signInResponse: Partial<SignInResponseDto> = {};
+
+      if (!account) {
+        const newAccount: Account = await this.create({
+          userName: userInfo.email.split("@")[0] + randomInt(8),
+          email: userInfo.email,
+        });
+
+        this.profileService.create({ account: newAccount._id, firstName: userInfo.given_name, lastName: userInfo.family_name });
+
+        const tokenPair = this.generateTokenPair(newAccount._id, ipAddress, requestAgent);
+        Object.assign(signInResponse, tokenPair);
+      }
+
+      const tokenPair = this.generateTokenPair(account._id, ipAddress, requestAgent);
+      Object.assign(signInResponse, tokenPair);
+
+      const secret: string = Buffer.from(state, "base64").toString("utf-8");
+
+      response.redirect(`http://localhost:3001/sign-in/callback?token=${sign({ secret, ...signInResponse }, secret, { expiresIn: 60 * 60 * 1000 })}`);
+    } catch (error) {
+      console.error("Error during Google Auth Callback:", error);
+      response.status(500).send("Authentication failed");
+    }
   }
 
   async signIn(payload: SignInRequestDto, ipAddress: string, requestAgent: RequestAgent): Promise<SignInResponseDto> {
@@ -61,6 +124,13 @@ export class AccountService extends Repository<Account> {
     }
 
     return this.generateTokenPair(account._id, ipAddress, requestAgent);
+  }
+
+  async signOut(sub: string): Promise<StatusResponseDto> {
+    await this.jwtAccessService.revoke(sub);
+    await this.jwtRefreshService.revoke(sub);
+
+    return { message: "Sign out success" };
   }
 
   async signUp(data: SignUpRequestDto): Promise<Account> {

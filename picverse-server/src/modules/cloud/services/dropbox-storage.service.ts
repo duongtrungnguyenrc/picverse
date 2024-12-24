@@ -30,14 +30,14 @@ export class DropboxStorageService implements IExternalStorageService {
   async getAuthUrl(accountId: DocumentId): Promise<string> {
     const state: string = Buffer.from(JSON.stringify({ accountId })).toString("base64");
 
-    const authUrl: String = await this.dropboxAuth.getAuthenticationUrl(this.configService.get<string>("DROPBOX_REDIRECT_URI"), state, "code", "offline");
+    const authUrl: String = await this.dropboxAuth.getAuthenticationUrl(this.configService.get<string>("DROPBOX_CALLBACK_URL"), state, "code", "offline");
 
     return authUrl.toString();
   }
 
   async handleAuthCallback(code: string, state: string): Promise<CloudModule.StorageAuthCallbackResponse> {
     const decodedState: CloudModule.CloudAuthState = JSON.parse(Buffer.from(state, "base64").toString("utf8"));
-    const response: DropboxResponse<object> = await this.dropboxAuth.getAccessTokenFromCode(this.configService.get<string>("DROPBOX_REDIRECT_URI"), code);
+    const response: DropboxResponse<object> = await this.dropboxAuth.getAccessTokenFromCode(this.configService.get<string>("DROPBOX_CALLBACK_URL"), code);
 
     return {
       accountId: decodedState.accountId,

@@ -12,6 +12,9 @@ async function bootstrap() {
 
   const configService: ConfigService = app.get(ConfigService);
 
+  app.enableCors({
+    origin: [configService.get<string>("CLIENT_ORIGIN")],
+  });
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalFilters(new MongoExceptionFilter());
   app.useGlobalPipes(
@@ -19,7 +22,6 @@ async function bootstrap() {
       transform: true,
       transformOptions: { enableImplicitConversion: true },
       whitelist: true,
-      forbidNonWhitelisted: true,
     }),
   );
   app.useGlobalInterceptors(new ResponseInterceptor());

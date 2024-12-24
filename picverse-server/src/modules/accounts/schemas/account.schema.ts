@@ -9,7 +9,7 @@ export class Account extends Document<Types.ObjectId> {
   @Prop({ unique: true, required: true })
   userName: string;
 
-  @Prop({ required: true, select: false })
+  @Prop({ required: true, select: false, default: "default" })
   password: string;
 
   @Prop({ default: true })

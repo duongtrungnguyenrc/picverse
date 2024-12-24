@@ -6,3 +6,4 @@ export * from "./api-schema-prop.decorator";
 export * from "./auth.decorator";
 export * from "./auth-token.decorator";
 export * from "./auth-uid.decorator";
+export * from "./auth-token-payload.decorator";
