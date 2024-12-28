@@ -96,8 +96,9 @@ export class AccountService extends Repository<Account> {
       Object.assign(signInResponse, tokenPair);
 
       const secret: string = Buffer.from(state, "base64").toString("utf-8");
+      const clientOrigin = this.configService.get<string>("CLIENT_ORIGIN");
 
-      response.redirect(`http://localhost:3001/sign-in/callback?token=${sign({ secret, ...signInResponse }, secret, { expiresIn: 60 * 60 * 1000 })}`);
+      response.redirect(`${clientOrigin}/sign-in/callback?token=${sign({ secret, ...signInResponse }, secret, { expiresIn: 60 * 60 * 1000 })}`);
     } catch (error) {
       console.error("Error during Google Auth Callback:", error);
       response.status(500).send("Authentication failed");
