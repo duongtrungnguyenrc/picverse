@@ -59,7 +59,7 @@ export const useGoogleSignIn = () => {
   const mutationResult = useMutation<void, AxiosError>({
     mutationKey: [MutationKeys.GOOGLE_SIGN_IN],
     mutationFn: async () => {
-      router.push(`http://localhost:3000/api/accounts/sign-in?platform=google&secret=${secret}`);
+      router.push(`${process.env.NEXT_PUBLIC_API_SERVER_ORIGIN}/api/accounts/sign-in?platform=google&secret=${secret}`);
     },
   });
 
