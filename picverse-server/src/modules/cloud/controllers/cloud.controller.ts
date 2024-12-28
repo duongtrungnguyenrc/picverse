@@ -4,7 +4,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { Response } from "express";
 
 import { ApiPagination, Auth, AuthUid, Pagination } from "@common/decorators";
-import { CreateFolderDto, UpdateFolderDto, UploadFileDto } from "../dtos";
+import { CreateFolderDto, UpdateResourceDto, UploadFileDto } from "../dtos";
 import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { CloudService } from "../services";
 import { ECloudStorage } from "../enums";
@@ -16,14 +16,18 @@ export class CloudStorageController {
   constructor(private readonly cloudService: CloudService) {}
 
   @Auth()
-  @Get("/storage/link")
+  @Post("/storage/link")
   @ApiOperation({ summary: "Link external cloud storage" })
   @ApiQuery({ name: "storage", description: "Supported external storage provider name (drive, dropbox,...)" })
-  async linkExternalStorage(@AuthUid() accountId: DocumentId, @Query("storage") storage: ECloudStorage, @Res() res: Response) {
-    const url: string = await this.cloudService.getExternalStorageAuthUrl(accountId, storage);
-    console.log(url);
+  async linkExternalStorage(@AuthUid() accountId: DocumentId, @Query("storage") storage: ECloudStorage) {
+    return await this.cloudService.getExternalStorageAuthUrl(accountId, storage);
+  }
 
-    res.redirect(url);
+  @Auth()
+  @Get("/storage/link/status")
+  @ApiOperation({ summary: "Get storage link status" })
+  async getStorageLinkStatus(@AuthUid() accountId: DocumentId) {
+    return await this.cloudService.getStorageLinkStatus(accountId);
   }
 
   @Auth()
@@ -38,8 +42,8 @@ export class CloudStorageController {
   @Get("/webhooks/:storage-callback")
   @ApiOperation({ summary: "External cloud storage auth callback" })
   @ApiOkResponse({ type: StatusResponseDto })
-  async driveAuthCallback(@Query("code") code: string, @Param("storage") storage: ECloudStorage, @Query("state") state: string): Promise<StatusResponseDto> {
-    return await this.cloudService.handleExternalStorageCallback(code, state, storage);
+  async driveAuthCallback(@Query("code") code: string, @Param("storage") storage: ECloudStorage, @Query("state") state: string, @Res() response: Response): Promise<void> {
+    return await this.cloudService.handleExternalStorageCallback(code, state, storage, response);
   }
 
   @Auth()
@@ -54,49 +58,49 @@ export class CloudStorageController {
   @Get("/resources")
   @ApiOperation({ summary: "Get folder items" })
   @ApiPagination()
-  @ApiQuery({ name: "folderId", required: false, description: "Parent folder id" })
+  @ApiQuery({ name: "parentId", required: false, description: "Parent folder id" })
   @ApiOkResponse({ type: InfiniteResponse<Resource> })
   async getFolderItems(
     @AuthUid() accountId: DocumentId,
-    @Query("folderId") folderId: DocumentId | undefined,
+    @Query("parentId") parentId: DocumentId | undefined,
     @Pagination() pagination: Pagination,
   ): Promise<InfiniteResponse<Resource>> {
-    return await this.cloudService.getResources(accountId, folderId, pagination);
+    return await this.cloudService.getResources(accountId, parentId, pagination);
   }
 
   @Auth()
-  @Delete("/folder/:folderId")
+  @Delete("/folder/:parentId")
   @ApiOperation({ summary: "Delete folder" })
-  @ApiParam({ description: "Folder id", name: "folderId" })
-  async deleteFolder(@AuthUid() accountId: DocumentId, @Param("folderId") folderId: DocumentId): Promise<StatusResponseDto> {
-    return await this.cloudService.deleteFolder(accountId, folderId);
+  @ApiParam({ description: "Folder id", name: "parentId" })
+  async deleteFolder(@AuthUid() accountId: DocumentId, @Param("parentId") parentId: DocumentId): Promise<StatusResponseDto> {
+    return await this.cloudService.deleteFolder(accountId, parentId);
   }
 
   @Auth()
-  @Put("/folder/:folderId")
-  @ApiOperation({ summary: "Update folder" })
-  @ApiParam({ description: "Folder id", name: "folderId" })
-  @ApiBody({ type: UpdateFolderDto })
+  @Put("/resource/:resourceId")
+  @ApiOperation({ summary: "Update resource" })
+  @ApiParam({ description: "Resource id", name: "resourceId" })
+  @ApiBody({ type: UpdateResourceDto })
   @ApiOkResponse({ type: StatusResponseDto })
-  async updateFolder(@AuthUid() accountId: DocumentId, @Param("folderId") folderId: DocumentId, @Body() payload: UpdateFolderDto): Promise<StatusResponseDto> {
-    return await this.cloudService.updateFolder(accountId, folderId, payload);
+  async updateResource(@AuthUid() accountId: DocumentId, @Param("resourceId") resourceId: DocumentId, @Body() payload: UpdateResourceDto): Promise<StatusResponseDto> {
+    return await this.cloudService.updateResource(accountId, resourceId, payload);
   }
 
   @Auth()
   @Post("/file")
   @UseInterceptors(FileInterceptor("file"))
   @ApiOperation({ summary: "Upload file to cloud" })
+  @ApiQuery({ name: "parentId", required: false, description: "Parent folder id" })
   @ApiConsumes("multipart/form-data")
-  @ApiQuery({ description: "Storage provider" })
-  @ApiBody({ type: UploadFileDto })
   @ApiOkResponse({ type: StatusResponseDto })
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @AuthUid() accountId: DocumentId,
     @Query("storage") storage: ECloudStorage = ECloudStorage.LOCAL,
+    @Query("parentId") parentId: DocumentId,
     @Body() payload: UploadFileDto,
   ): Promise<StatusResponseDto> {
-    return await this.cloudService.uploadFile(accountId, file, storage, payload);
+    return await this.cloudService.uploadFile(accountId, parentId, file, storage, payload);
   }
 
   @Get("/file/:fileId")

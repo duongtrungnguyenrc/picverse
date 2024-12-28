@@ -135,14 +135,13 @@ export class AccountService extends Repository<Account> {
 
   async signUp(data: SignUpRequestDto): Promise<Account> {
     return await withMutateTransaction<Account>(this.getModel(), async (session: ClientSession) => {
-      const { email, userName, password, ...profileInfo } = data;
+      const { email, password, ...profileInfo } = data;
 
       const hashedPassword: string = await this.hashPassword(password);
 
       const createdAccount: Account = await this.create(
         {
           email,
-          userName,
           password: hashedPassword,
         },
         { session },

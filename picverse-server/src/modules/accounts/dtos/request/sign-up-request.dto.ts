@@ -17,11 +17,6 @@ export class SignUpRequestDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  userName: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   firstName: string;
 
   @ApiProperty()
@@ -33,10 +28,11 @@ export class SignUpRequestDto {
   @IsDateString()
   birth: string;
 
-  @IsString()
+  @ApiProperty()
   @IsEnum(EGender)
   gender: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsPhoneNumber("VN")
   phone: string;

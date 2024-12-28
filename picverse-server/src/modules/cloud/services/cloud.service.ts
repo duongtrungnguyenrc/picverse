@@ -3,7 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 
 import { CloudCredentials, CloudCredentialsDocument, Resource } from "../schemas";
-import { CreateFolderDto, UpdateFolderDto, UploadFileDto } from "../dtos";
+import { CreateFolderDto, GetStorageLinkStatusResponseDto, UpdateResourceDto, UploadFileDto } from "../dtos";
 import { IExternalStorageService, IStorageService } from "../interfaces";
 import { DropboxStorageService } from "./dropbox-storage.service";
 import { DriveStorageService } from "./drive-storage.service";
@@ -13,6 +13,7 @@ import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { getExpiredTime } from "@common/utils";
 import { Response } from "express";
 import { ResourceService } from "./resource.service";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class CloudService {
@@ -22,11 +23,23 @@ export class CloudService {
     private readonly dropboxStorageService: DropboxStorageService,
     private readonly driveStorageService: DriveStorageService,
     private readonly localStorageService: LocalStorageService,
+    private readonly configService: ConfigService,
   ) {}
 
   async getExternalStorageAuthUrl(accountId: DocumentId, storage: ECloudStorage): Promise<string> {
     const cloudStorage: IExternalStorageService = this.getStorage(storage, true);
     return await cloudStorage.getAuthUrl(accountId);
+  }
+
+  async getStorageLinkStatus(accountId: DocumentId): Promise<GetStorageLinkStatusResponseDto> {
+    const linkedCredentials = await this.oauthCredentialsModel.find({ accountId }, "storage");
+
+    const defaultStatus: GetStorageLinkStatusResponseDto = Object.values(ECloudStorage).reduce(
+      (prev, storage) => ({ ...prev, [storage]: false }),
+      {} as GetStorageLinkStatusResponseDto,
+    );
+
+    return linkedCredentials.reduce((prev, credentials) => ({ ...prev, [credentials.storage]: true }), defaultStatus);
   }
 
   async unlinkExternalStorage(accountId: DocumentId, storage: ECloudStorage): Promise<StatusResponseDto> {
@@ -41,17 +54,34 @@ export class CloudService {
     return { message: `Unlink ${storage} storage success` };
   }
 
-  async handleExternalStorageCallback(code: string, state: string, storage: ECloudStorage): Promise<StatusResponseDto> {
-    const cloudStorage: IExternalStorageService = this.getStorage(storage, true);
+  async handleExternalStorageCallback(code: string, state: string, storage: ECloudStorage, response: Response): Promise<void> {
+    const searchParams = new URLSearchParams();
+    searchParams.append("storage", storage);
 
-    const { accountId, ...rest } = await cloudStorage.handleAuthCallback(code, state);
+    try {
+      const cloudStorage: IExternalStorageService = this.getStorage(storage, true);
 
-    await this.saveOAuthCredentials(accountId, storage, rest);
+      const { accountId, ...rest } = await cloudStorage.handleAuthCallback(code, state);
 
-    return { message: `${storage} storage linked success.` };
+      await this.saveOAuthCredentials(accountId, storage, rest);
+    } catch (error) {
+      searchParams.append("error", error.message);
+    }
+
+    response.redirect(`${this.configService.get<string>("CLIENT_CLOUD_CALLBACK_URL")}?${searchParams}`);
   }
 
   async getResources(accountId: DocumentId, folderId: DocumentId | undefined, pagination: Pagination): Promise<InfiniteResponse<Resource>> {
+    const parentFolder = await this.resourceService.find(folderId, { select: ["_id", "isPrivate", "accountId"] });
+
+    if (!parentFolder) {
+      throw new NotFoundException("Folder does not exists");
+    }
+
+    if (accountId?.toString() != parentFolder.accountId.toString() && parentFolder.isPrivate) {
+      throw new ForbiddenException("Unable to access private resources, please contact the author and request viewing permission");
+    }
+
     return await this.resourceService.findMultipleInfinite({ parentId: folderId, accountId }, pagination, { select: "-referenceId" });
   }
 
@@ -76,7 +106,7 @@ export class CloudService {
     return { message: `Folder ${payload.name} created success` };
   }
 
-  async updateFolder(accountId: DocumentId, folderId: DocumentId, payload: UpdateFolderDto): Promise<StatusResponseDto> {
+  async updateResource(accountId: DocumentId, resourceId: DocumentId, payload: UpdateResourceDto): Promise<StatusResponseDto> {
     const { parentId, ...updates } = payload;
 
     if (parentId) {
@@ -89,22 +119,22 @@ export class CloudService {
       }
     }
 
-    const updatedFolder = await this.resourceService.update(
+    const updatedResource = await this.resourceService.update(
       {
-        _id: folderId,
+        _id: resourceId,
         accountId: accountId,
       },
       {
         ...updates,
-        parentId: new Types.ObjectId(parentId),
+        parentId: parentId ? new Types.ObjectId(parentId) : null,
       },
     );
 
-    if (!updatedFolder) {
-      throw new BadRequestException("Folder not found or forbidden.");
+    if (!updatedResource) {
+      throw new BadRequestException("Resource not found or forbidden.");
     }
 
-    return { message: "Folder updated success" };
+    return { message: "Resource updated success" };
   }
 
   async deleteFolder(accountId: DocumentId, folderId: DocumentId): Promise<StatusResponseDto> {
@@ -128,13 +158,14 @@ export class CloudService {
     return { message: "Folder deleted success" };
   }
 
-  async uploadFile(accountId: DocumentId, file: Express.Multer.File, toStorage: ECloudStorage, payload: UploadFileDto): Promise<StatusResponseDto> {
+  async uploadFile(accountId: DocumentId, parentId: DocumentId, file: Express.Multer.File, toStorage: ECloudStorage, payload: UploadFileDto): Promise<StatusResponseDto> {
     const storage: IStorageService = this.getStorage(toStorage);
     const fileName = payload.fileName || file.originalname;
 
     await storage.uploadFile(accountId, file, {
       ...payload,
-      fileName: fileName,
+      fileName,
+      parentId,
     });
 
     return { message: `File ${fileName} uploaded success` };
@@ -147,13 +178,13 @@ export class CloudService {
       throw new NotFoundException("File not found");
     }
 
-    if (file.isPrivate && file.accountId.toString() !== accountId.toString()) {
-      throw new ForbiddenException("Can not access private file.");
-    }
+    // if (file.isPrivate && file.accountId?.toString() !== accountId?.toString()) {
+    //   throw new ForbiddenException("Can not access private file.");
+    // }
 
-    if (file.type !== EResourceType.FILE) {
-      throw new BadRequestException("Item is not a valid file.");
-    }
+    // if (file.type !== EResourceType.FILE) {
+    //   throw new BadRequestException("Item is not a valid file.");
+    // }
 
     const storage: IStorageService = this.getStorage(file.storage);
 

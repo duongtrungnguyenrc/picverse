@@ -107,12 +107,9 @@ export class LocalStorageService implements IStorageService {
       });
 
       response.setHeader("Content-Type", file.mimeType || "application/octet-stream");
-      response.setHeader("Content-Disposition", `attachment; filename="${file.name}"`);
 
       downloadStream.pipe(response);
     } catch (error) {
-      console.log(error);
-
       throw new NotFoundException("An error occurred while downloading the file.");
     }
   }

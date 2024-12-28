@@ -1,5 +1,5 @@
 export enum EGender {
-  MALE = "MALE",
-  FEMALE = "FEMALE",
-  OTHER = "OTHER",
+  MALE = "male",
+  FEMALE = "female",
+  OTHER = "other",
 }

@@ -37,6 +37,8 @@ export class Repository<T extends Document> {
           return this.cacheService?.set(cacheKey, doc);
         }),
       );
+
+      await this.invalidateCache();
     }
 
     return result;
@@ -216,12 +218,14 @@ export class Repository<T extends Document> {
     return this._model.exists(filter);
   }
 
-  private async invalidateCache(id: string, pattern?: RegExp): Promise<void> {
-    if (!this.cacheService) return;
+  private async invalidateCache(id?: string, pattern?: RegExp): Promise<void> {
+    if (id) {
+      const withIdPattern: RegExp = pattern || new RegExp(`.*${id}.*$`);
+      this.cacheService?.del(withIdPattern, this.cachePrefix);
+    }
 
-    const withIdPattern = pattern || new RegExp(`.*${id}.*$`);
-    const allStringPattern = new RegExp(`.*listing.*$`);
+    const allStringPattern: RegExp = new RegExp(`.*listing.*$`);
 
-    await Promise.all([this.cacheService.del(withIdPattern, this.cachePrefix), this.cacheService.del(allStringPattern, this.cachePrefix)]);
+    this.cacheService?.del(allStringPattern, this.cachePrefix);
   }
 }

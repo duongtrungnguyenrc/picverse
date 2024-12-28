@@ -10,7 +10,6 @@ import {
   SignInRequestDto,
   SignInResponseDto,
   SignUpRequestDto,
-  ThirdPartyAuthCallbackDto,
 } from "../dtos";
 import { ApiPagination, Auth, AuthToken, AuthTokenPayload, AuthUid, IpAddress, Pagination, RequestAgent } from "@common/decorators";
 import { AccessRecordService, AccountService } from "../services";

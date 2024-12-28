@@ -1,7 +1,7 @@
-import { IsMongoId, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsMongoId, IsOptional, IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class UpdateFolderDto {
+export class UpdateResourceDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
@@ -11,4 +11,9 @@ export class UpdateFolderDto {
   @IsOptional()
   @IsMongoId()
   parentId?: DocumentId;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  isPrivate?: boolean;
 }
