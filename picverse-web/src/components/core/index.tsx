@@ -10,6 +10,7 @@ export { default as SignedIn } from "./SignedIn";
 export { default as SignedOut } from "./SignedOut";
 export { default as ContentSection } from "./ContentSection";
 export { default as AuthDetect } from "./AuthDetect";
+export { default as Logo } from "./Logo";
 
 /* CLOUD COMPONENTS */
 

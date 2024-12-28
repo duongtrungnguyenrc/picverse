@@ -8,7 +8,7 @@ type RequireAuthLayoutProps = {
 
 const RequireAuthLayout: FC<RequireAuthLayoutProps> = ({ children }) => {
   return (
-    <AuthDetect navigationTo={"/sign-in"} isSignedIn={true}>
+    <AuthDetect navigationTo={"/"} isSignedIn={true}>
       {children}
     </AuthDetect>
   );

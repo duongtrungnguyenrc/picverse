@@ -1,96 +1,201 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
 
-import { Button } from "@app/components";
+import {
+  Button,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
+  Logo,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@app/components";
+import { useSignUp } from "@app/lib/hooks";
+import { signUpSchema } from "@app/lib/validations";
+import { EGender } from "@app/lib/enums";
 
 type SignUpPageProps = {};
-
-type SignUpFormData = {
-  email: string;
-  password: string;
-};
+type SignUpFormData = SignUpDto & { confirmPassword: string };
 
 const SignUpPage: FC<SignUpPageProps> = ({}) => {
-  const { register, handleSubmit } = useForm<SignUpFormData>();
+  const form = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
+    mode: "onSubmit",
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+      userName: "",
+      firstName: "",
+      lastName: "",
+      birth: "",
+      gender: EGender.MALE,
+      phone: "",
+    },
+  });
 
-  const onSubmit = (data: SignUpFormData) => {
-    console.log("Sign Up Data:", data);
-  };
+  const { errors: formErrors } = form.formState;
+  const { mutate: signUp, isPending } = useSignUp();
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900 bg-gradient auth">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 animate-fade-in">
         <Link href="/" className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-          <img
-            className="w-8 h-8 mr-2"
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
-            alt="logo"
-          />
+          <Logo />
           Picverse
         </Link>
-        <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-          <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+        <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700  max-h-[90vh] overflow-y-auto">
+          <div className="p-6 space-y-10 sm:p-8">
             <h1 className="text-xl text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-              Sign in to your account
+              Sign up new account
             </h1>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
-              <div>
-                <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Your email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  className="text-sm bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="name@company.com"
-                  {...register("email")}
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  placeholder="••••••••"
-                  className="text-sm bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  {...register("password")}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-start">
-                  <div className="flex items-center h-5">
-                    <input
-                      id="remember"
-                      aria-describedby="remember"
-                      type="checkbox"
-                      className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
-                    />
-                  </div>
-                  <div className="ml-3 text-sm">
-                    <label htmlFor="remember" className="text-gray-500 dark:text-gray-300">
-                      Remember me
-                    </label>
-                  </div>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit((data) => signUp(data))} className="space-y-4">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name:</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John" {...field} />
+                        </FormControl>
+                        {formErrors.firstName && <FormMessage>{formErrors.firstName.message}</FormMessage>}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name:</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Doe" {...field} />
+                        </FormControl>
+                        {formErrors.lastName && <FormMessage>{formErrors.lastName.message}</FormMessage>}
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <Link href="#" className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">
-                  Forgot password?
-                </Link>
-              </div>
-              <Button type="submit" className="w-full font-bold">
-                Sign up
-              </Button>
-              <p className="text-sm text-center font-light text-gray-500 dark:text-gray-400">
-                Already have an account?
-                <Link href="/sign-in" className="ms-1 font-medium text-blue-500 hover:underline">
-                  Sign in
-                </Link>
-              </p>
-            </form>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email:</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="example@domain.com" {...field} />
+                      </FormControl>
+                      {formErrors.email && <FormMessage>{formErrors.email.message}</FormMessage>}
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="birth"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Birth Date:</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        {formErrors.birth && <FormMessage>{formErrors.birth.message}</FormMessage>}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="gender"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Gender:</FormLabel>
+                        <FormControl>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Gender" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectItem value="male">Male</SelectItem>
+                                <SelectItem value="female">Female</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        {formErrors.gender && <FormMessage>{formErrors.gender.message}</FormMessage>}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number:</FormLabel>
+                      <FormControl>
+                        <Input type="tel" placeholder="0123456789" {...field} />
+                      </FormControl>
+                      {formErrors.phone && <FormMessage>{formErrors.phone.message}</FormMessage>}
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password:</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        {formErrors.password && <FormMessage>{formErrors.password.message}</FormMessage>}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm Password:</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        {formErrors.confirmPassword && <FormMessage>{formErrors.confirmPassword.message}</FormMessage>}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <Button disabled={isPending} type="submit" className="w-full font-bold">
+                  Sign up {isPending && <Loader2 size={16} className="animate-spin" />}
+                </Button>
+                <p className="text-sm text-center font-light text-gray-500 dark:text-gray-400">
+                  Already have an account?
+                  <Link href="/sign-in" className="ms-1 font-medium text-blue-500 hover:underline">
+                    Sign in
+                  </Link>
+                </p>
+              </form>
+            </Form>
           </div>
         </div>
       </div>

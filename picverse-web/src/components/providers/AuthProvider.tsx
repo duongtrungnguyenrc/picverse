@@ -1,30 +1,53 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
-import { FC, ReactNode, useCallback } from "react";
+import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 
-import { useAuthorizeClient } from "@app/lib/hooks";
+import { clearAuthCookie, getCookie } from "@app/lib/actions";
 import { AuthContext } from "@app/lib/contexts";
-import { QueryKeys } from "@app/lib/constants";
+import { httpClient } from "@app/lib/utils";
 
 type AuthProviderProps = {
   children: ReactNode;
 };
 
 const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
-  const { data, isPending, refetch } = useAuthorizeClient();
-  const queryClient = useQueryClient();
+  const [state, setState] = useState<Pick<AuthContext, "ready" | "account">>({
+    ready: false,
+  });
 
-  const clearAuth = useCallback(async () => {
-    await queryClient.resetQueries({ queryKey: [QueryKeys.GET_ACCOUNT] });
-  }, [queryClient]);
+  useEffect(() => {
+    authorizeClient();
+  }, []);
+
+  const authorizeClient = useCallback(async () => {
+    try {
+      const [accessToken, refreshToken] = await Promise.all([
+        getCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX),
+        getCookie(process.env.NEXT_PUBLIC_REFRESH_TOKEN_PREFIX),
+      ]);
+
+      if (!accessToken && !refreshToken) {
+        throw new Error();
+      }
+
+      const response = await httpClient.post<Account>("/accounts/authorize");
+
+      setState({ account: response.data, ready: true });
+    } catch (error) {
+      setState({ account: undefined, ready: true });
+    }
+  }, [httpClient, setState, getCookie]);
+
+  const clearAuth = useCallback(() => {
+    setState((prevState) => ({ ...prevState, account: undefined }));
+    clearAuthCookie();
+  }, [setState, clearAuthCookie]);
 
   return (
     <AuthContext.Provider
       value={{
-        account: data,
-        ready: !isPending,
-        authorizeClient: refetch,
+        ...state,
+        authorizeClient,
         clearAuth,
       }}
     >

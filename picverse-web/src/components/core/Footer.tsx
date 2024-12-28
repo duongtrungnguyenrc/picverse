@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FC } from "react";
+import Logo from "./Logo";
 
 type FooterProps = {};
 
@@ -11,13 +12,7 @@ const Footer: FC<FooterProps> = ({}) => {
         <div className="md:flex md:justify-between">
           <div className="mb-6 md:mb-0">
             <Link href="" className="flex items-center">
-              <Image
-                src="https://flowbite.com/docs/images/logo.svg"
-                className="h-8 me-3"
-                width={30}
-                height={30}
-                alt="FlowBite Logo"
-              />
+              <Logo />
               <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Picverse</span>
             </Link>
           </div>

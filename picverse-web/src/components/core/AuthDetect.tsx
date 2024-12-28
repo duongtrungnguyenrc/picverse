@@ -1,8 +1,10 @@
 "use client";
 
-import { FC, ReactNode, useEffect } from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Lottie from "lottie-react";
 
+import loadingAnimation from "@app/animations/loading.json";
 import { useAuth } from "@app/lib/hooks";
 
 type AuthDetectProps = {
@@ -12,18 +14,29 @@ type AuthDetectProps = {
 };
 
 const AuthDetect: FC<AuthDetectProps> = ({ children, navigationTo, isSignedIn = true }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const { ready, account } = useAuth();
   const router = useRouter();
 
-  console.log(!!!account === isSignedIn);
-
   useEffect(() => {
-    if (ready && !!!account === isSignedIn) {
-      router.replace(navigationTo);
+    if (ready) {
+      if (!!!account === isSignedIn) {
+        router.replace(navigationTo);
+      } else {
+        setIsLoading(false);
+      }
     }
-  }, [ready, account]);
+  }, [ready, account, isSignedIn, navigationTo, router]);
 
-  return children;
+  if (isLoading) {
+    return (
+      <div className="w-screen h-screen flex justify-center items-center">
+        <Lottie animationData={loadingAnimation} className="w-[150px] h-[150px]" loop />
+      </div>
+    );
+  }
+
+  return <>{children}</>;
 };
 
 export default AuthDetect;

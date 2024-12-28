@@ -21,6 +21,17 @@ declare type SignInDto = {
   password: string;
 };
 
+declare type SignUpDto = {
+  email: string;
+  password: string;
+  userName: string;
+  firstName: string;
+  lastName: string;
+  birth: string;
+  gender: import("../enums").EGender;
+  phone: string;
+};
+
 declare type ThirdPartyTokenPayload = TokenPair & {
   secret: string;
 };

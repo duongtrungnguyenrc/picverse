@@ -5,19 +5,52 @@ import { useRouter } from "next/navigation";
 import { generate } from "randomstring";
 import { toast } from "react-hot-toast";
 
+import { httpClient, showAxiosToastError } from "../utils";
 import { MutationKeys, QueryKeys } from "../constants";
-import { httpClient } from "../utils";
+import { setAuthCookie } from "../actions";
 import { useAuth } from "./use-auth";
 
-export const useSignIn = () =>
-  useMutation<TokenPair, AxiosError, SignInDto>({
+export const useSignUp = () => {
+  const router = useRouter();
+
+  return useMutation<StatusResponse, AxiosError, SignUpDto>({
+    mutationKey: [MutationKeys.SIGN_UP],
+    mutationFn: async (data) => {
+      const response = await httpClient.post<StatusResponse>("/accounts/sign-up", data);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Sign up success");
+      router.replace("/sign-in");
+    },
+    onError: showAxiosToastError,
+  });
+};
+
+export const useSignIn = () => {
+  const { authorizeClient, ready } = useAuth();
+
+  const result = useMutation<TokenPair, AxiosError, SignInDto>({
     mutationKey: [MutationKeys.SIGN_IN],
     mutationFn: async (data) => {
       const response = await httpClient.post<TokenPair>("/accounts/sign-in", data);
 
       return response.data;
     },
+    onSuccess: async (data) => {
+      await setAuthCookie(data);
+      authorizeClient();
+
+      toast.success("Sign in success");
+    },
+    onError: showAxiosToastError,
   });
+
+  return {
+    ...result,
+    isPending: result.isPending || !ready,
+  };
+};
 
 export const useGoogleSignIn = () => {
   const { data: secret } = useClientSecret();
@@ -42,17 +75,19 @@ export const useSignOut = () => {
     mutationKey: [MutationKeys.SIGN_OUT],
     mutationFn: async () => {
       const response = await httpClient.post<StatusResponse>("/accounts/sign-out");
-      clearAuth();
-      toast.success(response.data.message);
-
       return response.data;
     },
+    onSuccess: (data) => {
+      clearAuth();
+      toast.success(data.message);
+    },
+    onError: showAxiosToastError,
   });
 };
 
 export const useClientSecret = () =>
   useQuery<string>({
-    queryKey: [QueryKeys.GET_CLIENT_SECRET],
+    queryKey: [QueryKeys.CLIENT_SECRET],
     queryFn: async () => {
       let secret = localStorage.getItem("authSecret");
 
@@ -69,19 +104,4 @@ export const useClientSecret = () =>
     refetchIntervalInBackground: false,
     retryOnMount: false,
     retry: false,
-  });
-
-export const useAuthorizeClient = () =>
-  useQuery<Account, AxiosError>({
-    queryKey: [QueryKeys.GET_ACCOUNT],
-    queryFn: async () => {
-      const response = await httpClient.post<Account>("/accounts/authorize");
-
-      return response.data;
-    },
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchInterval: false,
-    retry: false,
-    staleTime: 0,
   });

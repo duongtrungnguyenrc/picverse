@@ -1,11 +1,12 @@
 "use client";
 
-import { notFound, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import Lottie from "lottie-react";
 import jwt from "jsonwebtoken";
 
 import { useAuth, useClientSecret, useGoogleSignIn } from "@app/lib/hooks";
+import loadingAnimation from "@app/animations/loading.json";
 import { setAuthCookie } from "@app/lib/actions";
 import { Button } from "@app/components";
 
@@ -24,12 +25,8 @@ const ThirdPartyCallbackPage: FC<CallbackPropsType> = () => {
   useEffect(() => {
     const handle = async () => {
       if (token && secret) {
-        console.log(secret);
-
         try {
           const decodedToken = jwt.verify(token, secret);
-
-          console.log(decodedToken?.toString());
 
           const { secret: decodedSecret, ...tokenPair }: ThirdPartyTokenPayload =
             decodedToken as ThirdPartyTokenPayload;
@@ -37,8 +34,6 @@ const ThirdPartyCallbackPage: FC<CallbackPropsType> = () => {
           if (tokenPair) {
             await setAuthCookie(tokenPair);
             authorizeClient();
-            router.replace("/");
-
             return;
           }
         } catch (error) {
@@ -51,7 +46,7 @@ const ThirdPartyCallbackPage: FC<CallbackPropsType> = () => {
   }, [token, secret, router, authorizeClient]);
 
   return (
-    <div className="w-screen h-screen flex flex-col justify-center items-center text-gray-600">
+    <div className="w-screen h-screen flex flex-col justify-center items-center text-gray-500">
       {errorMessage ? (
         <>
           <p className="text-lg font-semibold">Authentication failed...</p>
@@ -62,10 +57,7 @@ const ThirdPartyCallbackPage: FC<CallbackPropsType> = () => {
           </Button>
         </>
       ) : (
-        <>
-          <Loader2 className="animate-spin" size={16} />
-          <p className="text-lg font-semibold">Authenticating...</p>
-        </>
+        <Lottie animationData={loadingAnimation} className="w-[150px] h-[150px]" loop />
       )}
     </div>
   );
