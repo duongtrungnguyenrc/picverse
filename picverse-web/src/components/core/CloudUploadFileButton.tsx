@@ -122,11 +122,11 @@ const CloudUploadFileButton: FC<CloudUploadFileButtonProps> = ({ parentId }) => 
               name="storage"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Storage (Default is local storage)</FormLabel>
+                  <FormLabel>Storage</FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <SelectTrigger>
-                        <SelectValue placeholder={ECloudStorage.LOCAL} />
+                        <SelectValue placeholder="Select storage (default is local)" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>

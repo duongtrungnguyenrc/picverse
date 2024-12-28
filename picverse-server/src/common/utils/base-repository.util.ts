@@ -24,7 +24,7 @@ export class Repository<T extends Document> {
 
   public async create(docs: Array<AnyKeys<T>>, options?: CreateOptions): Promise<Array<T>>;
   public async create(doc: AnyKeys<T>, options?: CreateOptions): Promise<T>;
-  public async create(docOrDocs: AnyKeys<T> | Array<AnyKeys<T>>, options?: CreateOptions): Promise<T | Array<T>> {
+  public async create(docOrDocs: AnyKeys<T> | Array<AnyKeys<T>>, options: CreateOptions = {}): Promise<T | Array<T>> {
     const isArrayInput: boolean = Array.isArray(docOrDocs);
 
     const result = isArrayInput ? await this._model.create(docOrDocs as Array<AnyKeys<T>>, options) : await new this._model(docOrDocs as AnyKeys<T>).save(options);
@@ -166,7 +166,7 @@ export class Repository<T extends Document> {
     return response;
   }
 
-  public async update(idOrFilter: string | FilterQuery<T>, updateData: UpdateQuery<T>, options?: QueryOptions): Promise<T | null> {
+  public async update(idOrFilter: string | FilterQuery<T>, updateData: UpdateQuery<T>, options: QueryOptions = {}): Promise<T | null> {
     const query = typeof idOrFilter === "string" ? { _id: idOrFilter } : idOrFilter;
     const updatedDocument = await this._model.findOneAndUpdate(query, updateData, { ...options, new: true }).exec();
 

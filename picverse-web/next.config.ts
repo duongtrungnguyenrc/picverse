@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "picverse.pics",
+        hostname: "api.picverse.pics",
       },
     ],
   },
