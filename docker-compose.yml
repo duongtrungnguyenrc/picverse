@@ -1,3 +1,5 @@
+version: '3.7'
+
 services:
   mongo-primary:
     image: mongo:latest
@@ -32,23 +34,23 @@ services:
     volumes:
       - mongo-arbiter-data:/data/db
 
-  # init-replica-set:
-  #   image: mongo:latest
-  #   container_name: init-replica-set
-  #   depends_on:
-  #     - mongo-primary
-  #     - mongo-secondary
-  #     - mongo-arbiter
-  #   volumes:
-  #     - ./init-replica.js:/init-replica.js
-  #   entrypoint: >
-  #     bash -c "
-  #       sleep 30;
-  #       mongosh --host mongo-write:27017 --eval 'load(\"/init-replica.js\");'
-  #       echo 'Replica set init success';
-  #     "
-  #   networks:
-  #     - picverse-network
+  init-replica-set:
+    image: mongo:latest
+    container_name: init-replica-set
+    depends_on:
+      - mongo-primary
+      - mongo-secondary
+      - mongo-arbiter
+    volumes:
+      - ./init-replica.js:/init-replica.js
+    entrypoint: >
+      bash -c "
+        sleep 30;
+        mongosh --host mongo-write:27017 --eval 'load(\"/init-replica.js\");'
+        echo 'Replica set init success';
+      "
+    networks:
+      - picverse-network
 
   redis-cache:
     image: redis:latest
@@ -76,17 +78,17 @@ services:
       - REDIS_URL=redis://redis-cache:6379
       - MONGO_URI=mongodb://mongo-primary:27017,picverse-mongo-secondary:27017,mongo-arbiter:27017/picverse?replicaSet=rs0
 
-  # picverse-web:
-  #   container_name: picverse-web
-  #   build:
-  #     context: ./picverse-web
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3001:3000"
-  #   depends_on:
-  #     - picverse-server
-  #   networks:
-  #     - picverse-network
+  picverse-web:
+    container_name: picverse-web
+    build:
+      context: ./picverse-web
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    depends_on:
+      - picverse-server
+    networks:
+      - picverse-network
 
 volumes:
   mongo-primary-data:

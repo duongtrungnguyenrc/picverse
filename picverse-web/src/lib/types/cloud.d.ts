@@ -35,6 +35,7 @@ declare type GetResourcesResponse = InfiniteResponse<Resource>;
 declare type UploadFileRequest = {
   file: File;
   fileName?: string;
+  storage?: ECloudStorage;
 };
 
 declare type CreateFolderRequest = {

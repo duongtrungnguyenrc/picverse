@@ -96,11 +96,10 @@ export class CloudStorageController {
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @AuthUid() accountId: DocumentId,
-    @Query("storage") storage: ECloudStorage = ECloudStorage.LOCAL,
     @Query("parentId") parentId: DocumentId,
     @Body() payload: UploadFileDto,
   ): Promise<StatusResponseDto> {
-    return await this.cloudService.uploadFile(accountId, parentId, file, storage, payload);
+    return await this.cloudService.uploadFile(accountId, parentId, file, payload);
   }
 
   @Get("/file/:fileId")

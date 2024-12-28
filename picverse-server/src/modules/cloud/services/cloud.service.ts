@@ -1,18 +1,18 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
+import { Response } from "express";
 
-import { CloudCredentials, CloudCredentialsDocument, Resource } from "../schemas";
 import { CreateFolderDto, GetStorageLinkStatusResponseDto, UpdateResourceDto, UploadFileDto } from "../dtos";
+import { CloudCredentials, CloudCredentialsDocument, Resource } from "../schemas";
 import { IExternalStorageService, IStorageService } from "../interfaces";
+import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { DropboxStorageService } from "./dropbox-storage.service";
 import { DriveStorageService } from "./drive-storage.service";
 import { LocalStorageService } from "./local-storage.service";
 import { ECloudStorage, EResourceType } from "../enums";
-import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
-import { getExpiredTime } from "@common/utils";
-import { Response } from "express";
 import { ResourceService } from "./resource.service";
+import { getExpiredTime } from "@common/utils";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()
@@ -28,7 +28,7 @@ export class CloudService {
 
   async getExternalStorageAuthUrl(accountId: DocumentId, storage: ECloudStorage): Promise<string> {
     const cloudStorage: IExternalStorageService = this.getStorage(storage, true);
-    return await cloudStorage.getAuthUrl(accountId);
+    return cloudStorage.getAuthUrl(accountId);
   }
 
   async getStorageLinkStatus(accountId: DocumentId): Promise<GetStorageLinkStatusResponseDto> {
@@ -74,11 +74,11 @@ export class CloudService {
   async getResources(accountId: DocumentId, folderId: DocumentId | undefined, pagination: Pagination): Promise<InfiniteResponse<Resource>> {
     const parentFolder = await this.resourceService.find(folderId, { select: ["_id", "isPrivate", "accountId"] });
 
-    if (!parentFolder) {
+    if (folderId && !parentFolder) {
       throw new NotFoundException("Folder does not exists");
     }
 
-    if (accountId?.toString() != parentFolder.accountId.toString() && parentFolder.isPrivate) {
+    if (accountId?.toString() != parentFolder?.accountId.toString() && parentFolder?.isPrivate) {
       throw new ForbiddenException("Unable to access private resources, please contact the author and request viewing permission");
     }
 
@@ -158,8 +158,8 @@ export class CloudService {
     return { message: "Folder deleted success" };
   }
 
-  async uploadFile(accountId: DocumentId, parentId: DocumentId, file: Express.Multer.File, toStorage: ECloudStorage, payload: UploadFileDto): Promise<StatusResponseDto> {
-    const storage: IStorageService = this.getStorage(toStorage);
+  async uploadFile(accountId: DocumentId, parentId: DocumentId, file: Express.Multer.File, payload: UploadFileDto): Promise<StatusResponseDto> {
+    const storage: IStorageService = this.getStorage(payload.storage ?? ECloudStorage.LOCAL);
     const fileName = payload.fileName || file.originalname;
 
     await storage.uploadFile(accountId, file, {
@@ -212,7 +212,7 @@ export class CloudService {
   private async saveOAuthCredentials(accountId: DocumentId, storage: ECloudStorage, tokens: any) {
     const expiresAt = tokens.expiresIn ? getExpiredTime(tokens.expiresIn) : null;
 
-    const credentials = await this.oauthCredentialsModel.findOneAndUpdate(
+    return this.oauthCredentialsModel.findOneAndUpdate(
       { accountId: new Types.ObjectId(accountId), storage },
       {
         accessToken: tokens.accessToken,
@@ -222,7 +222,5 @@ export class CloudService {
       },
       { upsert: true, new: true },
     );
-
-    return credentials;
   }
 }

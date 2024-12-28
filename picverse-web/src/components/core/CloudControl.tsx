@@ -1,9 +1,9 @@
 "use client";
 
-import { FolderPlus, Cloudy, Settings, Share, Upload, ChartBarBig, CloudUpload, Key } from "lucide-react";
+import { FolderPlus, Cloudy, Settings, Share, ChartBarBig } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
-import { FC, ReactElement, useState } from "react";
+import { FC, ReactElement } from "react";
 
 import {
   Button,
@@ -14,98 +14,13 @@ import {
   DialogTitle,
   DialogTrigger,
   Input,
-  Label,
 } from "../shadcn";
-import { useCreateFolder, useExternalStorageLinkStatus, useLinkExternalStorage, useUploadFile } from "@app/lib/hooks";
+import { useCreateFolder, useExternalStorageLinkStatus, useLinkExternalStorage } from "@app/lib/hooks";
 import ContentSection from "./ContentSection";
 import toast from "react-hot-toast";
 import { ECloudStorage } from "@app/lib/enums";
 import { cn } from "@app/lib/utils";
-
-type UploadFileProps = {
-  parentId?: string;
-};
-
-const UploadFile: FC<UploadFileProps> = ({ parentId }) => {
-  const { register, handleSubmit, reset } = useForm<UploadFileRequest>();
-  const [preview, setPreview] = useState<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-
-  const { mutateAsync: uploadFile, isPending } = useUploadFile(parentId);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-    }
-  };
-
-  const onSubmit = async (data: UploadFileRequest) => {
-    if (!file) return;
-
-    try {
-      await uploadFile({
-        ...data,
-        file,
-      });
-      reset();
-      setPreview(null);
-      setFile(null);
-    } catch (error) {
-      toast.error("Upload failed: " + error);
-    }
-  };
-
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <div className="p-3 w-[150px] flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all">
-          <CloudUpload size={16} />
-          <span>Upload file</span>
-        </div>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Upload file</DialogTitle>
-        </DialogHeader>
-        <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
-          <Label
-            htmlFor="uploadFileInput"
-            className="h-[200px] flex flex-col items-center justify-center rounded-lg border border-dashed cursor-pointer"
-          >
-            <Input
-              id="uploadFileInput"
-              type="file"
-              accept=".png,.jpg,.JPG,.JPEG,.webp"
-              className="hidden"
-              {...register("file")}
-              onChange={handleFileChange}
-            />
-            {preview ? (
-              <img src={preview} alt="Preview" className="max-h-[180px] object-contain" />
-            ) : (
-              <>
-                <CloudUpload className="text-gray-500" />
-                <p className="text-xs">Upload file</p>
-              </>
-            )}
-          </Label>
-          <Input
-            placeholder="New file name (optional)"
-            className="col-span-3 text-sm placeholder:text-sm"
-            {...register("fileName")}
-          />
-          <DialogFooter className="flex justify-end">
-            <Button className="text-sm" type="submit" disabled={isPending}>
-              {isPending ? "Uploading..." : "Save file"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-};
+import CloudUploadFileButton from "./CloudUploadFileButton";
 
 type CreateFolderProps = {
   parentId?: string;
@@ -273,7 +188,7 @@ const CloudControl: FC<CloudControlProps> = ({ parentId }) => {
     <ContentSection subHeading="Cloud control" className="sticky top-0 h-fit">
       <ul className="flex flex-wrap gap-3 max-w-full">
         <li>
-          <UploadFile parentId={parentId} />
+          <CloudUploadFileButton parentId={parentId} />
         </li>
 
         <li>

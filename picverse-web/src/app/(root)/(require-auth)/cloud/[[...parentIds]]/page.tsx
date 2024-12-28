@@ -11,11 +11,11 @@ const CloudPage: FC<CloudPageProps> = async ({ params }) => {
 
   if (parentIds?.length > 1) notFound();
 
-  const parentId = parentIds?.length > 0 ? parentIds[0] : undefined
+  const parentId = parentIds?.length > 0 ? parentIds[0] : undefined;
 
   return (
     <div className="header-spacing p-10">
-      <CloudControl parentId={parentId}/>
+      <CloudControl parentId={parentId} />
 
       <CloudResourcesListing parentId={parentIds?.length > 0 ? parentIds[0] : undefined} />
     </div>

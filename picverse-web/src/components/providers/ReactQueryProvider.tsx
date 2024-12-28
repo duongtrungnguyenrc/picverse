@@ -13,9 +13,7 @@ const ReactQueryProvider: FC<ReactQueryProviderProps> = ({ children }) => {
       queries: {
         retry: false,
       },
-      mutations: {
-        
-      }
+      mutations: {},
     },
   });
 

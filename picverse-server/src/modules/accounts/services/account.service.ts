@@ -259,7 +259,7 @@ export class AccountService extends Repository<Account> {
       throw new BadRequestException(AccountErrorMessage.ACCOUNT_ALREADY_ACTIVE);
     }
 
-    const clientUrl: string = this.configService.get<string>("CLIENT_URL");
+    const clientUrl: string = this.configService.get<string>("CLIENT_ORIGIN");
     const sessionId: string = uuid();
 
     const session: ActivateAccountSession = { accountId: account._id, ipAddress };
