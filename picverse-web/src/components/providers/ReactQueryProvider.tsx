@@ -8,7 +8,16 @@ type ReactQueryProviderProps = {
 };
 
 const ReactQueryProvider: FC<ReactQueryProviderProps> = ({ children }) => {
-  const queryClient: QueryClient = new QueryClient();
+  const queryClient: QueryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+      mutations: {
+        
+      }
+    },
+  });
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
