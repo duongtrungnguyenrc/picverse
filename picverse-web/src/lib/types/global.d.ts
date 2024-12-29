@@ -60,4 +60,11 @@ declare type ValidationSchema<T> = {
   [k in keyof T]: import("zod").ZodTypeAny;
 };
 
-type SearchParams = { [key: string]: string | string[] | undefined };
+declare type SearchParams = { [key: string]: string | string[] | undefined };
+
+declare type Route = {
+  name: string;
+  path: string;
+  description?: string;
+  icon?: import("react").ReactElement;
+};

@@ -1,9 +1,9 @@
 "use client";
 
+import { FC, ReactNode, useState } from "react";
 import { CloudUpload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { FC, useState } from "react";
 
 import {
   Button,
@@ -32,35 +32,32 @@ import { ECloudStorage } from "@app/lib/enums";
 
 type CloudUploadFileButtonProps = {
   parentId?: string;
+  children: ReactNode;
 };
 
-const CloudUploadFileButton: FC<CloudUploadFileButtonProps> = ({ parentId }) => {
+const CloudUploadFileButton: FC<CloudUploadFileButtonProps> = ({ parentId, children }) => {
+  const [file, setFile] = useState<{ file?: File; previewUrl?: string }>({});
+  const { mutateAsync: uploadFile, isPending } = useUploadFile(parentId);
   const { data: linkStatus } = useExternalStorageLinkStatus();
-  const [preview, setPreview] = useState<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
   const form = useForm<UploadFileRequest>();
 
-  const { mutateAsync: uploadFile, isPending } = useUploadFile(parentId);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
     if (selectedFile) {
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
+      setFile({ file: selectedFile, previewUrl: URL.createObjectURL(selectedFile) });
     }
   };
 
   const onSubmit = async (data: UploadFileRequest) => {
-    if (!file) return;
+    if (!file.file) return;
 
     try {
       await uploadFile({
         ...data,
-        file,
+        file: file.file,
       });
       form.reset();
-      setPreview(null);
-      setFile(null);
+      setFile({ file: undefined, previewUrl: undefined });
     } catch (error) {
       toast.error("Upload failed: " + error);
     }
@@ -68,12 +65,7 @@ const CloudUploadFileButton: FC<CloudUploadFileButtonProps> = ({ parentId }) => 
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <div className="p-3 w-[150px] flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all">
-          <CloudUpload size={16} />
-          <span>Upload file</span>
-        </div>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
@@ -92,8 +84,8 @@ const CloudUploadFileButton: FC<CloudUploadFileButtonProps> = ({ parentId }) => 
                 className="hidden"
                 onChange={handleFileChange}
               />
-              {preview ? (
-                <img src={preview} alt="Preview" className="max-h-[180px] object-contain" />
+              {file.previewUrl ? (
+                <img src={file.previewUrl} alt="Preview" className="max-h-[180px] object-contain" />
               ) : (
                 <>
                   <CloudUpload className="text-gray-500" />

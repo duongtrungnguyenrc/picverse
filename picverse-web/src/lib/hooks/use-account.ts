@@ -13,7 +13,7 @@ import { useAuth } from "./use-auth";
 export const useSignUp = () => {
   const router = useRouter();
 
-  return useMutation<StatusResponse, AxiosError, SignUpDto>({
+  return useMutation<StatusResponse, AxiosError, SignUpRequest>({
     mutationKey: [MutationKeys.SIGN_UP],
     mutationFn: async (data) => {
       const response = await httpClient.post<StatusResponse>("/accounts/sign-up", data);
@@ -30,7 +30,7 @@ export const useSignUp = () => {
 export const useSignIn = () => {
   const { authorizeClient, ready } = useAuth();
 
-  const result = useMutation<TokenPair, AxiosError, SignInDto>({
+  const result = useMutation<TokenPair, AxiosError, SignInRequest>({
     mutationKey: [MutationKeys.SIGN_IN],
     mutationFn: async (data) => {
       const response = await httpClient.post<TokenPair>("/accounts/sign-in", data);
@@ -105,3 +105,33 @@ export const useClientSecret = () =>
     retryOnMount: false,
     retry: false,
   });
+
+export const useForgotPassword = () => {
+  return useMutation<string, AxiosError, ForgotPasswordRequest>({
+    mutationKey: [MutationKeys],
+    mutationFn: async (data) => {
+      const response = await httpClient.post<string>("/accounts/forgot-password", data);
+
+      return response.data;
+    },
+    onError: showAxiosToastError,
+  });
+};
+
+export const useResetPassword = () => {
+  const router = useRouter();
+
+  return useMutation<StatusResponse, AxiosError, ResetPasswordRequest>({
+    mutationKey: [MutationKeys],
+    mutationFn: async (data) => {
+      const response = await httpClient.post<StatusResponse>("/accounts/reset-password", data);
+
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data.message);
+      router.replace("/sign-in");
+    },
+    onError: showAxiosToastError,
+  });
+};

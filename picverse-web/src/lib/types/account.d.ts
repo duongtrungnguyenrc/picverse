@@ -16,12 +16,12 @@ type AuthContext = {
   clearAuth: VoidFunction;
 };
 
-declare type SignInDto = {
+declare type SignInRequest = {
   emailOrUserName: string;
   password: string;
 };
 
-declare type SignUpDto = {
+declare type SignUpRequest = {
   email: string;
   password: string;
   userName: string;
@@ -30,6 +30,16 @@ declare type SignUpDto = {
   birth: string;
   gender: import("../enums").EGender;
   phone: string;
+};
+
+declare type ForgotPasswordRequest = {
+  emailOrUserName: string;
+};
+
+declare type ResetPasswordRequest = {
+  otpCode: string;
+  sessionId: string;
+  newPassword: string;
 };
 
 declare type ThirdPartyTokenPayload = TokenPair & {

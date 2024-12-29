@@ -95,8 +95,8 @@ export class AccountController {
   @Post("/reset-password")
   @ApiOperation({ summary: "Reset password" })
   @ApiBody({ type: ResetPasswordDto })
-  @ApiCreatedResponse({ description: "Reset password success. Return status", type: Boolean })
-  async resetPassword(@Body() payload: ResetPasswordDto, @IpAddress() ipAddress: string): Promise<boolean> {
+  @ApiCreatedResponse({ description: "Reset password success. Return status", type: StatusResponseDto })
+  async resetPassword(@Body() payload: ResetPasswordDto, @IpAddress() ipAddress: string): Promise<StatusResponseDto> {
     return await this.accountService.resetPassword(payload, ipAddress);
   }
 
@@ -104,16 +104,16 @@ export class AccountController {
   @Post("/lock")
   @ApiOperation({ summary: "Lock account" })
   @ApiBody({ type: LockAccountDto })
-  @ApiCreatedResponse({ description: "Lock account success. Return status", type: Boolean })
-  async lockAccount(@AuthUid() userId: DocumentId, @Body() payload: LockAccountDto): Promise<boolean> {
+  @ApiCreatedResponse({ description: "Lock account success. Return status", type: StatusResponseDto })
+  async lockAccount(@AuthUid() userId: DocumentId, @Body() payload: LockAccountDto): Promise<StatusResponseDto> {
     return await this.accountService.lockAccount(userId, payload);
   }
 
   @Post("/request-activation")
   @ApiOperation({ summary: "Rquest reactivate account" })
   @ApiBody({ type: RequestActiveAccountDto })
-  @ApiCreatedResponse({ description: "Successfully request activate account Return status", type: Boolean })
-  async requestActivationOtp(@Body() payload: RequestActiveAccountDto, @IpAddress() ipAddress: string): Promise<boolean> {
+  @ApiCreatedResponse({ description: "Successfully request activate account Return status", type: StatusResponseDto })
+  async requestActivationOtp(@Body() payload: RequestActiveAccountDto, @IpAddress() ipAddress: string): Promise<StatusResponseDto> {
     return this.accountService.requestActivateAccount(payload, ipAddress);
   }
 

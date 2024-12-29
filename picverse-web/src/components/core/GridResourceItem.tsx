@@ -121,7 +121,7 @@ const GridResourceItem: FC<GridResourceItemProps> = ({ resource, onDrop }) => {
           defaultValue={name}
           className="text-sm text-black bg-transparent font-medium truncate focus:px-1 focus:py-0.5 max-w-[80%] flex-1 transition-all"
         />
-        {isPrivate ? <Lock size={12} /> : <Earth size={12} />}
+        {isFile && (isPrivate ? <Lock size={12} /> : <Earth size={12} />)}
       </div>
     );
   };

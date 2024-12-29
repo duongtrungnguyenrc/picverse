@@ -6,7 +6,7 @@ import Lottie from "lottie-react";
 import jwt from "jsonwebtoken";
 
 import { useAuth, useClientSecret, useGoogleSignIn } from "@app/lib/hooks";
-import loadingAnimation from "@app/animations/loading.json";
+import loadingAnimation from "@app/assets/lotties/loading.json";
 import { setAuthCookie } from "@app/lib/actions";
 import { Button } from "@app/components";
 

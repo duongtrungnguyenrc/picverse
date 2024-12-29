@@ -11,11 +11,24 @@ export { default as SignedOut } from "./SignedOut";
 export { default as ContentSection } from "./ContentSection";
 export { default as AuthDetect } from "./AuthDetect";
 export { default as Logo } from "./Logo";
+export { default as CountDown } from "./CountDown";
+
+/* AUTH COMPONENTS */
+export { default as GoogleSignInButton } from "./GoogleSignInButton";
 
 /* CLOUD COMPONENTS */
 
 export { default as CloudControl } from "./CloudControl";
-export { default as CloudResourcesListing } from "./CloudResourcesListing";
+export { default as CloudPageContent } from "./CloudPageContent";
+export { default as CloudUploadFileButton } from "./CloudUploadFileButton";
+export { default as CloudCreateFolderButton } from "./CloudCreateFolderButton";
+export { default as CloudLinkExternalStorageButton } from "./CloudLinkExternalStorageButton";
+export { default as ListResources } from "./ListResources";
+export { default as GridResources } from "./GridResources";
+export { default as CloudResourceActions } from "./CloudResourceActions";
+
+/* SETTING COMPONENTS */
+export { default as SettingSideBar } from "./SettingSideBar";
 
 /* LISTING COMPONENTS */
 

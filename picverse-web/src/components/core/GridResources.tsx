@@ -2,7 +2,7 @@ import { FC } from "react";
 
 import GridResourceItem from "./GridResourceItem";
 
-export const GridResources: FC<{
+const GridResources: FC<{
   resources: Resource[];
   onDrop: (dragId: string, dropId: string, action: "swap" | "move") => void;
 }> = ({ resources, onDrop }) => {
@@ -14,3 +14,5 @@ export const GridResources: FC<{
     </div>
   );
 };
+
+export default GridResources;

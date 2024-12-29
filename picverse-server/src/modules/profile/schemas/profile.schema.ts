@@ -27,7 +27,7 @@ export class Profile extends Document<Types.ObjectId> {
   @Prop({ required: false })
   profilePicture: string;
 
-  @Prop({ required: false })
+  @Prop({ required: false, maxlength: 50 })
   bio: string;
 
   @Prop({ default: true })

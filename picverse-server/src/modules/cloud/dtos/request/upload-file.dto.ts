@@ -1,10 +1,10 @@
-import {IsEnum, IsMongoId, IsOptional, IsString} from "class-validator";
-import {ApiProperty} from "@nestjs/swagger";
+import { IsEnum, IsMongoId, IsOptional, IsString } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
-import {ECloudStorage} from "@modules/cloud";
+import { ECloudStorage } from "@modules/cloud";
 
 export class UploadFileDto {
-  @ApiProperty({required: false})
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   fileName?: string;
@@ -14,7 +14,7 @@ export class UploadFileDto {
   @IsMongoId()
   parentId?: DocumentId;
 
-  @ApiProperty({enum: ECloudStorage, required: false})
+  @ApiProperty({ enum: ECloudStorage, required: false })
   @IsOptional()
   @IsEnum(ECloudStorage)
   storage?: ECloudStorage;

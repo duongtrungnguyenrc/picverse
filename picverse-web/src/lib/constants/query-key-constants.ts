@@ -3,6 +3,7 @@ export enum QueryKeys {
   CLIENT_SECRET = "get-client-secret",
   RESOURCES = "get-resources",
   EXTERNAL_LINK_STATUS = "get-external-link-status",
+  PROFILE = "get-profile",
 }
 
 export enum MutationKeys {

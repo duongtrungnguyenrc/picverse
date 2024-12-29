@@ -4,7 +4,7 @@ import { FC, ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Lottie from "lottie-react";
 
-import loadingAnimation from "@app/animations/loading.json";
+import loadingAnimation from "@app/assets/lotties/loading.json";
 import { useAuth } from "@app/lib/hooks";
 
 type AuthDetectProps = {

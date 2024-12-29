@@ -104,6 +104,10 @@ body {
     }
   }
 
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
   .animate-fade-in {
     animation: fade-in 0.5s ease-in; 
   }

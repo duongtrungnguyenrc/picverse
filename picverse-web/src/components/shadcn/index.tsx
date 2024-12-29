@@ -17,3 +17,4 @@ export * from "./tabs";
 export * from "./form";
 export * from "./context-menu";
 export * from "./skeleton";
+export * from "./avatar";

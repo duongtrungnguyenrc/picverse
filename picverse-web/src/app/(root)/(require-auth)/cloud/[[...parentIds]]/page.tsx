@@ -1,4 +1,4 @@
-import { CloudControl, CloudResourcesListing } from "@app/components";
+import { CloudControl, CloudPageContent } from "@app/components";
 import { notFound } from "next/navigation";
 import { FC } from "react";
 
@@ -17,7 +17,7 @@ const CloudPage: FC<CloudPageProps> = async ({ params }) => {
     <div className="header-spacing p-10">
       <CloudControl parentId={parentId} />
 
-      <CloudResourcesListing parentId={parentIds?.length > 0 ? parentIds[0] : undefined} />
+      <CloudPageContent parentId={parentId} />
     </div>
   );
 };

@@ -58,7 +58,7 @@ const Header: FC<HeaderProps> = ({}) => {
                       <li>
                         <Link
                           className="w-full flex gap-2 items-center hover:bg-gray-200 p-2 py-2 rounded hover:text-black transition-all text-sm"
-                          href={`/me`}
+                          href={`/profile/me`}
                         >
                           <User size={16} /> Profile
                         </Link>

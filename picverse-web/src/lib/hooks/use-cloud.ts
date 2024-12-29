@@ -6,7 +6,6 @@ import toast from "react-hot-toast";
 
 import { httpClient, showAxiosToastError } from "../utils";
 import { MutationKeys, QueryKeys } from "../constants";
-import { use } from "react";
 
 export const useResources = (parentId?: string) => {
   return useInfiniteQuery<GetResourcesResponse, AxiosError>({
@@ -32,7 +31,7 @@ export const useUploadFile = (parentId?: string) => {
     mutationFn: async (payload) => {
       const data: FormData = new FormData();
 
-      Object.entries(payload).forEach(([key, value]) => data.append(key, value));
+      Object.entries(payload).forEach(([key, value]) => value && data.append(key, value));
 
       const response = await httpClient.post<StatusResponse>(
         `/cloud/file${parentId ? `?parentId=${parentId}` : ""}`,

@@ -1,3 +1,5 @@
+"use client";
+
 import { useDrag, useDrop } from "react-dnd";
 import Image from "next/image";
 import { FC } from "react";
@@ -67,7 +69,7 @@ const ListResource: FC<ResourceProps> = ({ resource, onDrop }) => {
   );
 };
 
-export const ListResources: FC<{ resources: Resource[]; onDrop: (fileId: string, folderId: string) => void }> = ({
+const ListResources: FC<{ resources: Resource[]; onDrop: (fileId: string, folderId: string) => void }> = ({
   resources,
   onDrop,
 }) => {
@@ -88,3 +90,5 @@ export const ListResources: FC<{ resources: Resource[]; onDrop: (fileId: string,
     </Table>
   );
 };
+
+export default ListResources;

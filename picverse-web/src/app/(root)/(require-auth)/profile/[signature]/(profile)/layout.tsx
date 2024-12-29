@@ -1,22 +1,17 @@
-import { Profile } from "@app/components";
 import { FC, ReactNode } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@app/components";
 
-type Params = Promise<{ username: string }>;
-
 type ProfilePageLayoutProps = {
-  params: Params;
   createdcollections: ReactNode;
   savedcollections: ReactNode;
+  children: ReactNode;
 };
 
-const ProfilePageLayout: FC<ProfilePageLayoutProps> = async ({ params, createdcollections, savedcollections }) => {
-  const { username } = await params;
-
+const ProfilePageLayout: FC<ProfilePageLayoutProps> = async ({ createdcollections, savedcollections, children }) => {
   return (
     <div className="container">
-      <Profile username={username} />
+      {children}
 
       <Tabs defaultValue="created" className="mx-auto flex flex-col items-center mt-5">
         <TabsList>

@@ -2,7 +2,7 @@ import { notFound, redirect, RedirectType } from "next/navigation";
 import Lottie from "lottie-react";
 import { FC } from "react";
 
-import loadingAnimation from "@app/animations/loading.json";
+import loadingAnimation from "@app/assets/lotties/loading.json";
 import { ECloudStorage } from "@app/lib/enums";
 
 type CallbackPropsType = {

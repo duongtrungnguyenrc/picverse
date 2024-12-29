@@ -187,7 +187,7 @@ export class AccountService extends Repository<Account> {
         $or: [{ email: emailOrUserName }, { phone: emailOrUserName }],
       },
       {
-        select: ["_id", ""],
+        select: ["_id", "email"],
       },
     );
 
@@ -202,14 +202,14 @@ export class AccountService extends Repository<Account> {
     await this.mailerService.sendMail({
       to: account.email,
       subject: MailSubject.RESET_PASSWORD,
-      template: "forgot-password",
+      template: "reset-password",
       context: { account: account.userName, otpCode },
     });
 
     return sessionId;
   }
 
-  async resetPassword(payload: ResetPasswordDto, ipAddress: string): Promise<boolean> {
+  async resetPassword(payload: ResetPasswordDto, ipAddress: string): Promise<StatusResponseDto> {
     const { newPassword, sessionId, otpCode } = payload;
 
     const session: ResetPasswordSession = await this.getCachedResetPasswordSession(sessionId);
@@ -224,10 +224,10 @@ export class AccountService extends Repository<Account> {
 
     await this.revokeResetPasswordSession(sessionId);
 
-    return true;
+    return { message: "Reset password success" };
   }
 
-  async lockAccount(accountId: DocumentId, payload: LockAccountDto): Promise<boolean> {
+  async lockAccount(accountId: DocumentId, payload: LockAccountDto): Promise<StatusResponseDto> {
     const account: Account = await this.find(accountId, {
       select: ["_id", "password", "isActive"],
     });
@@ -244,10 +244,10 @@ export class AccountService extends Repository<Account> {
       isActive: false,
     });
 
-    return true;
+    return { message: "Lock account success" };
   }
 
-  async requestActivateAccount(payload: RequestActiveAccountDto, ipAddress: string): Promise<boolean> {
+  async requestActivateAccount(payload: RequestActiveAccountDto, ipAddress: string): Promise<StatusResponseDto> {
     const { emailOrUserName } = payload;
 
     const account = await this.find({ $or: [{ email: emailOrUserName }, { userName: emailOrUserName }] }, { select: ["_id", "email", "isActive"] });
@@ -277,7 +277,7 @@ export class AccountService extends Repository<Account> {
       },
     });
 
-    return true;
+    return { message: "Request active account success" };
   }
 
   async activateAccount(sessionId: string, ipAddress: string): Promise<boolean> {
