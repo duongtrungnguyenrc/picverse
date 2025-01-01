@@ -87,7 +87,7 @@ export class AuthController {
   @ApiBody({ type: Disable2faDto })
   @ApiOperation({ summary: "Disable 2FA" })
   @ApiCreatedResponse({ description: "Successfully disable 2FA. Return status", type: StatusResponseDto })
-  async disable2FA(@AuthUid() accountId: DocumentId, payload: Disable2faDto): Promise<StatusResponseDto> {
+  async disable2FA(@AuthUid() accountId: DocumentId, @Body() payload: Disable2faDto): Promise<StatusResponseDto> {
     return await this.authService.disable2FA(accountId, payload);
   }
 
