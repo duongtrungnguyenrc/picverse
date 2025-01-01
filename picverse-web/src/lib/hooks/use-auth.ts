@@ -83,6 +83,9 @@ export const useDisable2FA = () => {
       const response = await httpClient.post<StatusResponse>("/auth/2fa/disable", data);
       return response.data;
     },
+    onSuccess: (data) => {
+      toast.success(data.message);
+    },
     onError: showAxiosToastError,
   });
 };

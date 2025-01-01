@@ -19,7 +19,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   Input,
   Button,
 } from "@app/components";
@@ -33,12 +32,12 @@ type OtpDialogProps = {
   title: string;
   open?: boolean;
   onSubmit: (otpCode: string) => void;
-  onClose?: () => void;
+  onCancel?: () => void;
   onResend?: () => void;
   isPending?: boolean;
 };
 
-const OtpDialog: FC<OtpDialogProps> = ({ trigger, title, open, isPending, onSubmit, onClose, onResend }) => {
+const OtpDialog: FC<OtpDialogProps> = ({ trigger, title, open, isPending, onSubmit, onCancel, onResend }) => {
   const [openState, setOpenState] = useState(false);
   const [countdown, setCountdown] = useState(30);
   const form = useForm<z.infer<typeof otpSchema>>({
@@ -60,8 +59,8 @@ const OtpDialog: FC<OtpDialogProps> = ({ trigger, title, open, isPending, onSubm
     setOpenState(isOpen);
     if (isOpen) {
       setCountdown(30);
-    } else if (onClose) {
-      onClose();
+    } else if (onCancel) {
+      onCancel();
     }
   };
 
@@ -89,7 +88,7 @@ const OtpDialog: FC<OtpDialogProps> = ({ trigger, title, open, isPending, onSubm
                 <FormItem>
                   <FormControl>
                     <div className="relative">
-                      <KeyRound className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                      <KeyRound className="absolute left-3 top-4 h-4 w-4 text-muted-foreground" />
                       <Input
                         className="pl-10 text-center tracking-widest font-mono text-lg"
                         placeholder="000000"
