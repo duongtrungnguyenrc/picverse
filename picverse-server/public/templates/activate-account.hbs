@@ -1,47 +1,128 @@
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activate Your Picverse Account</title>
     <style>
-      body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f0f0; } .email-container { width: 100%;
-      max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 15px; overflow: hidden; box-shadow: 0 0 10px
-      rgba(0, 0, 0, 0.1); } .header { background-color: #8d59f3; color: #ffffff; text-align: center; padding: 30px 20px; } .header
-      h1 { margin: 0; font-size: 28px; color: #ffffff; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
-      .header .logo { font-size: 40px; margin-bottom: 10px; } .content { padding: 30px; text-align: center; } .content h2 {
-      font-size: 22px; color: #333; margin-bottom: 20px; text-transform: uppercase; } .content p { font-size: 16px; color: #555;
-      line-height: 1.6; } .button { display: inline-block; background-color: #8d59f3; color: #ffffff; padding: 12px 24px;
-      font-size: 16px; text-decoration: none; border-radius: 25px; transition: background-color 0.3s ease; } .button:hover {
-      background-color: #7341d8; } .footer { background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 14px; color:
-      #888; } .footer a { color: #8d59f3; text-decoration: none; } .footer a:hover { text-decoration: underline; } .text-center {
-      text-align: center; } .activation-link { word-break: break-all; color: #8d59f3; background-color: #f0f0f0; padding: 10px;
-      border-radius: 5px; margin: 20px 0; font-size: 14px; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f8;
+        }
+        .email-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #8d59f3 0%, #6c41d4 100%);
+            color: #ffffff;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .content {
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .content h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .content p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #8d59f3 0%, #6c41d4 100%);
+            color: #ffffff;
+            padding: 12px 30px;
+            font-size: 16px;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(108, 65, 212, 0.3);
+        }
+        .footer {
+            background-color: #f8f8f8;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+        .footer a {
+            color: #8d59f3;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .activation-link {
+            word-break: break-all;
+            color: #8d59f3;
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 14px;
+            border: 1px dashed #8d59f3;
+        }
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+            }
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="email-container">
-      <div class="header">
-        <div class="logo">✅</div>
-        <h1>Picverse</h1>
-      </div>
-      <div class="content">
-        <h2 class="text-center">Activate Your Account</h2>
-        <p>Thank you for joining Picverse! We're excited to have you as part of our creative community.</p>
-        <p>
-          To complete your registration and start exploring amazing content, please click the button below to activate your
-          account:
-        </p>
-        <a href="{{activateUrl}}" class="button">Activate Account</a>
-        <p>
-          This activation link will expire in 24 hours for security reasons. If you didn't create an account, you can safely
-          ignore this email.
-        </p>
-        <p>If you have any questions or need assistance, don't hesitate to reach out to our support team.</p>
-      </div>
-      <div class="footer">
-        <p>The Picverse Team</p>
-        <p>If you didn't create an account, please <a href="#">contact support</a>.</p>
-      </div>
+        <div class="header">
+            <div class="logo">✅</div>
+            <h1>Picverse</h1>
+        </div>
+        <div class="content">
+            <h2>Activate Your Account</h2>
+            <p>Welcome to Picverse! We're excited to have you join our creative community.</p>
+            <p>To complete your registration and start exploring amazing content, please click the button below to activate your account:</p>
+            <a href="{{activateUrl}}" class="button">Activate Account</a>
+            <p>Or copy and paste this link into your browser:</p>
+            <div class="activation-link">{{activateUrl}}</div>
+            <p>This activation link will expire in 24 hours for security reasons. If you didn't create an account, you can safely ignore this email.</p>
+            <p>If you have any questions or need assistance, don't hesitate to reach out to our support team.</p>
+        </div>
+        <div class="footer">
+            <p>© 2024 Picverse. All rights reserved.</p>
+            <p>If you didn't create an account, please <a href="#">contact our support team</a>.</p>
+        </div>
     </div>
-  </body>
+</body>
 </html>

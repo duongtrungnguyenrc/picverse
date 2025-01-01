@@ -14,8 +14,8 @@ const ContentSection: FC<ContentSectionProps> = ({ children, heading, subHeading
     <section className={cn("mb-5", className)}>
       <div className="mb-3 flex items-center justify-between">
         <div>
-          {heading && <h1 className="font-bold">{heading}</h1>}
-          {subHeading && <h2 className="text-sm font-semibold">{subHeading}</h2>}
+          {heading && <h1 className="font-semibold">{heading}</h1>}
+          {subHeading && <p className="text-sm">{subHeading}</p>}
         </div>
 
         {actions}

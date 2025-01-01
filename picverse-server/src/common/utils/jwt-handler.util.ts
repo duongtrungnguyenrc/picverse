@@ -15,8 +15,8 @@ export class JwtHandler {
     return this.jwtService.decode(token);
   }
 
-  generateToken(uid: DocumentId): string {
-    const sid: string = uuid();
+  generateToken(uid: DocumentId, sessionId?: string): string {
+    const sid: string = sessionId || uuid();
 
     this.cacheService.set(joinCacheKey(this.cachePrefix, sid), uid, this.ttl);
 

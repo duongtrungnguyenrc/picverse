@@ -5,10 +5,12 @@ declare type Profile = BaseModel &
     account: Account;
     firstName: string;
     lastName: string;
-    birth: Date;
+    birth: string;
     gender: EGender;
     phone: string;
     profilePicture: string;
     bio: string;
     isPublic: string;
   };
+
+declare type UpdateProfileRequest = Partial<Profile>;

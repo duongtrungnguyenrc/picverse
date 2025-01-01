@@ -1,4 +1,4 @@
-import { FilterQuery, Model, PopulateOptions, Document, UpdateQuery, AnyKeys, CreateOptions, InferId, SortOrder, QueryOptions } from "mongoose";
+import { FilterQuery, Model, Document, UpdateQuery, AnyKeys, CreateOptions, InferId, QueryOptions } from "mongoose";
 
 import { InfiniteResponse, PaginationResponse } from "@common/dtos";
 import { CacheService, joinCacheKey } from "@modules/cache";

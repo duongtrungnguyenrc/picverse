@@ -171,20 +171,12 @@ export class CloudService {
     return { message: `File ${fileName} uploaded success` };
   }
 
-  async getFile(accountId: DocumentId, fileId: DocumentId, response: Response): Promise<void> {
+  async getFile(fileId: DocumentId, response: Response): Promise<void> {
     const file: Resource = await this.resourceService.find(fileId);
 
     if (!file) {
       throw new NotFoundException("File not found");
     }
-
-    // if (file.isPrivate && file.accountId?.toString() !== accountId?.toString()) {
-    //   throw new ForbiddenException("Can not access private file.");
-    // }
-
-    // if (file.type !== EResourceType.FILE) {
-    //   throw new BadRequestException("Item is not a valid file.");
-    // }
 
     const storage: IStorageService = this.getStorage(file.storage);
 

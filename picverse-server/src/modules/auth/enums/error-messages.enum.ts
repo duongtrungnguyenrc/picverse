@@ -1,0 +1,18 @@
+export enum AccountErrorMessage {
+  INVALID_AUTH_TOKEN = "Invalid token",
+  ACCOUNT_LOKED = "Account already locked. Please reactive account to continue",
+  ACCOUNT_NOT_FOUND = "Account not found",
+  WRONG_EMAIL_OR_PASSWORD = "Incorrect email or password",
+  WRONG_PASSWORD = "Incorrect password",
+  PASSWORD_CONFLICT = "Password cannot be the same as the old password",
+  INVALID_OTP = "Invalid OTP",
+  INVALID_RESET_PASSWORD_SESSION = "Session does not exist or has expired. Please try again later",
+  INVALID_IP_ADDRESS = "Invalid IP address",
+  FORBIDDEN = "You do not have permission to access this resource",
+  UNAUTHORIZED = "Please log in to continue",
+  INVALID_EMAIL = "Invalid email",
+  TOKEN_EXPIRED = "Token already expired",
+  ACCOUNT_ALREADY_ACTIVE = "Account already active",
+  DEVICE_INVALID = "Your device is invalid",
+  TWO_FACTOR_AUTH_NOT_ENABLED = "Two-factor authentication is not enabled",
+}

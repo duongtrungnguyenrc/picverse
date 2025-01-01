@@ -4,6 +4,7 @@ export enum QueryKeys {
   RESOURCES = "get-resources",
   EXTERNAL_LINK_STATUS = "get-external-link-status",
   PROFILE = "get-profile",
+  ACCESS_RECORDS = "get-access-records",
 }
 
 export enum MutationKeys {
@@ -17,4 +18,7 @@ export enum MutationKeys {
   DELETE_FILE = "delete-file",
   DELETE_FOLDER = "delete-folder",
   LINK_EXTERNAL_STORAGE = "link-external-storage",
+  FORGOT_PASSWORD = "forgot-password",
+  RESET_PASSWORD = "reset-password",
+  CHANGE_PASSWORD = "change-password",
 }

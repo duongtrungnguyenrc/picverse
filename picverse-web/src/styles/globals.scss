@@ -74,12 +74,12 @@ body {
 
   .h1 {
     line-height: 1.08;
-    @apply text-[3rem] font-extrabold;
+    @apply text-[2rem] font-bold;
   }
 
   .h2 {
     line-height: 1.08;
-    @apply text-[2.75rem] font-bold;
+    @apply text-[1.5rem] font-semibold;
   }
 
   .h4 {
@@ -109,7 +109,11 @@ body {
   }
 
   .animate-fade-in {
-    animation: fade-in 0.5s ease-in; 
+    animation: fade-in 0.3s ease-in; 
+  }
+
+  .animate-opacity-fade-in {
+    animation: opacity-fade-in 0.2s ease-in; 
   }
 
   @keyframes fade-in {
@@ -121,5 +125,15 @@ body {
       opacity: 1;
       transform: scale(1);
     }
+  }
+
+  @keyframes opacity-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+    
   }
 }

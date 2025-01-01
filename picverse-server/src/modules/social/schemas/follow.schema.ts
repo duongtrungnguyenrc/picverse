@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
-import { Account } from "@modules/accounts";
+import { Account } from "@modules/account";
 
 @Schema({ timestamps: true })
 export class Follow extends Document<Types.ObjectId> {

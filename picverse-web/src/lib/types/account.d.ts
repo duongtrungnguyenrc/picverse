@@ -4,21 +4,28 @@ declare type Account = BaseModel &
     userName: string;
     allowNotify: boolean;
     allowEmail: boolean;
-    enableTwoFactorAuthentication: boolean;
+    enable2FA: boolean;
     isActive: boolean;
     createdAt: Date;
   };
 
-type AuthContext = {
-  account?: Pick<Account, "_id">;
-  ready: boolean;
-  authorizeClient: VoidFunction;
-  clearAuth: VoidFunction;
-};
+declare type Session = BaseModel &
+  TimeStampModel & {
+    accountId: string;
+    activating: boolean;
+  };
 
-declare type SignInRequest = {
-  emailOrUserName: string;
-  password: string;
+declare type AccessRecord = BaseModel &
+  TimeStampModel & {
+    accountId: string;
+    sessionId: string;
+    ipAddress: string;
+    browserName: string;
+    location: string;
+  };
+
+declare type MutatePassword<T> = T & {
+  confirmPassword: string;
 };
 
 declare type SignUpRequest = {
@@ -32,16 +39,25 @@ declare type SignUpRequest = {
   phone: string;
 };
 
+declare type UpdateAccountRequest = {
+  email?: string;
+  enable2FA?: boolean;
+  allowNotify?: boolean;
+  allowEmail?: boolean;
+};
+
 declare type ForgotPasswordRequest = {
   emailOrUserName: string;
+};
+
+declare type ChangePasswordRequest = {
+  oldPassword: string;
+  newPassword: string;
+  revokeAllSessions: boolean;
 };
 
 declare type ResetPasswordRequest = {
   otpCode: string;
   sessionId: string;
   newPassword: string;
-};
-
-declare type ThirdPartyTokenPayload = TokenPair & {
-  secret: string;
 };

@@ -12,6 +12,7 @@ export { default as ContentSection } from "./ContentSection";
 export { default as AuthDetect } from "./AuthDetect";
 export { default as Logo } from "./Logo";
 export { default as CountDown } from "./CountDown";
+export { default as OtpDiaglog } from "./OtpDialog";
 
 /* AUTH COMPONENTS */
 export { default as GoogleSignInButton } from "./GoogleSignInButton";
@@ -29,6 +30,9 @@ export { default as CloudResourceActions } from "./CloudResourceActions";
 
 /* SETTING COMPONENTS */
 export { default as SettingSideBar } from "./SettingSideBar";
+export { default as SettingHeader } from "./SettingHeader";
+export { default as ChangePasswordDialog } from "./ChangePasswordDialog";
+export { default as Disable2FADialog } from "./Disable2FADialog";
 
 /* LISTING COMPONENTS */
 

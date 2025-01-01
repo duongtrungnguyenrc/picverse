@@ -18,3 +18,9 @@ export * from "./form";
 export * from "./context-menu";
 export * from "./skeleton";
 export * from "./avatar";
+export * from "./textarea";
+export * from "./radio-group";
+export * from "./switch";
+export * from "./checkbox";
+export * from "./progress";
+export * from "./alert"

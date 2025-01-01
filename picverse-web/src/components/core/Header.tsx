@@ -36,7 +36,7 @@ const Header: FC<HeaderProps> = ({}) => {
 
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="text-sm rounded-lg ms-3">
+                <Button variant="outline" className="h-10 text-sm rounded-lg ms-3">
                   <Menu />
                 </Button>
               </PopoverTrigger>
@@ -92,7 +92,7 @@ const Header: FC<HeaderProps> = ({}) => {
                 </ul>
               </PopoverContent>
             </Popover>
-            <Button className="text-sm rounded-lg ms-3">
+            <Button className="h-10 text-sm rounded-lg ms-3">
               Explore <ArrowRight size={16} />
             </Button>
           </div>

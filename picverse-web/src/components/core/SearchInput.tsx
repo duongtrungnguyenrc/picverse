@@ -37,7 +37,7 @@ const SearchInput: FC<SearchInputProps> = ({}) => {
               <Search size={18} />
             </div>
 
-            <Input className="rounded-lg text-sm px-10" placeholder="Search..." />
+            <Input className="rounded-lg text-sm px-10 h-10" placeholder="Search..." />
 
             <div className="flex items-center gap-1 text-gray-400 text-sm absolute right-3 top-0 bottom-0">
               <Command size={14} /> K

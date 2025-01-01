@@ -3,7 +3,7 @@ import { UnauthorizedException } from "@nestjs/common";
 import { WsException } from "@nestjs/websockets";
 import { Request } from "express";
 
-import { AccountErrorMessage } from "@modules/accounts";
+import { AccountErrorMessage } from "@modules/account";
 import { TOKEN_TYPE } from "../constants";
 
 const extractAuthToken = (fullToken: string, raw: boolean = false) => {

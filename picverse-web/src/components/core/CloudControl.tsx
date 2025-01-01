@@ -15,7 +15,7 @@ type CloudControlProps = {
 
 const CloudControl: FC<CloudControlProps> = ({ parentId }) => {
   return (
-    <ContentSection subHeading="Cloud control" className="sticky top-0 h-fit">
+    <ContentSection heading="Cloud control" className="sticky top-0 h-fit">
       <ul className="flex flex-wrap gap-3 max-w-full">
         <li>
           <CloudUploadFileButton parentId={parentId}>

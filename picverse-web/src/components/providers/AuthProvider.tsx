@@ -19,24 +19,29 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     authorizeClient();
   }, []);
 
-  const authorizeClient = useCallback(async () => {
-    try {
-      const [accessToken, refreshToken] = await Promise.all([
-        getCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX),
-        getCookie(process.env.NEXT_PUBLIC_REFRESH_TOKEN_PREFIX),
-      ]);
+  const authorizeClient = useCallback(
+    async (actions?: { onSuccess?: VoidFunction; onFailed?: VoidFunction }) => {
+      try {
+        const [accessToken, refreshToken] = await Promise.all([
+          getCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX),
+          getCookie(process.env.NEXT_PUBLIC_REFRESH_TOKEN_PREFIX),
+        ]);
 
-      if (!accessToken && !refreshToken) {
-        throw new Error();
+        if (!accessToken && !refreshToken) {
+          throw new Error();
+        }
+
+        const response = await httpClient.get<Account>("/account");
+
+        actions?.onSuccess?.();
+        setState({ account: response.data, ready: true });
+      } catch (error) {
+        actions?.onFailed?.();
+        setState({ account: undefined, ready: true });
       }
-
-      const response = await httpClient.post<Account>("/accounts/authorize");
-
-      setState({ account: response.data, ready: true });
-    } catch (error) {
-      setState({ account: undefined, ready: true });
-    }
-  }, [httpClient, setState, getCookie]);
+    },
+    [httpClient, setState, getCookie],
+  );
 
   const clearAuth = useCallback(() => {
     setState((prevState) => ({ ...prevState, account: undefined }));

@@ -70,7 +70,7 @@ const CloudPageContent: FC<CloudPageContentProps> = ({ parentId }) => {
         <DndProvider backend={HTML5Backend}>
           <Tabs defaultValue="grid">
             <ContentSection
-              subHeading="All resources"
+              heading="All resources"
               actions={
                 <CloudResourceActions onSearchChange={onSearchChange} onFieldFilterChange={onFieldFilterChange} />
               }
