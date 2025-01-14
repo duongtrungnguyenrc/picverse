@@ -11,7 +11,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
       <aside className="hidden lg:block lg:col-span-2 mt-10 sticky top-[130px] h-fit">
         <SettingSideBar />
       </aside>
-      <div className="col-span-full lg:col-span-10 mt-10 lg:ms-10">
+      <div className="col-span-full lg:col-span-10 mt-10 lg:ms-10 mb-10">
         <SettingHeader />
 
         {children}

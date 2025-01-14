@@ -100,7 +100,7 @@ const ForgotPasswordPage: FC = () => {
               >
                 {sendingForgotPassword ? (
                   <>
-                    Sending Reset Link
+                    Requesting reset password
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </>
                 ) : (
@@ -130,7 +130,7 @@ const ForgotPasswordPage: FC = () => {
                         <FormControl>
                           <div className="relative">
                             <Lock className="absolute left-3 top-4 h-4 w-4 text-muted-foreground" />
-                            <Input type="password" className="pl-10" placeholder="Enter new password" {...field} />
+                            <Input type="password" className="pl-10" placeholder="New password" {...field} />
                           </div>
                         </FormControl>
                         {resetPasswordFormErrors.newPassword && (
@@ -149,7 +149,7 @@ const ForgotPasswordPage: FC = () => {
                         <FormControl>
                           <div className="relative">
                             <Lock className="absolute left-3 top-4 h-4 w-4 text-muted-foreground" />
-                            <Input type="password" className="pl-10" placeholder="Confirm new password" {...field} />
+                            <Input type="password" className="pl-10" placeholder="Confirm password" {...field} />
                           </div>
                         </FormControl>
                         {resetPasswordFormErrors.confirmPassword && (
@@ -169,7 +169,7 @@ const ForgotPasswordPage: FC = () => {
                         <span>OTP Code</span>
                         <CountDown milisecconds={15 * 60 * 1000} timeFormat={countDownTimeFormat}>
                           {(timeDifference) => (
-                            <div className="flex items-center text-xs text-rose-500 font-medium gap-1">
+                            <div className="flex items-center text-xs text-primary font-medium gap-1">
                               <Timer className="h-3 w-3" />
                               <span>Valid for {timeDifference}</span>
                             </div>
@@ -182,8 +182,8 @@ const ForgotPasswordPage: FC = () => {
                           <Input
                             maxLength={6}
                             minLength={6}
-                            className="pl-10 tracking-widest font-mono text-center"
-                            placeholder="123456"
+                            className="pl-10"
+                            placeholder="Enter OTP code"
                             {...field}
                           />
                         </div>

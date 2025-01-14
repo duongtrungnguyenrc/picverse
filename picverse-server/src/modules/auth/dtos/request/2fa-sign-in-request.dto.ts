@@ -7,6 +7,10 @@ export class TwoFactorSignInRequestDto {
   accountId: DocumentId;
 
   @ApiProperty()
+  @IsMongoId()
+  profileId: DocumentId;
+
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   otpCode: string;

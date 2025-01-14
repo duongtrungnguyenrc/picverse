@@ -25,7 +25,7 @@ axiosInstance.interceptors.response.use(
 
       if (token) {
         try {
-          const response: Response = await fetch(`${baseURL}/accounts/refresh-token`, {
+          const response: Response = await fetch(`${baseURL}/auth/refresh-token`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,

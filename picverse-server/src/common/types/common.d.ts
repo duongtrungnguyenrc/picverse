@@ -5,11 +5,15 @@ declare type Pagination = {
   limit: number;
 };
 
-declare type JwtPayload = {
+declare type JwtSessionPayload = {
+  uid: DocumentId;
+  pid: DocumentId;
+  sid: string;
+};
+
+declare type JwtPayload = JwtSessionPayload & {
   exp?: number;
   iat?: number;
-  uid: DocumentId;
-  sub: string;
 };
 
 declare type RequestAgent = {

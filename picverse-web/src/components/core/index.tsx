@@ -13,9 +13,16 @@ export { default as AuthDetect } from "./AuthDetect";
 export { default as Logo } from "./Logo";
 export { default as CountDown } from "./CountDown";
 export { default as OtpDiaglog } from "./OtpDialog";
+export { default as Pagination } from "./Pagination";
+export { default as TagInput } from "./TagInput";
+export { default as ProtectedImageCanvas } from "./ProtectedImageCanvas";
 
 /* AUTH COMPONENTS */
 export { default as GoogleSignInButton } from "./GoogleSignInButton";
+
+/* PINS COMPONENTS */
+export { default as MediaEditor } from "./MediaEditor";
+export { default as CreatePinForm } from "./CreatePinForm";
 
 /* CLOUD COMPONENTS */
 
@@ -33,6 +40,7 @@ export { default as SettingSideBar } from "./SettingSideBar";
 export { default as SettingHeader } from "./SettingHeader";
 export { default as ChangePasswordDialog } from "./ChangePasswordDialog";
 export { default as Disable2FADialog } from "./Disable2FADialog";
+export { default as LoginHistoryDialog } from "./LoginHistoryDialog";
 
 /* LISTING COMPONENTS */
 

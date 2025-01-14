@@ -23,4 +23,5 @@ export * from "./radio-group";
 export * from "./switch";
 export * from "./checkbox";
 export * from "./progress";
-export * from "./alert"
+export * from "./alert";
+export * from "./badge";

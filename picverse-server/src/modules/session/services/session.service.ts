@@ -21,7 +21,7 @@ export class SessionService extends Repository<Session> {
     super(SessionModel, cacheService);
   }
 
-  async createSession(accountId: DocumentId, ipAddress: string, requestAgent: RequestAgent, sessionId: string = ""): Promise<TokenPair> {
+  async createSession(accountId: DocumentId, profileId: DocumentId, ipAddress: string, requestAgent: RequestAgent, sessionId: string = ""): Promise<TokenPair> {
     const session = (await this.find(sessionId)) || (await this.create({ accountId }));
 
     this.acessRecordService.create({
@@ -31,10 +31,9 @@ export class SessionService extends Repository<Session> {
       browserName: requestAgent.browserInfo,
     });
 
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtAccessService.generateToken(accountId, session._id.toString()),
-      this.jwtRefreshService.generateToken(accountId, session._id.toString()),
-    ]);
+    const sessionPayload: JwtSessionPayload = { uid: accountId, pid: profileId, sid: session._id.toString() };
+
+    const [accessToken, refreshToken] = await Promise.all([this.jwtAccessService.generateToken(sessionPayload), this.jwtRefreshService.generateToken(sessionPayload)]);
 
     return { accessToken, refreshToken };
   }
@@ -57,16 +56,16 @@ export class SessionService extends Repository<Session> {
   async refreshSession(refreshToken: string, ipAddress: string, requestAgent: RequestAgent): Promise<TokenPair> {
     const decodedToken = this.jwtRefreshService.decodeToken(refreshToken);
 
-    if (!decodedToken || !decodedToken.sub) {
+    if (!decodedToken || !decodedToken.sid) {
       throw new NotAcceptableException("Invalid refresh token");
     }
 
-    const session = await this.find({ _id: decodedToken.sub, activating: true }, { force: true });
+    const session = await this.find({ _id: decodedToken.sid, activating: true }, { force: true });
 
     if (!session) {
       throw new NotAcceptableException("Session not found or expired");
     }
 
-    return this.createSession(session.accountId, ipAddress, requestAgent, decodedToken.sub);
+    return this.createSession(decodedToken.uid, decodedToken.pid, ipAddress, requestAgent, decodedToken.sid);
   }
 }

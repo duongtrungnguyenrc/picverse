@@ -68,13 +68,3 @@ export const useChangePassword = () => {
     onError: showAxiosToastError,
   });
 };
-
-export const useAcessRecords = () => {
-  return useQuery<PaginationResponse<AccessRecord>, AxiosError>({
-    queryKey: [QueryKeys.ACCESS_RECORDS],
-    queryFn: async () => {
-      const response = await httpClient.get<PaginationResponse<AccessRecord>>("/account/access");
-      return response.data;
-    },
-  });
-};

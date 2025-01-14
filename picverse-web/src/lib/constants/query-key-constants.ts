@@ -21,4 +21,5 @@ export enum MutationKeys {
   FORGOT_PASSWORD = "forgot-password",
   RESET_PASSWORD = "reset-password",
   CHANGE_PASSWORD = "change-password",
+  UPDATE_PROFILE = "update-profile",
 }

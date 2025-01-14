@@ -19,8 +19,13 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "api.picverse.pics",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
     ],
   },
+  transpilePackages: ["@pqina/pintura", "@pqina/react-pintura"],
 };
 
 export default nextConfig;

@@ -44,7 +44,7 @@ declare type InfiniteResponse<T> = {
 
 declare type Pagination = {
   page: number;
-  limit: number;
+  limit?: number;
 };
 
 declare type StatusResponse = {

@@ -5,5 +5,8 @@ export class Require2FAResponseDto {
   accountId: DocumentId;
 
   @ApiResponseProperty()
+  profileId: DocumentId;
+
+  @ApiResponseProperty()
   require2FA: boolean;
 }

@@ -49,8 +49,8 @@ export class AuthController {
   @Post("/sign-out")
   @ApiOperation({ summary: "Sign out" })
   @ApiOkResponse({ type: StatusResponseDto })
-  async signOut(@AuthTokenPayload("sub") sub: string): Promise<StatusResponseDto> {
-    return await this.authService.signOut(sub);
+  async signOut(@AuthTokenPayload("sid") sid: string): Promise<StatusResponseDto> {
+    return await this.authService.signOut(sid);
   }
 
   @Get("/webhooks/callback")

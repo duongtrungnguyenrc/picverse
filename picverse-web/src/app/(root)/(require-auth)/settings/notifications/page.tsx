@@ -1,4 +1,4 @@
-import { ContentSection, Label, Switch } from "@app/components";
+import { Label, Switch } from "@app/components";
 import { FC } from "react";
 
 type SettingNotificationsPageProps = {};

@@ -1,13 +1,12 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
-import { Account } from "@modules/account";
 import { EGender } from "../enums";
 
 @Schema({ timestamps: true })
 export class Profile extends Document<Types.ObjectId> {
-  @Prop({ type: Types.ObjectId, ref: "Account" })
-  account: Account;
+  @Prop({ type: Types.ObjectId, ref: "Account", select: false })
+  accountId: DocumentId;
 
   @Prop({ required: true })
   firstName: string;

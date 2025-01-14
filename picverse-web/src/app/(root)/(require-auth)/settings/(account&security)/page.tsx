@@ -3,7 +3,7 @@
 import { ChevronRight, ShieldCheck } from "lucide-react";
 import { FC } from "react";
 
-import { ContentSection, ChangePasswordDialog } from "@app/components";
+import { ContentSection, ChangePasswordDialog, LoginHistoryDialog } from "@app/components";
 import Setting2FADialog from "@app/components/core/Setting2FADialog";
 import { useAuth } from "@app/lib/hooks";
 
@@ -60,10 +60,12 @@ const SettingAccountPage: FC<SettingAccountPageProps> = ({}) => {
         subHeading="Review security issues by running checks across apps, devices and emails sent."
       >
         <ul className="rounded-xl border">
-          <li className="text-sm flex items-center justify-between p-5 hover:bg-gray-50 cursor-pointer transition-all font-medium">
-            Login history
-            <ChevronRight size={20} />
-          </li>
+          <LoginHistoryDialog>
+            <li className="text-sm flex items-center justify-between p-5 hover:bg-gray-50 cursor-pointer transition-all font-medium">
+              Login history
+              <ChevronRight size={20} />
+            </li>
+          </LoginHistoryDialog>
           <hr />
           <li className="text-sm flex items-center justify-between p-5 hover:bg-gray-50 cursor-pointer transition-all font-medium">
             Where you&apos;re logged in

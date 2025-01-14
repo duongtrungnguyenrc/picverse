@@ -28,9 +28,9 @@ const CloudResourceActions: FC<{
 }> = ({ onSearchChange, onFieldFilterChange }) => (
   <div className="flex items-center gap-3">
     <div className="grid grid-cols-2 gap-3">
-      <Input placeholder="Search..." onChange={(e) => onSearchChange(e.target.value)} />
+      <Input className="h-10" placeholder="Search..." onChange={(e) => onSearchChange(e.target.value)} />
       <Select defaultValue="-" onValueChange={(type) => onFieldFilterChange("type", type)}>
-        <SelectTrigger>
+        <SelectTrigger className="h-10">
           <SelectValue placeholder="Resource type" />
         </SelectTrigger>
         <SelectContent>

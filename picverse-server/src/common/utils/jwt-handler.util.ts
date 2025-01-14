@@ -1,5 +1,4 @@
 import { JwtService } from "@nestjs/jwt";
-import { v4 as uuid } from "uuid";
 
 import { CacheService, joinCacheKey } from "@modules/cache";
 
@@ -15,15 +14,10 @@ export class JwtHandler {
     return this.jwtService.decode(token);
   }
 
-  generateToken(uid: DocumentId, sessionId?: string): string {
-    const sid: string = sessionId || uuid();
+  generateToken(payload: JwtSessionPayload): string {
+    this.cacheService.set(joinCacheKey(this.cachePrefix, payload.sid), payload.uid, this.ttl);
 
-    this.cacheService.set(joinCacheKey(this.cachePrefix, sid), uid, this.ttl);
-
-    return this.jwtService.sign({
-      uid: uid,
-      sub: sid,
-    });
+    return this.jwtService.sign(payload);
   }
 
   async verify(token: string): Promise<JwtPayload> {

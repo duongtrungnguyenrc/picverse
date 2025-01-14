@@ -64,13 +64,15 @@ export class AuthService {
           email: userInfo.email,
         });
 
-        this.profileService.create({ account: newAccount._id, firstName: userInfo.given_name, lastName: userInfo.family_name });
+        const newProfile = await this.profileService.create({ accountId: newAccount._id, firstName: userInfo.given_name, lastName: userInfo.family_name });
 
-        const tokenPair = await this.sesisonService.createSession(newAccount._id, ipAddress, requestAgent);
+        const tokenPair = await this.sesisonService.createSession(newAccount._id, newProfile._id, ipAddress, requestAgent);
         Object.assign(signInResponse, tokenPair);
       }
 
-      const tokenPair = await this.sesisonService.createSession(account._id, ipAddress, requestAgent);
+      const profile = await this.profileService.find({ accountId: account._id }, { select: ["_id"], force: true });
+
+      const tokenPair = await this.sesisonService.createSession(account._id, profile._id, ipAddress, requestAgent);
       Object.assign(signInResponse, tokenPair);
 
       const secret: string = Buffer.from(state, "base64").toString("utf-8");
@@ -94,7 +96,9 @@ export class AuthService {
       },
     );
 
-    if (!account || !compareSync(password, account.password)) {
+    const profile = await this.profileService.find({ accountId: account._id }, { select: ["_id"] });
+
+    if (!account || !profile || !compareSync(password, account.password)) {
       throw new UnauthorizedException(AccountErrorMessage.WRONG_EMAIL_OR_PASSWORD);
     }
 
@@ -102,25 +106,26 @@ export class AuthService {
       throw new UnauthorizedException(AccountErrorMessage.ACCOUNT_LOKED);
     }
 
-    if (account.twoFASecret) {
+    if (account.enable2FA) {
       return {
         accountId: account._id,
+        profileId: profile._id,
         require2FA: true,
       };
     }
 
-    return this.sesisonService.createSession(account._id, ipAddress, requestAgent);
+    return this.sesisonService.createSession(account._id, profile._id, ipAddress, requestAgent);
   }
 
   async signInWith2FA(payload: TwoFactorSignInRequestDto, ipAddress: string, requestAgent: RequestAgent): Promise<TokenPairResponseDto> {
     const isValid = await this.verify2FA(payload.accountId, payload.otpCode);
     if (!isValid) throw new UnauthorizedException(AccountErrorMessage.INVALID_OTP);
 
-    return this.sesisonService.createSession(payload.accountId, ipAddress, requestAgent);
+    return this.sesisonService.createSession(payload.accountId, payload.profileId, ipAddress, requestAgent);
   }
 
-  async signOut(sub: string): Promise<StatusResponseDto> {
-    await this.sesisonService.revokeSession(sub);
+  async signOut(sid: string): Promise<StatusResponseDto> {
+    await this.sesisonService.revokeSession(sid);
 
     return { message: "Sign out success" };
   }

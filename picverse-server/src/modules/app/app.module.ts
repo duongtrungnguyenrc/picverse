@@ -11,6 +11,7 @@ import { CacheModule } from "@modules/cache";
 import { SocialModule } from "@modules/social";
 import { CloudModule } from "@modules/cloud";
 import { AuthModule } from "@modules/auth";
+import { ContentModule } from "@modules/content";
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AuthModule } from "@modules/auth";
     ProfileModule,
     SocialModule,
     CloudModule,
+    ContentModule,
   ],
   controllers: [],
   providers: [],

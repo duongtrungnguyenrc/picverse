@@ -2,19 +2,15 @@ import { ApiBody, ApiParam, ApiOkResponse, ApiTags, ApiCreatedResponse, ApiOpera
 import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
 
 import { ChangePasswordRequestDto, ForgotPasswordDto, LockAccountDto, RequestActiveAccountDto, ResetPasswordDto, SignUpRequestDto } from "../dtos";
-import { ApiPagination, Auth, AuthTokenPayload, AuthUid, IpAddress, Pagination } from "@common/decorators";
-import { PaginationResponse, StatusResponseDto } from "@common/dtos";
-import { AccessRecord, AccessRecordService } from "@modules/session";
+import { Auth, AuthTokenPayload, AuthUid, IpAddress } from "@common/decorators";
+import { StatusResponseDto } from "@common/dtos";
 import { AccountService } from "../services";
 import { Account } from "../schemas";
 
 @Controller("account")
 @ApiTags("Account")
 export class AccountController {
-  constructor(
-    private readonly accountService: AccountService,
-    private readonly accessRecordService: AccessRecordService,
-  ) {}
+  constructor(private readonly accountService: AccountService) {}
 
   @Post("/sign-up")
   @ApiOperation({ summary: "Register new account & profile" })
@@ -29,7 +25,7 @@ export class AccountController {
   @ApiOperation({ summary: "Update password" })
   @ApiBody({ type: ChangePasswordRequestDto })
   @ApiCreatedResponse({ description: "Update password success. Return status", type: StatusResponseDto })
-  async changePassword(@AuthUid() accountId: DocumentId, @AuthTokenPayload("sub") sessionId: DocumentId, @Body() payload: ChangePasswordRequestDto): Promise<StatusResponseDto> {
+  async changePassword(@AuthUid() accountId: DocumentId, @AuthTokenPayload("sid") sessionId: DocumentId, @Body() payload: ChangePasswordRequestDto): Promise<StatusResponseDto> {
     return await this.accountService.changePassword(accountId, sessionId, payload);
   }
 
@@ -79,14 +75,5 @@ export class AccountController {
   @ApiCreatedResponse({ description: "Successfully activate account Return status", type: Boolean })
   async activateAccount(@Param("session") sessionId: string, @IpAddress() ipAddress: string): Promise<boolean> {
     return this.accountService.activateAccount(sessionId, ipAddress);
-  }
-
-  @Auth()
-  @Get("/access")
-  @ApiOperation({ summary: "Get access histories" })
-  @ApiPagination()
-  @ApiOkResponse({ description: "Successfully to get access records. Return pagination records", type: PaginationResponse<AccessRecord> })
-  async getAccessRecords(@AuthUid() accountId: DocumentId, @Pagination() pagination: Pagination): Promise<PaginationResponse<AccessRecord>> {
-    return this.accessRecordService.findMultiplePaging({ accountId }, pagination);
   }
 }

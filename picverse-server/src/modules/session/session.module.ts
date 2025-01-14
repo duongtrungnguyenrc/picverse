@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common";
 
 import { AccessRecord, AccessRecordSchema, Session, SessionSchema } from "./schemas";
 import { AccessRecordService, SessionService } from "./services";
+import { SessionController } from "./controllers";
 import { ProfileModule } from "@modules/profile";
 
 @Module({
@@ -19,6 +20,7 @@ import { ProfileModule } from "@modules/profile";
     ]),
     ProfileModule,
   ],
+  controllers: [SessionController],
   providers: [AccessRecordService, SessionService],
   exports: [AccessRecordService, SessionService],
 })

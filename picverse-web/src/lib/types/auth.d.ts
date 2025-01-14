@@ -7,6 +7,7 @@ type AuthContext = {
 
 declare type Require2FAResponse = {
   accountId: string;
+  profileId: string;
   require2FA: boolean;
 };
 
@@ -26,6 +27,7 @@ declare type SignInRequest = {
 
 type SignInWithTwoFactorRequest = {
   accountId: string;
+  profileId: string;
   otpCode: string;
 };
 

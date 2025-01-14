@@ -9,20 +9,6 @@ declare type Account = BaseModel &
     createdAt: Date;
   };
 
-declare type Session = BaseModel &
-  TimeStampModel & {
-    accountId: string;
-    activating: boolean;
-  };
-
-declare type AccessRecord = BaseModel &
-  TimeStampModel & {
-    accountId: string;
-    sessionId: string;
-    ipAddress: string;
-    browserName: string;
-    location: string;
-  };
 
 declare type MutatePassword<T> = T & {
   confirmPassword: string;

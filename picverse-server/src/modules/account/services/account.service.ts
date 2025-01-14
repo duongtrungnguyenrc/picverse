@@ -44,7 +44,7 @@ export class AccountService extends Repository<Account> {
         { session },
       );
 
-      await this.profileService.create({ account: createdAccount._id, ...profileInfo }, { session });
+      await this.profileService.create({ accountId: createdAccount._id, ...profileInfo }, { session });
 
       this.mailerService.sendMail({
         subject: MailSubject.ACCOUNT_REGISTERD,

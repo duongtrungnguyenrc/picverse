@@ -27,7 +27,7 @@ import { setAuthCookie } from "@app/lib/actions";
 type SignInPageProps = {};
 
 const SignInPage: FC<SignInPageProps> = () => {
-  const [accountId, set2FAAccountId] = useState<string>();
+  const [credential, set2FACredential] = useState<Require2FAResponse>();
   const { authorizeClient, ready } = useAuth();
 
   const form = useForm<SignInRequest>({
@@ -47,10 +47,10 @@ const SignInPage: FC<SignInPageProps> = () => {
     signIn(data, {
       onSuccess: async (data) => {
         if ("require2FA" in data) {
-          set2FAAccountId(data.accountId);
+          set2FACredential(data);
           return data;
         }
-        set2FAAccountId(undefined);
+        set2FACredential(undefined);
         onSignInSuccess(data);
       },
     });
@@ -58,9 +58,17 @@ const SignInPage: FC<SignInPageProps> = () => {
 
   const onVerify2FA = useCallback(
     (otpCode: string) => {
-      signInWith2FA({ accountId: accountId!, otpCode }, { onSuccess: onSignInSuccess });
+      if (!credential) {
+        toast.error("Invalid 2FA credential");
+        return;
+      }
+
+      signInWith2FA(
+        { accountId: credential.accountId, profileId: credential.profileId, otpCode },
+        { onSuccess: onSignInSuccess },
+      );
     },
-    [accountId],
+    [credential],
   );
 
   const onSignInSuccess = async (data: TokenPair) => {
@@ -170,7 +178,7 @@ const SignInPage: FC<SignInPageProps> = () => {
         </form>
       </Form>
 
-      <OtpDiaglog open={!!accountId} isPending={is2FAPending} onSubmit={onVerify2FA} title="Enter OTP code" />
+      <OtpDiaglog open={!!credential} isPending={is2FAPending} onSubmit={onVerify2FA} title="Enter OTP code" />
     </div>
   );
 };

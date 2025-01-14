@@ -5,18 +5,20 @@ import { Auth, AuthUid } from "@common/decorators";
 import { ProfileService } from "../services";
 import { UpdateProfileDto } from "../dtos";
 import { Profile } from "../schemas";
+import { StatusResponseDto } from "@common/dtos";
 
-@Controller("profiles")
-@ApiTags("Profiles")
+@Controller("profile")
+@ApiTags("Profile")
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Auth()
   @Put("/")
   @ApiBody({ type: UpdateProfileDto })
-  @ApiResponse({ status: 200, description: "Profile updated success. Return status", type: Boolean })
-  async updateProfile(@AuthUid() accountId: DocumentId, @Body() payload: UpdateProfileDto): Promise<boolean> {
-    return !!(await this.profileService.update({ account: accountId }, payload));
+  @ApiResponse({ status: 200, description: "Profile updated success. Return status", type: StatusResponseDto })
+  async updateProfile(@AuthUid() accountId: DocumentId, @Body() payload: UpdateProfileDto): Promise<StatusResponseDto> {
+    await this.profileService.update({ account: accountId }, payload);
+    return { message: "Profile updated success" };
   }
 
   @Auth()

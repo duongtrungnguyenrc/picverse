@@ -18,7 +18,7 @@ export class JWTAccessAuthGuard implements CanActivate {
 
       if (!payload) throw new Error();
 
-      const userId: DocumentId = await this.jwtAccessService.getUid(payload.sub);
+      const userId: DocumentId = await this.jwtAccessService.getUid(payload.sid);
 
       if (!userId) {
         throw new UnauthorizedException(ErrorMessage.TOKEN_EXPIRED);

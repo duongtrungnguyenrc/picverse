@@ -165,9 +165,17 @@ const SignUpPage: FC = () => {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectGroup>
-                                  <SelectItem value="male">Male</SelectItem>
-                                  <SelectItem value="female">Female</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
+                                  {Object.values(EGender).map((gender) => {
+                                    return (
+                                      <SelectItem
+                                        className="capitalize"
+                                        key={`sign-up:gender:${gender}`}
+                                        value={gender}
+                                      >
+                                        {gender}
+                                      </SelectItem>
+                                    );
+                                  })}
                                 </SelectGroup>
                               </SelectContent>
                             </Select>

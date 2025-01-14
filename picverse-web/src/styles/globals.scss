@@ -73,13 +73,15 @@ body {
   }
 
   .h1 {
-    line-height: 1.08;
     @apply text-[2rem] font-bold;
   }
 
   .h2 {
-    line-height: 1.08;
     @apply text-[1.5rem] font-semibold;
+  }
+
+  .h3 {
+    @apply text-[1.2rem] font-semibold;
   }
 
   .h4 {

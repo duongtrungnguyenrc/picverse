@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Cloud, LogIn, LogOut, Menu, Settings, User } from "lucide-react";
+import { ArrowRight, Cloud, LogIn, LogOut, Menu, Pin, Settings, User } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { FC } from "react";
@@ -18,25 +18,29 @@ const Header: FC<HeaderProps> = ({}) => {
   const pathname = usePathname();
 
   return (
-    <header className="py-5 fixed top-0 left-0 w-screen z-50">
+    <header className="lg:py-5 fixed top-0 left-0 w-screen z-50">
       <div
         className={cn(
-          "container transition-all duration-500",
-          pathname.includes("cloud") ? "sm:max-w-full" : "container",
+          "transition-all duration-500",
+          pathname.includes("cloud") ? "sm:max-w-full px-10" : "lg:container",
         )}
       >
-        <nav className={cn("flex items-center gap-3 bg-white border filter-[blur(3px)] mx-auto p-3 rounded-2xl")}>
-          <div className="flex-1">
+        <nav
+          className={cn(
+            "flex items-center gap-3 bg-white border-b lg:border filter-[blur(3px)] mx-auto p-3 lg:rounded-2xl",
+          )}
+        >
+          <div className="flex-1 flex space-x-2 lg:space-x-3 items-center">
             <Link className="cursor-pointer" href="/">
               <Logo />
             </Link>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center space-x-3">
             <SearchInput />
 
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="h-10 text-sm rounded-lg ms-3">
+                <Button variant="outline" className="h-10 text-sm rounded-lg">
                   <Menu />
                 </Button>
               </PopoverTrigger>
@@ -55,6 +59,14 @@ const Header: FC<HeaderProps> = ({}) => {
 
                   <SignedIn>
                     <>
+                      <li>
+                        <Link
+                          className="w-full flex gap-2 items-center hover:bg-gray-200 p-2 py-2 rounded hover:text-black transition-all text-sm"
+                          href={`/new-pin`}
+                        >
+                          <Pin size={16} /> New pin
+                        </Link>
+                      </li>
                       <li>
                         <Link
                           className="w-full flex gap-2 items-center hover:bg-gray-200 p-2 py-2 rounded hover:text-black transition-all text-sm"
@@ -92,7 +104,8 @@ const Header: FC<HeaderProps> = ({}) => {
                 </ul>
               </PopoverContent>
             </Popover>
-            <Button className="h-10 text-sm rounded-lg ms-3">
+
+            <Button className="h-10 text-sm rounded-lg">
               Explore <ArrowRight size={16} />
             </Button>
           </div>
