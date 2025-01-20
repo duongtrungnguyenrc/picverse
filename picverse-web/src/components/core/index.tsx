@@ -19,7 +19,6 @@ export { default as ProtectedImageCanvas } from "./ProtectedImageCanvas";
 export { default as ImagePicker } from "./ImagePicker";
 export { default as ImageTransformDialog } from "./ImageTransformDialog";
 export { default as ImageAiTransformDialog } from "./ImageAiTransformDialog";
-export { default as CldImageTransformationForm } from "./CldImageTransformationForm";
 
 /* AUTH COMPONENTS */
 export { default as GoogleSignInButton } from "./GoogleSignInButton";

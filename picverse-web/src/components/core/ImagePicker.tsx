@@ -44,7 +44,7 @@ const ImagePicker: FC<ImagePickerProps> = ({ accept, className }) => {
         deleteImage(cldImage.public_id);
       }
     };
-  }, [cldImage, deleteImage]);
+  }, [cldImage]);
 
   return (
     <label

@@ -1,8 +1,8 @@
 "use client";
 
 import { CldImage, getCldImageUrl } from "next-cloudinary";
-import { useForm } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { Control, useForm } from "react-hook-form";
+import { useState } from "react";
 
 import {
   Dialog,
@@ -38,8 +38,8 @@ type ImageAiTransformDialogProps = {
 
 export default function ImageTransformDialog({ children, cldImage, onImageTransform }: ImageAiTransformDialogProps) {
   const [transformationConfig, setTransformationConfig] = useState<CldTransformationConfig>();
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [isTransforming, setIsTransforming] = useState<boolean>(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [isTransforming, setIsTransforming] = useState(false);
   const [activeFeature, setActiveFeature] = useState<CldTransformationFeatureKey>(
     Object.keys(transformationFeatures)[0] as CldTransformationFeatureKey,
   );
@@ -85,7 +85,7 @@ export default function ImageTransformDialog({ children, cldImage, onImageTransf
 
   const onApplyTransformation = () => {
     if (transformationConfig && onImageTransform) {
-      const transformedUrl: string = getCldImageUrl({
+      const transformedUrl = getCldImageUrl({
         src: cldImage.public_id,
         ...transformationConfig,
       });
@@ -93,9 +93,9 @@ export default function ImageTransformDialog({ children, cldImage, onImageTransf
       onImageTransform(transformedUrl);
       resetState();
       setOpenDialog(false);
+    } else {
+      toast.error("Please select a transformation");
     }
-
-    toast.error("Please select transform");
   };
 
   return (
@@ -106,40 +106,16 @@ export default function ImageTransformDialog({ children, cldImage, onImageTransf
           <DialogTitle>AI image transformation</DialogTitle>
         </DialogHeader>
         <div className="flex mt-4 space-x-4 overflow-y-auto">
-          {/* Sidebar Tabs */}
-          <div className="lg:w-60 border-r pr-4">
-            {Object.values(transformationFeatures).map((feat) => (
-              <button
-                key={feat.key}
-                onClick={() => onTabChange(feat.key)}
-                className={`flex items-center w-full px-4 py-2 space-x-2 text-left text-sm font-semibold mb-2 rounded-lg transition-colors ${
-                  activeFeature === feat.key ? "bg-primary text-primary-foreground" : "hover:bg-muted"
-                }`}
-              >
-                <feat.icon size={16} />
-                <span className="hidden lg:block">{feat.title}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Form */}
+          <SidebarTabs activeFeature={activeFeature} onTabChange={onTabChange} />
           <Form {...form}>
             <form onSubmit={onTransform} className="flex-1 space-y-4">
-              <div className="flex flex-col lg:flex-row gap-4 items-center justify-center">
-                <ImagePreview title="Original Image" cldImgPublicId={cldImage.public_id} />
-                <TransformedImagePreview
-                  cldImgPublicId={cldImage.public_id}
-                  isTransforming={isTransforming}
-                  setIsTransforming={setIsTransforming}
-                  transformationConfig={transformationConfig}
-                />
-              </div>
-
-              {/* Dynamic Fields */}
-              {activeFeature === "fillBackground" && <AspectRatioField control={form.control} />}
-              {activeFeature === "remove" && <PromptField control={form.control} activeFeature={activeFeature} />}
-              {activeFeature === "recolor" && <ToColorField control={form.control} />}
-              {activeFeature === "replace" && <ReplaceFields control={form.control} />}
+              <ImagePreviews
+                cldImage={cldImage}
+                isTransforming={isTransforming}
+                setIsTransforming={setIsTransforming}
+                transformationConfig={transformationConfig}
+              />
+              <DynamicFields activeFeature={activeFeature} control={form.control} />
             </form>
           </Form>
         </div>
@@ -150,6 +126,66 @@ export default function ImageTransformDialog({ children, cldImage, onImageTransf
     </Dialog>
   );
 }
+
+const SidebarTabs = ({
+  activeFeature,
+  onTabChange,
+}: {
+  activeFeature: CldTransformationFeatureKey;
+  onTabChange: (value: CldTransformationFeatureKey) => void;
+}) => (
+  <div className="lg:w-60 border-r pr-4">
+    {Object.values(transformationFeatures).map((feat) => (
+      <button
+        key={feat.key}
+        onClick={() => onTabChange(feat.key)}
+        className={`flex items-center w-full px-4 py-2 space-x-2 text-left text-sm font-semibold mb-2 rounded-lg transition-colors ${
+          activeFeature === feat.key ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+        }`}
+      >
+        <feat.icon size={16} />
+        <span className="hidden lg:block">{feat.title}</span>
+      </button>
+    ))}
+  </div>
+);
+
+const ImagePreviews = ({
+  cldImage,
+  isTransforming,
+  setIsTransforming,
+  transformationConfig,
+}: {
+  cldImage: CloudinaryImage;
+  isTransforming: boolean;
+  setIsTransforming: (value: boolean) => void;
+  transformationConfig?: CldTransformationConfig;
+}) => (
+  <div className="flex flex-col lg:flex-row gap-4 items-center justify-center">
+    <ImagePreview title="Original Image" cldImgPublicId={cldImage.public_id} />
+    <TransformedImagePreview
+      cldImgPublicId={cldImage.public_id}
+      isTransforming={isTransforming}
+      setIsTransforming={setIsTransforming}
+      transformationConfig={transformationConfig}
+    />
+  </div>
+);
+
+const DynamicFields = ({
+  activeFeature,
+  control,
+}: {
+  activeFeature: CldTransformationFeatureKey;
+  control: Control<CldTransformFormType>;
+}) => (
+  <>
+    {activeFeature === "fillBackground" && <AspectRatioField control={control} />}
+    {activeFeature === "remove" && <PromptField control={control} activeFeature={activeFeature} />}
+    {activeFeature === "recolor" && <ToColorField control={control} />}
+    {activeFeature === "replace" && <ReplaceFields control={control} />}
+  </>
+);
 
 const ImagePreview = ({ title, cldImgPublicId }: { title: string; cldImgPublicId?: string }) => (
   <div className="flex-1 w-full">
@@ -199,7 +235,7 @@ const TransformedImagePreview = ({
             />
             {isTransforming ? (
               <div className="absolute align-middle flex flex-col items-center">
-                <Loader2 size={16} className="animate-spin" />
+                <Loader2 className="animate-spin" />
                 <p>Please wait...</p>
               </div>
             ) : (
@@ -222,7 +258,7 @@ const TransformedImagePreview = ({
   </div>
 );
 
-const AspectRatioField = ({ control }: { control: any }) => (
+const AspectRatioField = ({ control }: { control: Control<CldTransformFormType> }) => (
   <FormField
     control={control}
     name="aspectRatio"
@@ -248,7 +284,71 @@ const AspectRatioField = ({ control }: { control: any }) => (
   />
 );
 
-const ToColorField = ({ control }: { control: any }) => (
+const PromptField = ({
+  control,
+  activeFeature,
+}: {
+  control: Control<CldTransformFormType>;
+  activeFeature: CldTransformationFeatureKey;
+}) => (
+  <>
+    <FormField
+      control={control}
+      name="prompt"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Prompt</FormLabel>
+          <FormControl>
+            <Input placeholder={`Which object you want to ${activeFeature}?`} {...field} />
+          </FormControl>
+        </FormItem>
+      )}
+    />
+    <FormField
+      control={control}
+      name="multiple"
+      render={({ field }) => (
+        <FormItem className="flex items-center justify-between">
+          <FormLabel>Multiple objects</FormLabel>
+          <FormControl>
+            <Switch checked={field.value} onCheckedChange={field.onChange} />
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  </>
+);
+
+const ReplaceFields = ({ control }: { control: Control<CldTransformFormType> }) => (
+  <div className="flex flex-col lg:flex-row w-full space-y-4 lg:space-y-0 lg:space-x-4">
+    <FormField
+      control={control}
+      name="from"
+      render={({ field }) => (
+        <FormItem className="flex-1">
+          <FormLabel>From</FormLabel>
+          <FormControl>
+            <Input placeholder="Replace from" {...field} />
+          </FormControl>
+        </FormItem>
+      )}
+    />
+    <FormField
+      control={control}
+      name="to"
+      render={({ field }) => (
+        <FormItem className="flex-1">
+          <FormLabel>To</FormLabel>
+          <FormControl>
+            <Input placeholder="To" {...field} />
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  </div>
+);
+
+const ToColorField = ({ control }: { control: Control<CldTransformFormType> }) => (
   <>
     <div className="flex flex-col lg:flex-row w-full space-y-4 lg:space-y-0 lg:space-x-4">
       <FormField
@@ -289,62 +389,4 @@ const ToColorField = ({ control }: { control: any }) => (
       )}
     />
   </>
-);
-
-const PromptField = ({ control, activeFeature }: { control: any; activeFeature: CldTransformationFeatureKey }) => (
-  <>
-    <FormField
-      control={control}
-      name="prompt"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Prompt</FormLabel>
-          <FormControl>
-            <Input placeholder={`Which object you want to ${activeFeature}?`} {...field} />
-          </FormControl>
-        </FormItem>
-      )}
-    />
-    <FormField
-      control={control}
-      name="multiple"
-      render={({ field }) => (
-        <FormItem className="flex items-center justify-between">
-          <FormLabel>Multiple objects</FormLabel>
-          <FormControl>
-            <Switch checked={field.value} onCheckedChange={field.onChange} />
-          </FormControl>
-        </FormItem>
-      )}
-    />
-  </>
-);
-
-const ReplaceFields = ({ control }: { control: any }) => (
-  <div className="flex flex-col lg:flex-row w-full space-y-4 lg:space-y-0 lg:space-x-4">
-    <FormField
-      control={control}
-      name="from"
-      render={({ field }) => (
-        <FormItem className="flex-1">
-          <FormLabel>From</FormLabel>
-          <FormControl>
-            <Input placeholder="Replace from" {...field} />
-          </FormControl>
-        </FormItem>
-      )}
-    />
-    <FormField
-      control={control}
-      name="to"
-      render={({ field }) => (
-        <FormItem className="flex-1">
-          <FormLabel>To</FormLabel>
-          <FormControl>
-            <Input placeholder="To" {...field} />
-          </FormControl>
-        </FormItem>
-      )}
-    />
-  </div>
 );
