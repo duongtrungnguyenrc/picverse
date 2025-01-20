@@ -1,7 +1,7 @@
 "use client";
 
 import { FC } from "react";
-import { ContentSection, MediaEditor, TagInput } from ".";
+import { ContentSection, MediaEditor, ImagePicker, TagInput } from ".";
 import {
   Form,
   FormControl,
@@ -41,10 +41,11 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
 
   const onCreatePin = form.handleSubmit((data) => {});
 
+
   return (
     <Form {...form}>
       <form onSubmit={onCreatePin}>
-        <MediaEditor />
+        {/* <MediaEditor /> */}
         <ContentSection
           heading="Create pin"
           className="container py-10"
@@ -71,23 +72,7 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
                   <FormItem className="h-full flex flex-col space-y-4">
                     <FormLabel>Media</FormLabel>
                     <FormControl>
-                      <Label
-                        htmlFor="uploadFileInput"
-                        className="min-h-[300px] flex-1 flex flex-col items-center justify-center rounded-lg border border-dashed cursor-pointer"
-                      >
-                        <input
-                          id="uploadFileInput"
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          // onChange={handleFileChange}
-                        />
-
-                        <>
-                          <CloudUpload className="text-gray-500" />
-                          <p className="text-xs">Upload file</p>
-                        </>
-                      </Label>
+                      <ImagePicker />
                     </FormControl>
                     {/* {formErrors.firstName && <FormMessage>{formErrors.firstName.message}</FormMessage>} */}
                   </FormItem>

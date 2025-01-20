@@ -2,7 +2,7 @@ declare namespace Repository {
     type FindOptions = {
       select?: string | string[] | Record<string, number | boolean | string | object>;
       populate?: PopulateOptions | Array<PopulateOptions | string>;
-      force?: boolean = false;
+      force?: boolean;
       cachePostfix?: string = "";
     };
   

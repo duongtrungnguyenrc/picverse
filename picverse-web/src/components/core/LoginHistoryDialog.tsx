@@ -64,7 +64,7 @@ const LoginHistoryDialog: FC<LoginHistoryDialogProps> = ({ children }) => {
               {records?.data.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center">
-                    "No records found
+                    No records found
                   </TableCell>
                 </TableRow>
               )}

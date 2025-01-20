@@ -22,4 +22,6 @@ export enum MutationKeys {
   RESET_PASSWORD = "reset-password",
   CHANGE_PASSWORD = "change-password",
   UPDATE_PROFILE = "update-profile",
+  UPLOAD_CLD_IMAGE = "upload-cld-image",
+  DELETE_CLD_IMAGE = "delete-cld-image",
 }

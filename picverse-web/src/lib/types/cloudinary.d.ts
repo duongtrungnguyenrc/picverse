@@ -1,4 +1,4 @@
-declare type CloudinaryUploadResponse = {
+declare type CloudinaryImage = {
   asset_id: string;
   public_id: string;
   version: number;
@@ -19,4 +19,47 @@ declare type CloudinaryUploadResponse = {
   folder: string;
   access_mode: string;
   original_filename: string;
+};
+
+declare type AspectRatioKey = "1:1" | "3:4" | "9:16";
+
+declare type CldTransformationFeatureKey =
+  | "restore"
+  | "remove"
+  | "recolor"
+  | "replace"
+  | "removeBackground"
+  | "fillBackground";
+
+declare type CldTransformationFeature = {
+  key: CldTransformationFeatureKey;
+  title: string;
+  subTitle: string;
+  config: Object;
+  icon: any;
+};
+
+type CldTransformFormType = {
+  aspectRatio?: AspectRatioKey;
+  prompt?: string;
+  from?: string;
+  to?: string;
+  multiple?: boolean;
+};
+
+declare type CldTransformationConfig = {
+  restore?: boolean;
+  replace?: [string, string];
+  remove?: {
+    prompt: string;
+    removeShadow?: boolean;
+    multiple?: boolean;
+  };
+  recolor?: {
+    prompt?: string;
+    to: string;
+    multiple?: boolean;
+  };
+  removeBackground?: boolean;
+  fillBackground?: boolean;
 };

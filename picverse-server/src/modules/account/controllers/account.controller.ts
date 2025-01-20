@@ -1,4 +1,4 @@
-import { ApiBody, ApiParam, ApiOkResponse, ApiTags, ApiCreatedResponse, ApiOperation } from "@nestjs/swagger";
+import { ApiBody, ApiParam, ApiTags, ApiCreatedResponse, ApiOperation } from "@nestjs/swagger";
 import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
 
 import { ChangePasswordRequestDto, ForgotPasswordDto, LockAccountDto, RequestActiveAccountDto, ResetPasswordDto, SignUpRequestDto } from "../dtos";

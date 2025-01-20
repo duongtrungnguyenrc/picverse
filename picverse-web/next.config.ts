@@ -8,10 +8,6 @@ const nextConfig: NextConfig = {
         hostname: "flowbite.s3.amazonaws.com",
       },
       {
-        protocol: "https",
-        hostname: "img.clerk.com",
-      },
-      {
         protocol: "http",
         hostname: "localhost",
       },

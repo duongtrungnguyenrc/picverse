@@ -197,7 +197,7 @@ const SettingProfilePage: FC<SettingProfilePageProps> = ({}) => {
           <div className="flex justify-between">
             <div>
               <h4 className="h4">Delete profile and all data</h4>
-              <p>Delete your profile and all data. You can't recover your profile</p>
+              <p>Delete your profile and all data. You can&apos;t recover your profile</p>
             </div>
             <Button className="text-red-500 rounded-full" variant="outline">
               Delete profile
