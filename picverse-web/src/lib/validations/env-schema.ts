@@ -17,4 +17,19 @@ export const envSchema = z.object<ValidationSchema<NodeJS.ProcessEnv>>({
   NODE_ENV: z.enum(["development", "production", "test"], {
     message: "Environment variable NODE_ENV is required and must be one of 'development', 'production', or 'test'",
   }),
+  NEXT_PUBLIC_CLOUDINARY_API_BASE_URL: z.string({
+    message: "Environment variable NEXT_PUBLIC_CLOUDINARY_API_BASE_URL is required",
+  }),
+  NEXT_PUBLIC_CLOUDINARY_API_KEY: z.string({
+    message: "Environment variable NEXT_PUBLIC_CLOUDINARY_API_KEY is required",
+  }),
+  NEXT_PUBLIC_CLOUDINARY_API_SECRET: z.string({
+    message: "Environment variable NEXT_PUBLIC_CLOUDINARY_API_SECRET is required",
+  }),
+  NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: z.string({
+    message: "Environment variable NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET is required",
+  }),
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string({
+    message: "Environment variable NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is required",
+  }),
 });

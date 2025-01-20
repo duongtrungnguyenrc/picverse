@@ -5,7 +5,6 @@ export * from "./button";
 export * from "./input";
 export * from "./label";
 export * from "./card";
-export * from "./pagination";
 export * from "./calendar";
 export * from "./menubar";
 export * from "./collapsible";
