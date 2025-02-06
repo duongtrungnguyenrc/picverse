@@ -25,7 +25,7 @@ export class ProfileController {
   @Get("/")
   @ApiResponse({ status: 200, description: "Get auth profile success. Return auth profile", type: Profile })
   async getAuthProfile(@AuthUid() accountId: DocumentId): Promise<Profile> {
-    return await this.profileService.find({ account: accountId });
+    return await this.profileService.find({ accountId: accountId, isPublic: true });
   }
 
   @Get("/:id")

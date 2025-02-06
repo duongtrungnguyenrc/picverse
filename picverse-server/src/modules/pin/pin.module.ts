@@ -1,14 +1,14 @@
 import { MongooseModule } from "@nestjs/mongoose";
 import { Module } from "@nestjs/common";
 
-import { Board, BoardSchema, Pin, PinSchema, Tag, TagSchema, Like, LikeSchema, Comment, CommentSchema } from "./schemas";
+import { Pin, PinSchema, Tag, TagSchema, Like, LikeSchema, Comment, CommentSchema } from "./schemas";
+import { CommentService, PinService } from "./services";
 import { PinController } from "./controllers";
-import { PinService } from "./services";
+import { CommentGateway } from "./gateways";
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: Board.name, schema: BoardSchema },
       { name: Pin.name, schema: PinSchema },
       { name: Tag.name, schema: TagSchema },
       { name: Like.name, schema: LikeSchema },
@@ -16,6 +16,6 @@ import { PinService } from "./services";
     ]),
   ],
   controllers: [PinController],
-  providers: [PinService],
+  providers: [PinService, CommentService, CommentGateway],
 })
-export class ContentModule {}
+export class PinModule {}

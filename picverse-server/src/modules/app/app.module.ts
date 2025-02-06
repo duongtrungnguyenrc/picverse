@@ -11,7 +11,8 @@ import { CacheModule } from "@modules/cache";
 import { SocialModule } from "@modules/social";
 import { CloudModule } from "@modules/cloud";
 import { AuthModule } from "@modules/auth";
-import { ContentModule } from "@modules/content";
+import { PinModule } from "@modules/pin";
+import { ChatModule } from "@modules/chat";
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { ContentModule } from "@modules/content";
     ProfileModule,
     SocialModule,
     CloudModule,
-    ContentModule,
+    PinModule,
+    ChatModule,
   ],
   controllers: [],
   providers: [],

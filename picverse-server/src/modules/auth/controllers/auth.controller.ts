@@ -6,6 +6,7 @@ import { Disable2faDto, RefreshTokenResponseDto, Require2FAResponseDto, SignInRe
 import { Auth, AuthToken, AuthTokenPayload, AuthUid, IpAddress, RequestAgent } from "@common/decorators";
 import { StatusResponseDto } from "@common/dtos";
 import { AuthService } from "../services";
+import { JWTRefreshAuthGuard } from "@common/guards";
 
 @Controller("/auth")
 @ApiTags("Auth")
@@ -66,6 +67,7 @@ export class AuthController {
   }
 
   @Post("/refresh-token")
+  @Auth(JWTRefreshAuthGuard)
   @ApiOperation({ summary: "Refresh new access token pair" })
   @ApiBearerAuth()
   @ApiHeader({ name: "authorization", description: "Jwt Bearer refresh token" })
