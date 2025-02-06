@@ -1,8 +1,7 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { decode } from "jsonwebtoken";
 import { Socket } from "socket.io";
 
-import { getSocketTokenPayload, getTokenFromHandshake } from "@common/utils";
+import { getSocketTokenPayload } from "@common/utils";
 
 export const SocketAuthTokenPayload = (key: keyof JwtPayload): ParameterDecorator => {
   return createParamDecorator(async (_, context: ExecutionContext): Promise<string | number | DocumentId | undefined> => {

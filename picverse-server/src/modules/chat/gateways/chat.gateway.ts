@@ -3,23 +3,22 @@ import { UsePipes, ValidationPipe } from "@nestjs/common";
 import { Socket, Server } from "socket.io";
 
 import { Auth, SocketAuthTokenPayload } from "@common/decorators";
-import { ChatService, ConversationService } from "../services";
 import { getSocketTokenPayload } from "@common/utils";
 import { JWTSocketAuthGuard } from "@common/guards";
+import { Conversation } from "../schemas";
+import { ChatService } from "../services";
 import { SendMessageDto } from "../dtos";
 
 @WebSocketGateway({ namespace: "chat", transports: ["websocket"] })
 @UsePipes(new ValidationPipe({ exceptionFactory: (errors) => new WsException(errors) }))
+@Auth(JWTSocketAuthGuard)
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer() server: Server;
   private readonly connectedClients = new Map<string, string>();
 
-  constructor(
-    private readonly chatService: ChatService,
-    private readonly conversationService: ConversationService,
-  ) {}
+  constructor(private readonly chatService: ChatService) {}
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     const profileId: DocumentId = getSocketTokenPayload(client, "pid") as DocumentId;
 
     if (!profileId) {
@@ -27,6 +26,10 @@ export class ChatGateway implements OnGatewayConnection {
       client.disconnect();
       return;
     }
+
+    const conversations = await this.chatService.getUserConversations(profileId);
+
+    client.emit("conversations", conversations);
 
     this.connectedClients.set(client.id, profileId.toString());
     console.log(`Client connected: ${client.id} -> ${profileId}`);
@@ -38,29 +41,21 @@ export class ChatGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage("send")
-  @Auth(JWTSocketAuthGuard)
   async sendMessage(@SocketAuthTokenPayload("pid") senderProfileId: DocumentId, @MessageBody() payload: SendMessageDto) {
-    const conversation = await this.conversationService.find({
-      memberIds: {
-        $all: [senderProfileId, payload.receiverId],
-      },
-    });
+    const conversation: Conversation = await this.chatService.getOrCreateConversation(senderProfileId, payload.receiverId);
 
-    if (!conversation || !conversation.memberIds.includes(senderProfileId)) {
-      throw new WsException("Unauthorized or conversation not found");
-    }
-
-    const createdMessage = await this.chatService.create({
+    const createdMessage = await this.chatService.createMessage({
       senderId: senderProfileId,
       conversationId: conversation._id,
       content: payload.content,
     });
 
-    conversation.memberIds.forEach((memberId) => {
-      const clientId = Array.from(this.connectedClients.entries()).find(([_, id]) => id === memberId.toString())?.[0];
+    conversation.members.forEach((memberId) => {
+      const connectedClientEntries = Array.from(this.connectedClients.entries());
+      const receiverClientId: string = connectedClientEntries.find(([_, id]) => id === memberId.toString())?.[0];
 
-      if (clientId) {
-        this.server.to(clientId).emit("message", createdMessage);
+      if (receiverClientId) {
+        this.server.to(receiverClientId).emit("message", createdMessage);
       }
     });
 
