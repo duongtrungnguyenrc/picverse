@@ -2,7 +2,9 @@
 
 import { CldImage, getCldImageUrl } from "next-cloudinary";
 import { Control, useForm } from "react-hook-form";
-import { useState } from "react";
+import { Loader2, Sparkles } from "lucide-react";
+import toast from "react-hot-toast";
+import { Dispatch, SetStateAction, useState } from "react";
 
 import {
   Dialog,
@@ -27,19 +29,17 @@ import {
 } from "@app/components";
 import { skeletonPlaceholder, debounce, deepMergeObjects } from "@app/lib/utils";
 import { aspectRatioOptions, transformationFeatures } from "@app/lib/constants";
-import { Loader2, Sparkles } from "lucide-react";
-import toast from "react-hot-toast";
 
 type ImageAiTransformDialogProps = {
   children: React.ReactNode;
   cldImage: CloudinaryImage;
-  onImageTransform?: (newUrl: string) => void;
+  onTransformed?: (transformedImage: File) => void;
 };
 
-export default function ImageTransformDialog({ children, cldImage, onImageTransform }: ImageAiTransformDialogProps) {
+export default function ImageTransformDialog({ children, cldImage, onTransformed }: ImageAiTransformDialogProps) {
   const [transformationConfig, setTransformationConfig] = useState<CldTransformationConfig>();
   const [openDialog, setOpenDialog] = useState(false);
-  const [isTransforming, setIsTransforming] = useState(false);
+  const [transformState, setTransformState] = useState<CldTransformState>("default");
   const [activeFeature, setActiveFeature] = useState<CldTransformationFeatureKey>(
     Object.keys(transformationFeatures)[0] as CldTransformationFeatureKey,
   );
@@ -56,12 +56,12 @@ export default function ImageTransformDialog({ children, cldImage, onImageTransf
   const resetState = () => {
     form.reset();
     setTransformationConfig(undefined);
-    setIsTransforming(false);
+    setTransformState("default");
   };
 
   const onTransform = form.handleSubmit((data) => {
     resetState();
-    setIsTransforming(true);
+    setTransformState("transforming");
 
     const defaultConfig: CldTransformationConfig = {
       ...deepMergeObjects(transformationFeatures[activeFeature].config, transformationConfig),
@@ -84,13 +84,15 @@ export default function ImageTransformDialog({ children, cldImage, onImageTransf
   };
 
   const onApplyTransformation = () => {
-    if (transformationConfig && onImageTransform) {
+    if (transformationConfig && onTransformed) {
       const transformedUrl = getCldImageUrl({
         src: cldImage.public_id,
         ...transformationConfig,
       });
 
-      onImageTransform(transformedUrl);
+      
+
+      // onTransformed(transformedUrl);
       resetState();
       setOpenDialog(false);
     } else {
@@ -111,8 +113,8 @@ export default function ImageTransformDialog({ children, cldImage, onImageTransf
             <form onSubmit={onTransform} className="flex-1 space-y-4">
               <ImagePreviews
                 cldImage={cldImage}
-                isTransforming={isTransforming}
-                setIsTransforming={setIsTransforming}
+                transformState={transformState}
+                setTransformState={setTransformState}
                 transformationConfig={transformationConfig}
               />
               <DynamicFields activeFeature={activeFeature} control={form.control} />
@@ -152,21 +154,21 @@ const SidebarTabs = ({
 
 const ImagePreviews = ({
   cldImage,
-  isTransforming,
-  setIsTransforming,
+  transformState,
+  setTransformState,
   transformationConfig,
 }: {
   cldImage: CloudinaryImage;
-  isTransforming: boolean;
-  setIsTransforming: (value: boolean) => void;
+  transformState: CldTransformState;
+  setTransformState: Dispatch<SetStateAction<CldTransformState>>;
   transformationConfig?: CldTransformationConfig;
 }) => (
   <div className="flex flex-col lg:flex-row gap-4 items-center justify-center">
     <ImagePreview title="Original Image" cldImgPublicId={cldImage.public_id} />
     <TransformedImagePreview
       cldImgPublicId={cldImage.public_id}
-      isTransforming={isTransforming}
-      setIsTransforming={setIsTransforming}
+      transformState={transformState}
+      setTransformState={setTransformState}
       transformationConfig={transformationConfig}
     />
   </div>
@@ -209,36 +211,39 @@ const ImagePreview = ({ title, cldImgPublicId }: { title: string; cldImgPublicId
 
 const TransformedImagePreview = ({
   cldImgPublicId,
-  isTransforming,
-  setIsTransforming,
+  transformState,
+  setTransformState,
   transformationConfig,
 }: {
   cldImgPublicId: string;
-  isTransforming: boolean;
-  setIsTransforming: (value: boolean) => void;
+  transformState: CldTransformState;
+  setTransformState: Dispatch<SetStateAction<CldTransformState>>;
   transformationConfig?: CldTransformationConfig;
 }) => (
   <div className="flex-1 w-full">
     <h4 className="text-lg font-semibold mb-2">Transformed Image</h4>
     <div className="p-3 rounded-lg border border-dashed overflow-hidden">
       <div className="relative flex-center h-[300px] group">
-        {transformationConfig ? (
+        {transformState != "default" ? (
           <>
             <CldImage
               src={cldImgPublicId}
               alt="Transformed image"
               placeholder={skeletonPlaceholder as any}
               className="object-contain w-full h-full"
-              onLoad={() => setIsTransforming(false)}
-              onError={() => debounce(() => setIsTransforming(false), 8000)()}
+              onLoad={() => setTransformState("transformed")}
+              onError={() => debounce(() => setTransformState("error"), 8000)()}
               {...transformationConfig}
             />
-            {isTransforming ? (
+
+            {transformState === "transforming" && (
               <div className="absolute align-middle flex flex-col items-center">
-                <Loader2 className="animate-spin" />
+                <Loader2 size={16} className="animate-spin" />
                 <p>Please wait...</p>
               </div>
-            ) : (
+            )}
+
+            {["transformed", "error"].includes(transformState) && (
               <Button
                 className="absolute bottom-5 align-middle opacity-0 group-hover:opacity-100 transition-all"
                 type="submit"

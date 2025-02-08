@@ -1,9 +1,9 @@
 import { MongooseModule } from "@nestjs/mongoose";
 import { Module } from "@nestjs/common";
 
-import { Conversation, ConversationSchema, Message, MessageSchema } from "./schemas";
+import { Conversation, ConversationSchema, Message, MessageSchema } from "./models";
 import { MessageService, ConversationService, ChatService } from "./services";
-import { ChatGateway } from "./gateways";
+import { ChatGateway } from "./gatewaies";
 
 @Module({
   imports: [

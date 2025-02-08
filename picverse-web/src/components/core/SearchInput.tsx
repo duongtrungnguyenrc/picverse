@@ -29,7 +29,7 @@ const SearchInput: FC<SearchInputProps> = ({}) => {
     <Dialog open={openDialogState} onOpenChange={setOpenDialogState}>
       <DialogTrigger asChild>
         <div>
-          <Button className="lg:hidden rounded-lg transition-all" variant="outline">
+          <Button size="sm" className="lg:hidden rounded-lg transition-all h-10 w-10" variant="outline">
             <Search size={18} />
           </Button>
           <div className="relative hidden lg:block transition-all">

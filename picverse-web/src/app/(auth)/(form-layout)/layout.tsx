@@ -15,7 +15,7 @@ const AuthFormLayout: FC<AuthFormLayoutProps> = ({ children }) => {
       <div className="container flex flex-col items-center justify-center min-h-screen px-6 py-8 mx-auto">
         <Link
           href="/"
-          className="flex items-center mb-8 space-x-2 text-2xl font-semibold transition-transform hover:scale-105"
+          className="flex items-center mb-4 space-x-2 text-2xl font-semibold transition-transform hover:scale-105"
         >
           <Logo />
           <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Picverse</span>

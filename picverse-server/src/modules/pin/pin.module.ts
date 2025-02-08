@@ -4,7 +4,7 @@ import { Module } from "@nestjs/common";
 import { Pin, PinSchema, Tag, TagSchema, Like, LikeSchema, Comment, CommentSchema } from "./schemas";
 import { CommentService, PinService } from "./services";
 import { PinController } from "./controllers";
-import { CommentGateway } from "./gateways";
+import { CommentGateway } from "./gatewies";
 
 @Module({
   imports: [

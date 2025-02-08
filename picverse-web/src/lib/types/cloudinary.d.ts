@@ -47,6 +47,8 @@ type CldTransformFormType = {
   multiple?: boolean;
 };
 
+type CldTransformState = "default" | "transforming" | "transformed" | "error";
+
 declare type CldTransformationConfig = {
   restore?: boolean;
   replace?: [string, string];

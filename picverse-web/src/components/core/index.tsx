@@ -19,9 +19,19 @@ export { default as ProtectedImageCanvas } from "./ProtectedImageCanvas";
 export { default as ImagePicker } from "./ImagePicker";
 export { default as ImageTransformDialog } from "./ImageTransformDialog";
 export { default as ImageAiTransformDialog } from "./ImageAiTransformDialog";
+export { default as CreateBoardDialog } from "./CreateBoardDialog";
+export { default as Board } from "./Board";
+export { default as FloatingActionNav } from "./FloatingActionNav";
+export { default as PinDrawer } from "./PinDrawer";
+export { default as PinDetail } from "./PinDetail";
+export { default as FloatingChat } from "./FloatingChat";
+export { default as ConversationList } from "./ConversationList";
 
 /* AUTH COMPONENTS */
 export { default as GoogleSignInButton } from "./GoogleSignInButton";
+
+/* PROFILE COMPONENTS */
+export { default as ProfileBoardListingControl } from "./ProfileBoardListingControl";
 
 /* PINS COMPONENTS */
 export { default as MediaEditor } from "./MediaEditor";
@@ -47,4 +57,4 @@ export { default as LoginHistoryDialog } from "./LoginHistoryDialog";
 
 /* LISTING COMPONENTS */
 
-export { default as CollectionListing } from "./CollectionListing";
+export { default as BoardListing } from "./BoardListing";

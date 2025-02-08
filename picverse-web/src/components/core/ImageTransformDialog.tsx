@@ -1,8 +1,8 @@
 "use client";
 
+import { getEditorDefaults, PinturaDefaultImageWriterResult } from "@pqina/pintura";
 import { PinturaEditor } from "@pqina/react-pintura";
-import { getEditorDefaults } from "@pqina/pintura";
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useCallback } from "react";
 import "@pqina/pintura/pintura.css";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../shadcn";
@@ -13,9 +13,15 @@ const pinturaConfig = getEditorDefaults({});
 type ImageTransformDialogProps = {
   children: ReactNode;
   mediaUrl?: string;
+  onTransformed?: (updatedImage: File) => void;
 };
 
-const ImageTransformDialog: FC<ImageTransformDialogProps> = ({ children, mediaUrl }) => {
+const ImageTransformDialog: FC<ImageTransformDialogProps> = ({ children, mediaUrl, onTransformed }) => {
+  const onProcessImage = useCallback((detail: PinturaDefaultImageWriterResult) => {
+    console.log(detail);
+    onTransformed?.(detail.dest);
+  }, []);
+
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -31,6 +37,7 @@ const ImageTransformDialog: FC<ImageTransformDialogProps> = ({ children, mediaUr
             src={mediaUrl}
             imageCropAspectRatio={1}
             className={cn("h-[600px] w-full")}
+            onProcess={onProcessImage}
           />
         </div>
       </DialogContent>

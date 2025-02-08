@@ -2,7 +2,7 @@ declare type EGender = import("../enums").EGender;
 
 declare type Profile = BaseModel &
   TimeStampModel & {
-    account: Account;
+    accountId: string;
     firstName: string;
     lastName: string;
     birth: string;

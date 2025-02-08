@@ -1,0 +1,129 @@
+"use client";
+
+import { Search, MoreHorizontal, PenSquare } from "lucide-react";
+import { FC, ReactNode, useMemo, useState } from "react";
+
+import { cn, formatTimestamp } from "@app/lib/utils";
+import { useChat } from "@app/lib/hooks";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  Input,
+} from "../shadcn";
+
+type ConversationListProps = {
+  children: ReactNode;
+};
+
+const ConversationList: FC<ConversationListProps> = ({ children }) => {
+  const { conversations, changeConversation } = useChat();
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const filteredConversations = useMemo(() => {
+    if (!search.trim()) return conversations;
+
+    return conversations.filter((conv) => conv._id?.toLowerCase().includes(search.toLowerCase()));
+  }, [conversations, search]);
+
+  const onSelectConversation = (conversation: Conversation) => {
+    changeConversation({
+      info: conversation,
+      currentPage: 1,
+    });
+    setOpen(false);
+  };
+
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger className="focus-visible:outline-none">
+        <div className="relative">
+          {conversations.some((conversation) => conversation.newNotifications) && (
+            <span className="absolute top-0 right-0 rounded-full w-2 aspect-square bg-red-500" />
+          )}
+
+          {children}
+        </div>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent className="w-[360px] h-[600px] rounded-2xl flex flex-col">
+        {/* Header */}
+        <div className="p-2 flex items-center justify-between border-b">
+          <h1 className="text-2xl font-bold">Chats</h1>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <MoreHorizontal className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <PenSquare className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="p-4">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search Messenger"
+              className="pl-10 h-10 bg-muted rounded-full"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Conversations */}
+        <div className="flex-1 p-2 overflow-y-auto">
+          {filteredConversations.map((conversation) => {
+            const conversationName: string =
+              conversation.otherMemberProfiles?.reduce((prev, conv) => {
+                return prev ? `${prev}, ${conv.firstName} ${conv.lastName}` : `${conv.firstName} ${conv.lastName}`;
+              }, "") || "Unknow conversation";
+
+            return (
+              <button
+                key={conversation._id}
+                onClick={() => onSelectConversation(conversation)}
+                className="flex items-center space-x-3 w-full p-2 hover:bg-accent rounded-lg transition-colors"
+              >
+                <div className="relative">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage
+                      src={
+                        conversation.otherMemberProfiles?.[0]?.profilePicture ||
+                        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-02-07%20at%2016.42.36-NdWXa1FBTDWerl6bG5gSc5qSPS1poG.png"
+                      }
+                    />
+                    <AvatarFallback>{conversation._id?.[0]}</AvatarFallback>
+                  </Avatar>
+                  {conversation && (
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+                  )}
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="font-semibold text-sm">{conversationName}</div>
+                  <div className="text-sm text-muted-foreground flex items-center space-x-1">
+                    <span>
+                      {conversation.lastMessage?.senderId === "currentUser" && "You: "}
+                      {conversation.lastMessage?.content}
+                    </span>
+                    <span>·</span>
+                    <span>{formatTimestamp(conversation.lastMessage?.createdAt)}</span>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+export default ConversationList;

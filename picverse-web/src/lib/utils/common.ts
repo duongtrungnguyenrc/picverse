@@ -65,3 +65,7 @@ export const debounce = (func: (...args: any[]) => void, delay: number) => {
     timeoutId = setTimeout(() => func(...args), delay);
   };
 };
+
+export const preventSelectDefault = (event: Event) => {
+  event.preventDefault();
+};

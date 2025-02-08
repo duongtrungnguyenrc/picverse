@@ -30,7 +30,7 @@ export const getTokenFromRequest = (request: Request, raw: boolean = false): str
 };
 
 export const getTokenFromHandshake = (handshake: Handshake, raw: boolean = false): string => {
-  const fullToken: string = handshake.headers?.authorization;
+  const fullToken: string = handshake.auth.token || handshake.headers.authorization;
 
   if (!fullToken) {
     throw new WsException(AccountErrorMessage.INVALID_AUTH_TOKEN);
