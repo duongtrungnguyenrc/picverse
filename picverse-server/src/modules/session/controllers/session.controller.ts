@@ -4,7 +4,7 @@ import { Controller, Get } from "@nestjs/common";
 import { ApiPagination, Auth, AuthUid, Pagination } from "@common/decorators";
 import { AccessRecordService } from "../services";
 import { PaginationResponse } from "@common/dtos";
-import { AccessRecord } from "../schemas";
+import { AccessRecord } from "../models";
 
 @Controller("/session")
 @ApiTags("Session")

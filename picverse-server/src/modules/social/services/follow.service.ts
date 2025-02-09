@@ -7,7 +7,7 @@ import { NotificationService } from "./notification.service";
 import { Profile, ProfileService } from "@modules/profile";
 import { CacheService } from "@modules/cache";
 import { Repository } from "@common/utils";
-import { Follow } from "../schemas";
+import { Follow } from "../models/schemas";
 
 @Injectable()
 export class FollowService extends Repository<Follow> {

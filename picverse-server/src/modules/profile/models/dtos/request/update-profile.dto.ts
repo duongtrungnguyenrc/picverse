@@ -1,7 +1,7 @@
 import { IsBoolean, IsDateString, IsEnum, IsOptional, IsString, IsUrl } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
-import { EGender } from "@modules/profile";
+import { EGender } from "../../enums";
 
 export class UpdateProfileDto {
   @ApiProperty()

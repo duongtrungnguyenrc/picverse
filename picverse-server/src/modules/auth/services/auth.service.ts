@@ -7,7 +7,7 @@ import { sign } from "jsonwebtoken";
 import { randomInt } from "crypto";
 import { Response } from "express";
 
-import { Disable2faDto, RefreshTokenResponseDto, Require2FAResponseDto, SignInRequestDto, TokenPairResponseDto, TwoFactorSignInRequestDto } from "../dtos";
+import { Disable2faDto, RefreshTokenResponseDto, Require2FAResponseDto, SignInRequestDto, TokenPairResponseDto, TwoFactorSignInRequestDto } from "../models";
 import { Account, AccountService } from "@modules/account";
 import { SessionService } from "@modules/session";
 import { ProfileService } from "@modules/profile";

@@ -5,8 +5,8 @@ import { Model } from "mongoose";
 
 import { StatusResponseDto } from "@common/dtos";
 import { CacheService } from "@modules/cache";
-import { CreatePinDto, UpdatePinDto } from "../dtos";
-import { Pin } from "../schemas";
+import { CreatePinDto, UpdatePinDto } from "../models";
+import { Pin } from "../models";
 
 @Injectable()
 export class PinService extends Repository<Pin> {
@@ -28,5 +28,16 @@ export class PinService extends Repository<Pin> {
     await this.update(pin._id, payload);
 
     return { message: "Pin updated success" };
+  }
+
+  async getAllPins(profileId: DocumentId): Promise<Pin[]> {
+    return await this._model.find({ profileId }).exec();
+  }
+
+  async deletePin(profileId: DocumentId, pinId: DocumentId): Promise<StatusResponseDto> {
+    const pin = await this.exists({ _id: pinId, profileId });
+    if (!pin) throw new NotFoundException("Pin not found for your profile");
+    await this._model.deleteOne({ _id: pinId });
+    return { message: "Pin deleted successfully" };
   }
 }

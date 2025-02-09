@@ -1,7 +1,7 @@
 import { MongooseModule } from "@nestjs/mongoose";
 import { Module } from "@nestjs/common";
 
-import { CloudCredentials, CloudCredentialsSchema, CloudStorage, CloudStorageSchema, Resource, ResourceSchema } from "./schemas";
+import { CloudCredentials, CloudCredentialsSchema, CloudStorage, CloudStorageSchema, Resource, ResourceSchema } from "./models";
 import { DriveStorageService, DropboxStorageService, LocalStorageService, CloudService, ResourceService } from "./services";
 import { CloudStorageController } from "./controllers";
 import { ConfigService } from "@nestjs/config";

@@ -4,7 +4,7 @@ import { Model } from "mongoose";
 
 import { CacheService } from "@modules/cache";
 import { Repository } from "@common/utils";
-import { AccessRecord } from "../schemas";
+import { AccessRecord } from "../models";
 
 @Injectable()
 export class AccessRecordService extends Repository<AccessRecord> {

@@ -2,7 +2,7 @@ import { ApiBearerAuth, ApiBody, ApiHeader, ApiOkResponse, ApiTags, ApiCreatedRe
 import { Body, Controller, Get, Post, Query, Res } from "@nestjs/common";
 import { Response } from "express";
 
-import { Disable2faDto, RefreshTokenResponseDto, Require2FAResponseDto, SignInRequestDto, TokenPairResponseDto, TwoFactorSignInRequestDto, Verify2FARequestDto } from "../dtos";
+import { Disable2faDto, RefreshTokenResponseDto, Require2FAResponseDto, SignInRequestDto, TokenPairResponseDto, TwoFactorSignInRequestDto, Verify2FARequestDto } from "../models";
 import { Auth, AuthToken, AuthTokenPayload, AuthUid, IpAddress, RequestAgent } from "@common/decorators";
 import { StatusResponseDto } from "@common/dtos";
 import { AuthService } from "../services";

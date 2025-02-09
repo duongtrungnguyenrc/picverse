@@ -1,5 +1,5 @@
 import { IStorageService } from "./base-cloud-storage.interface";
-import { CloudCredentialsDocument } from "../schemas";
+import { CloudCredentialsDocument } from "../models";
 import { ECloudStorage } from "../enums";
 
 export interface IExternalStorageService extends IStorageService {

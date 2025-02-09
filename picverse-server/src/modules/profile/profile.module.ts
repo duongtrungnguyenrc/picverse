@@ -1,7 +1,7 @@
 import { MongooseModule } from "@nestjs/mongoose";
 import { Module } from "@nestjs/common";
 
-import { Profile, ProfileSchema } from "./schemas";
+import { Profile, ProfileSchema } from "./models";
 import { ProfileController } from "./controllers";
 import { ProfileService } from "./services";
 

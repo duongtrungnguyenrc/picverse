@@ -1,7 +1,7 @@
 import { MongooseModule } from "@nestjs/mongoose";
 import { Module } from "@nestjs/common";
 
-import { AccessRecord, AccessRecordSchema, Session, SessionSchema } from "./schemas";
+import { AccessRecord, AccessRecordSchema, Session, SessionSchema } from "./models";
 import { AccessRecordService, SessionService } from "./services";
 import { SessionController } from "./controllers";
 import { ProfileModule } from "@modules/profile";

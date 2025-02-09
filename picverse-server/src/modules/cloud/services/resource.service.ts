@@ -4,7 +4,7 @@ import { Model } from "mongoose";
 
 import { CacheService } from "@modules/cache";
 import { Repository } from "@common/utils";
-import { Resource } from "../schemas";
+import { Resource } from "../models";
 
 @Injectable()
 export class ResourceService extends Repository<Resource> {

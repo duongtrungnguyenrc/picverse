@@ -11,6 +11,7 @@ import { CacheModule } from "@modules/cache";
 import { SocialModule } from "@modules/social";
 import { CloudModule } from "@modules/cloud";
 import { AuthModule } from "@modules/auth";
+import { BoardModule } from "@modules/board";
 import { PinModule } from "@modules/pin";
 import { ChatModule } from "@modules/chat";
 
@@ -37,6 +38,7 @@ import { ChatModule } from "@modules/chat";
     ProfileModule,
     SocialModule,
     CloudModule,
+    BoardModule,
     PinModule,
     ChatModule,
   ],

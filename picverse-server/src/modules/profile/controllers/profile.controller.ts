@@ -3,8 +3,8 @@ import { Body, Controller, Get, Param, Put } from "@nestjs/common";
 
 import { Auth, AuthUid } from "@common/decorators";
 import { ProfileService } from "../services";
-import { UpdateProfileDto } from "../dtos";
-import { Profile } from "../schemas";
+import { UpdateProfileDto } from "../models";
+import { Profile } from "../models";
 import { StatusResponseDto } from "@common/dtos";
 
 @Controller("profile")

@@ -4,13 +4,13 @@ import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
-import { CloudCredentials, CloudCredentialsDocument, Resource } from "../schemas";
+import { CloudCredentials, CloudCredentialsDocument, Resource } from "../models";
 import { IExternalStorageService } from "../interfaces";
 import { getExpiredTime } from "@common/utils";
 import { ECloudStorage, EResourceType } from "../enums";
 import { Response } from "express";
 import { ResourceService } from "./resource.service";
-import { UploadFileDto } from "../dtos";
+import { UploadFileDto } from "../models";
 
 @Injectable()
 export class DropboxStorageService implements IExternalStorageService {
