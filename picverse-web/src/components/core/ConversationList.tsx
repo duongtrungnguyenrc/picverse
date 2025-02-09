@@ -36,11 +36,10 @@ const ConversationList: FC<ConversationListProps> = ({ children }) => {
       info: conversation,
       currentPage: 1,
     });
-    setOpen(false);
   };
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger className="focus-visible:outline-none">
         <div className="relative">
           {conversations.some((conversation) => conversation.newNotifications) && (
@@ -80,46 +79,50 @@ const ConversationList: FC<ConversationListProps> = ({ children }) => {
 
         {/* Conversations */}
         <div className="flex-1 p-2 overflow-y-auto">
-          {filteredConversations.map((conversation) => {
-            const conversationName: string =
-              conversation.otherMemberProfiles?.reduce((prev, conv) => {
-                return prev ? `${prev}, ${conv.firstName} ${conv.lastName}` : `${conv.firstName} ${conv.lastName}`;
-              }, "") || "Unknow conversation";
+          {filteredConversations.length > 0 ? (
+            filteredConversations.map((conversation) => {
+              const conversationName: string =
+                conversation.otherMemberProfiles?.reduce((prev, conv) => {
+                  return prev ? `${prev}, ${conv.firstName} ${conv.lastName}` : `${conv.firstName} ${conv.lastName}`;
+                }, "") || "Unknow conversation";
 
-            return (
-              <button
-                key={conversation._id}
-                onClick={() => onSelectConversation(conversation)}
-                className="flex items-center space-x-3 w-full p-2 hover:bg-accent rounded-lg transition-colors"
-              >
-                <div className="relative">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage
-                      src={
-                        conversation.otherMemberProfiles?.[0]?.profilePicture ||
-                        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-02-07%20at%2016.42.36-NdWXa1FBTDWerl6bG5gSc5qSPS1poG.png"
-                      }
-                    />
-                    <AvatarFallback>{conversation._id?.[0]}</AvatarFallback>
-                  </Avatar>
-                  {conversation && (
-                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
-                  )}
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="font-semibold text-sm">{conversationName}</div>
-                  <div className="text-sm text-muted-foreground flex items-center space-x-1">
-                    <span>
-                      {conversation.lastMessage?.senderId === "currentUser" && "You: "}
-                      {conversation.lastMessage?.content}
-                    </span>
-                    <span>·</span>
-                    <span>{formatTimestamp(conversation.lastMessage?.createdAt)}</span>
+              return (
+                <button
+                  key={conversation._id}
+                  onClick={() => onSelectConversation(conversation)}
+                  className="flex items-center space-x-3 w-full p-2 hover:bg-accent rounded-lg transition-colors"
+                >
+                  <div className="relative">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage
+                        src={
+                          conversation.otherMemberProfiles?.[0]?.profilePicture ||
+                          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-02-07%20at%2016.42.36-NdWXa1FBTDWerl6bG5gSc5qSPS1poG.png"
+                        }
+                      />
+                      <AvatarFallback>{conversation._id?.[0]}</AvatarFallback>
+                    </Avatar>
+                    {conversation && (
+                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+                    )}
                   </div>
-                </div>
-              </button>
-            );
-          })}
+                  <div className="flex-1 text-left">
+                    <div className="font-semibold text-sm">{conversationName}</div>
+                    <div className="text-sm text-muted-foreground flex items-center space-x-1">
+                      <span>
+                        {conversation.lastMessage?.senderId === "currentUser" && "You: "}
+                        {conversation.lastMessage?.content}
+                      </span>
+                      <span>·</span>
+                      <span>{formatTimestamp(conversation.lastMessage?.createdAt)}</span>
+                    </div>
+                  </div>
+                </button>
+              );
+            })
+          ) : (
+            <div className="text-sm text-center w-full">No conversation found</div>
+          )}
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

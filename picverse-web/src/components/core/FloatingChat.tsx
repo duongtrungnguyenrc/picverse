@@ -3,6 +3,7 @@
 import { FC, useState, useRef, useCallback, useEffect } from "react";
 import { Minus, X, Image, Smile, Send } from "lucide-react";
 import { PopoverClose } from "@radix-ui/react-popover";
+import Picker from "@emoji-mart/react";
 
 import { useChat } from "@app/lib/hooks";
 import { cn } from "@app/lib/utils";
@@ -21,7 +22,7 @@ type FloatingChatProps = {};
 
 const FloatingChat: FC<FloatingChatProps> = () => {
   const { messages, sendMessage, currentConversation, changeConversation } = useChat();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -71,7 +72,7 @@ const FloatingChat: FC<FloatingChatProps> = () => {
   return (
     currentConversation && (
       <div className="fixed bottom-5 right-5 rounded-2xl z-50">
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover modal={false} open={open} onOpenChange={setOpen}>
           <PopoverTrigger>
             <ChatAvatar
               newNotifications={0}
@@ -82,7 +83,11 @@ const FloatingChat: FC<FloatingChatProps> = () => {
           <PopoverContent className="w-[350px] rounded-2xl p-0" align="end">
             <div>
               <ChatHeader conversationName={conversationName} fallbackName={fallbackName} onClose={onClose} />
-              <ChatMessages messages={messages} messagesEndRef={messagesEndRef} />
+              <ChatMessages
+                currentConversation={currentConversation}
+                messages={messages}
+                messagesEndRef={messagesEndRef}
+              />
               <ChatInput input={input} setInput={setInput} handleSend={handleSend} />
             </div>
           </PopoverContent>
@@ -142,21 +147,22 @@ const ChatHeader: FC<{ conversationName: string; fallbackName: string; onClose: 
   </div>
 );
 
-const ChatMessages: FC<{ messages: Message[]; messagesEndRef: React.RefObject<HTMLDivElement> }> = ({
-  messages,
-  messagesEndRef,
-}) => (
+const ChatMessages: FC<{
+  currentConversation: CurrentConversation;
+  messages: Message[];
+  messagesEndRef: React.RefObject<HTMLDivElement>;
+}> = ({ currentConversation, messages, messagesEndRef }) => (
   <div className="h-[400px] overflow-y-auto p-4 space-y-4">
-    {messages.map((message) => (
-      <ChatMessage key={message._id} message={message} />
-    ))}
+    {messages.map((message) => {
+      const isOwn = currentConversation?.info.otherMemberProfiles.some((profile) => profile._id == message.senderId);
+
+      return <ChatMessage key={message._id} message={message} isOwn={isOwn} />;
+    })}
     <div ref={messagesEndRef} />
   </div>
 );
 
-const ChatMessage: FC<{ message: Message }> = ({ message }) => {
-  const isOwn = message.senderId === "currentUserId"; // Replace with actual logic
-
+const ChatMessage: FC<{ message: Message; isOwn: boolean }> = ({ message, isOwn }) => {
   return (
     <div className={cn("flex", !isOwn ? "justify-end" : "justify-start")}>
       {isOwn && (
@@ -166,7 +172,10 @@ const ChatMessage: FC<{ message: Message }> = ({ message }) => {
         </Avatar>
       )}
       <div
-        className={cn("max-w-[70%] rounded-2xl px-4 py-2", !isOwn ? "bg-primary text-primary-foreground" : "bg-muted")}
+        className={cn(
+          "max-w-[70%] rounded-xl px-3.5 py-1.5",
+          !isOwn ? "bg-primary text-primary-foreground" : "bg-muted",
+        )}
       >
         <span className="text-sm">{message.content}</span>
       </div>
@@ -178,30 +187,53 @@ const ChatInput: FC<{
   input: string;
   setInput: (value: string) => void;
   handleSend: () => void;
-}> = ({ input, setInput, handleSend }) => (
-  <div className="p-4 border-t flex items-center gap-2">
-    <Button variant="ghost" size="icon" className="rounded-full">
-      <Image className="h-5 w-5" />
-    </Button>
-    <Button variant="ghost" size="icon" className="rounded-full">
-      <Smile className="h-5 w-5" />
-    </Button>
-    <Input
-      value={input}
-      autoFocus
-      onChange={(e) => setInput(e.target.value)}
-      placeholder="Aa"
-      className="rounded-full h-10"
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          handleSend();
-        }
-      }}
-    />
-    <Button variant="ghost" size="icon" className="rounded-full" onClick={handleSend}>
-      <Send className="h-5 w-5" />
-    </Button>
-  </div>
-);
+}> = ({ input, setInput, handleSend }) => {
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+
+  return (
+    <div className="p-4 border-t flex items-center gap-2 relative">
+      <Button variant="ghost" size="icon" className="rounded-full">
+        <Image className="h-5 w-5" />
+      </Button>
+
+      {/* Emoji Picker */}
+      <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="icon" className="rounded-full">
+            <Smile className="h-5 w-5" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-fit p-0" align="end">
+          <Picker
+            set="apple"
+            onEmojiSelect={(emoji: any) => {
+              console.log(emoji);
+
+              setInput(input + emoji.native);
+              setEmojiPickerOpen(false);
+            }}
+          />
+        </PopoverContent>
+      </Popover>
+
+      <Input
+        value={input}
+        autoFocus
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Aa"
+        className="rounded-full h-10"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleSend();
+          }
+        }}
+      />
+
+      <Button variant="ghost" size="icon" className="rounded-full" onClick={handleSend}>
+        <Send className="h-5 w-5" />
+      </Button>
+    </div>
+  );
+};
 
 export default FloatingChat;
