@@ -1,11 +1,12 @@
 import { ApiBody, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Body, Controller, Get, Param, Put } from "@nestjs/common";
+import { Types } from "mongoose";
 
 import { Auth, AuthUid } from "@common/decorators";
+import { StatusResponseDto } from "@common/dtos";
 import { ProfileService } from "../services";
 import { UpdateProfileDto } from "../models";
 import { Profile } from "../models";
-import { StatusResponseDto } from "@common/dtos";
 
 @Controller("profile")
 @ApiTags("Profile")
@@ -32,6 +33,6 @@ export class ProfileController {
   @ApiParam({ name: "id" })
   @ApiResponse({ status: 200, description: "Get profile success. Return profile", type: Profile })
   async getProfile(@Param("id") profileId: DocumentId): Promise<Profile> {
-    return await this.profileService.find({ _id: profileId, isPublic: true });
+    return await this.profileService.find({ accountId: new Types.ObjectId(profileId), isPublic: true });
   }
 }

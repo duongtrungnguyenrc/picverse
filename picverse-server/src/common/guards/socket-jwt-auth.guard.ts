@@ -1,26 +1,33 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import { Observable, Subscriber } from "rxjs";
 import { Socket } from "socket.io";
-import { Observable } from "rxjs";
 
 import { JwtAccessService } from "@modules/jwt-access";
 import { getTokenFromHandshake } from "../utils";
-import { WsException } from "@nestjs/websockets";
 
 @Injectable()
 export class JWTSocketAuthGuard implements CanActivate {
   constructor(private readonly jwtAccessService: JwtAccessService) {}
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+  canActivate(context: ExecutionContext): Observable<boolean> {
     const client: Socket = context.switchToWs().getClient();
-
     const authToken = getTokenFromHandshake(client.handshake);
 
-    if (!authToken) throw new WsException("Unauthorized");
+    return new Observable((subscriber) => {
+      if (!authToken) return this.unauthorized(client, subscriber);
 
-    Promise.resolve(this.jwtAccessService.verify(authToken)).catch(() => {
-      throw new WsException("Invalid token");
+      this.jwtAccessService
+        .verify(authToken)
+        .then(() => subscriber.next(true))
+        .catch(() => this.unauthorized(client, subscriber))
+        .finally(() => subscriber.complete());
     });
+  }
 
-    return true;
+  private unauthorized(client: Socket, subscriber: Subscriber<boolean>) {
+    client.emit("error", "Unauthorized");
+    client.disconnect();
+    subscriber.next(false);
+    subscriber.complete();
   }
 }

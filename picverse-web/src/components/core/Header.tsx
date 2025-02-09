@@ -1,15 +1,37 @@
 "use client";
 
-import { ArrowRight, Cloud, LogIn, LogOut, Menu, Pin, Settings, User } from "lucide-react";
+import { ArrowRight, Cloud, LogIn, LogOut, Menu, Settings, User } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { FC } from "react";
 
-import { Button, Popover, PopoverContent, PopoverTrigger } from "../shadcn";
-import { Logo, SignedIn, SignedOut } from ".";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "../shadcn";
+import { CreateBoardDialog, Logo, SignedIn, SignedOut } from ".";
+import { cn, preventSelectDefault } from "@app/lib/utils";
 import { useSignOut } from "@app/lib/hooks";
 import SearchInput from "./SearchInput";
-import { cn } from "@app/lib/utils";
 
 type HeaderProps = {};
 
@@ -35,78 +57,105 @@ const Header: FC<HeaderProps> = ({}) => {
               <Logo />
             </Link>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <SearchInput />
 
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="h-10 text-sm rounded-lg">
-                  <Menu />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="h-10 rounded-lg">
+                  <Menu className="h-4 w-4" />
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="min-w-[150px] w-fit flex flex-col gap-2 rounded-lg p-2 shadow">
-                <ul className="w-full">
-                  <SignedOut>
-                    <li>
-                      <Link
-                        className="w-full flex gap-2 items-center hover:bg-gray-200 p-2 py-2 rounded hover:text-black transition-all text-sm"
-                        href={`/sign-in`}
-                      >
-                        <LogIn size={16} /> Sign in
-                      </Link>
-                    </li>
-                  </SignedOut>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel>Menu</DropdownMenuLabel>
+                <DropdownMenuSeparator />
 
-                  <SignedIn>
-                    <>
-                      <li>
-                        <Link
-                          className="w-full flex gap-2 items-center hover:bg-gray-200 p-2 py-2 rounded hover:text-black transition-all text-sm"
-                          href={`/new-pin`}
-                        >
-                          <Pin size={16} /> New pin
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          className="w-full flex gap-2 items-center hover:bg-gray-200 p-2 py-2 rounded hover:text-black transition-all text-sm"
-                          href={`/profile/me`}
-                        >
-                          <User size={16} /> Profile
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          className="w-full flex gap-2 items-center hover:bg-gray-200 p-2 py-2 rounded hover:text-black transition-all text-sm"
-                          href={`/cloud`}
-                        >
-                          <Cloud size={16} /> Cloud
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          className="w-full flex gap-2 items-center hover:bg-gray-200 p-2 py-2 rounded hover:text-black transition-all text-sm"
-                          href={`/settings`}
-                        >
-                          <Settings size={16} /> Settings
-                        </Link>
-                      </li>
-                      <li>
-                        <button
-                          onClick={() => signOut()}
-                          className="w-full flex gap-2 items-center hover:bg-gray-200 p-2 py-2 rounded hover:text-black transition-all text-sm"
-                        >
-                          <LogOut size={16} /> Sign out
-                        </button>
-                      </li>
-                    </>
-                  </SignedIn>
-                </ul>
-              </PopoverContent>
-            </Popover>
+                <SignedOut>
+                  <DropdownMenuItem asChild>
+                    <Link href="/sign-in" className="w-full flex items-center">
+                      <LogIn className="mr-2 h-4 w-4" />
+                      <span>Sign in</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </SignedOut>
 
-            <Button className="h-10 text-sm rounded-lg">
-              Explore <ArrowRight size={16} />
+                <SignedIn>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>New</DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem>
+                          <Link className="w-full h-full" href="/new-pin">
+                            Pin
+                          </Link>
+                        </DropdownMenuItem>
+
+                        <CreateBoardDialog>
+                          <DropdownMenuItem onSelect={preventSelectDefault}>Board</DropdownMenuItem>
+                        </CreateBoardDialog>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+
+                  <DropdownMenuItem asChild>
+                    <Link href="/me" className="w-full flex items-center">
+                      <span>Profile</span>
+
+                      <DropdownMenuShortcut>
+                        <User className="h-4 w-4" />
+                      </DropdownMenuShortcut>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/cloud" className="w-full flex items-center">
+                      <span>Cloud</span>
+
+                      <DropdownMenuShortcut>
+                        <Cloud className="h-4 w-4" />
+                      </DropdownMenuShortcut>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings" className="w-full flex items-center">
+                      <span>Settings</span>
+
+                      <DropdownMenuShortcut>
+                        <Settings className="h-4 w-4" />
+                      </DropdownMenuShortcut>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <DropdownMenuItem onSelect={preventSelectDefault}>
+                        <span>Sign out</span>
+
+                        <DropdownMenuShortcut>
+                          <LogOut className="h-4 w-4" />
+                        </DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="rounded-3xl">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently sign you out of your account.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => signOut()}>Continue</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </SignedIn>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button size="sm" className="h-10 text-sm rounded-lg">
+              <span className="hidden lg:block">Explore</span> <ArrowRight size={16} />
             </Button>
           </div>
         </nav>

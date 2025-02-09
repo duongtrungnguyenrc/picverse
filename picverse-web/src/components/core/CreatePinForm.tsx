@@ -1,7 +1,10 @@
 "use client";
 
+import { useForm } from "react-hook-form";
+import { Upload } from "lucide-react";
 import { FC } from "react";
-import { ContentSection, MediaEditor, ImagePicker, TagInput } from ".";
+
+import { ContentSection, ImagePicker, TagInput } from ".";
 import {
   Form,
   FormControl,
@@ -19,8 +22,6 @@ import {
   Switch,
   Button,
 } from "../shadcn";
-import { useForm } from "react-hook-form";
-import { CloudUpload, Upload } from "lucide-react";
 
 type CreatePinFormProps = {};
 
@@ -41,7 +42,6 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
 
   const onCreatePin = form.handleSubmit((data) => {});
 
-
   return (
     <Form {...form}>
       <form onSubmit={onCreatePin}>
@@ -52,7 +52,7 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
           actions={
             <Button
               disabled={!form.formState.isValid}
-              className="rounded-full"
+              className="rounded-full px-5"
               size="sm"
               type="submit"
               variant="outline"

@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Button } from "../shadcn";
-import Mansory from "./Mansory";
+import MansoryPinListing from "./MansoryPinListing";
 
 type ShowcaseProps = {};
 
@@ -33,7 +33,7 @@ const Showcase: FC<ShowcaseProps> = ({}) => {
       </div>
 
       <div className="mt-5 lg:mt-10">
-        <Mansory />
+        <MansoryPinListing />
       </div>
     </section>
   );

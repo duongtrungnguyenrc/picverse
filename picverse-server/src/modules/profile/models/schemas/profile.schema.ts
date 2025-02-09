@@ -5,7 +5,7 @@ import { EGender } from "../enums";
 
 @Schema({ timestamps: true })
 export class Profile extends Document<Types.ObjectId> {
-  @Prop({ type: Types.ObjectId, ref: "Account", select: false })
+  @Prop({ type: Types.ObjectId, ref: "Account" })
   accountId: DocumentId;
 
   @Prop({ required: true })

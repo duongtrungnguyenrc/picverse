@@ -1,14 +1,14 @@
 "use client";
 
-import { CloudUpload, Loader2, SlidersHorizontal, Sparkles, Trash } from "lucide-react";
-import { ChangeEvent, FC, useCallback, useEffect } from "react";
+import { CloudUpload, Loader2, SlidersHorizontal, Sparkles, Trash, Undo } from "lucide-react";
+import { ChangeEvent, FC, memo, useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import Image from "next/image";
 
 import { useDeleteCloudinaryImage, useUploadCloudinaryImage } from "@app/lib/hooks";
 import { ImageAiTransformDialog, ImageTransformDialog } from ".";
-import { cn, skeletonPlaceholder } from "@app/lib/utils";
+import { cn } from "@app/lib/utils";
 import { Button } from "../shadcn";
-import { CldImage } from "next-cloudinary";
 
 type ImagePickerProps = {
   accept?: string;
@@ -17,31 +17,68 @@ type ImagePickerProps = {
 
 const ImagePicker: FC<ImagePickerProps> = ({ accept, className }) => {
   const { data: cldImage, mutate: uploadCloudinaryImage, reset, isPending: isUploading } = useUploadCloudinaryImage();
+  const [choosenImage, setChoosenImage] = useState<
+    | {
+        image: File;
+        transformedImage?: File;
+      }
+    | undefined
+  >();
+
   const { mutateAsync: deleteCloudinaryImage } = useDeleteCloudinaryImage();
+  const previewUrl: string | undefined = choosenImage
+    ? URL.createObjectURL(choosenImage.transformedImage || choosenImage.image)
+    : undefined;
+
+  const onDelete = useCallback(
+    async (id?: string) => {
+      const publicId = id || cldImage?.public_id;
+
+      if (publicId) {
+        await deleteCloudinaryImage(publicId);
+        reset();
+      }
+    },
+    [cldImage],
+  );
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file: File | undefined = event.target.files?.[0];
 
     if (file) {
-      uploadCloudinaryImage(file);
+      uploadCloudinaryImage(file, {
+        onSuccess: () => {
+          setChoosenImage({
+            image: file,
+          });
+
+          toast.success("File uploaded success");
+        },
+        onError: (error) => {
+          toast.error("File upload failed: " + error);
+        },
+      });
     }
   };
 
-  const deleteImage = async (publicId: string) => {
-    await deleteCloudinaryImage(publicId);
-    reset();
+  const onUndoTransform = () => {
+    setChoosenImage((prevState) =>
+      prevState
+        ? {
+            image: prevState.image,
+          }
+        : undefined,
+    );
   };
 
-  const onDelete = useCallback(() => {
-    if (cldImage) deleteImage(cldImage.public_id);
-  }, [cldImage, deleteImage]);
-
-  const onImageTransform = useCallback((transformedUrl: string) => {}, []);
+  const onTransformedImage = useCallback((transformedImage: File) => {
+    setChoosenImage((prevState) => (prevState ? { ...prevState, transformedImage } : undefined));
+  }, []);
 
   useEffect(() => {
     return () => {
       if (cldImage) {
-        deleteImage(cldImage.public_id);
+        onDelete();
       }
     };
   }, [cldImage]);
@@ -50,7 +87,7 @@ const ImagePicker: FC<ImagePickerProps> = ({ accept, className }) => {
     <label
       htmlFor="media-picker"
       className={cn(
-        "min-h-[300px] flex-1 flex-center flex-col rounded-lg border border-dashed cursor-pointer group relative",
+        "min-h-[300px] flex-1 flex-center flex-col rounded-lg border border-dashed cursor-pointer group relative overflow-hidden",
         className,
         isUploading ? "bg-gray-50 pointer-events-none" : "",
       )}
@@ -59,28 +96,30 @@ const ImagePicker: FC<ImagePickerProps> = ({ accept, className }) => {
 
       {cldImage ? (
         <>
-          <CldImage
-            {...cldImage}
-            placeholder={skeletonPlaceholder as any}
-            src={cldImage.public_id}
-            alt=""
-            className="w-full h-full absolute top-0 left-0 object-contain"
-          />
+          {previewUrl && (
+            <Image src={previewUrl} alt="Preview image" layout="fill" className="w-full h-full object-contain" />
+          )}
 
           <div className="flex-center items-end h-full pb-5 gap-x-2 opacity-0 group-hover:opacity-100 z-10 transition-all">
-            <ImageTransformDialog mediaUrl={cldImage.secure_url}>
-              <Button className="hover:bg-primary" size="sm" variant="secondary">
+            {choosenImage?.transformedImage && (
+              <Button onClick={() => onUndoTransform()} size="sm" variant="outline">
+                <Undo />
+              </Button>
+            )}
+
+            <ImageTransformDialog onTransformed={onTransformedImage} mediaUrl={previewUrl}>
+              <Button size="sm" variant="outline">
                 <SlidersHorizontal />
               </Button>
             </ImageTransformDialog>
 
-            <ImageAiTransformDialog onImageTransform={onImageTransform} cldImage={cldImage}>
-              <Button className="hover:bg-primary" size="sm" variant="secondary">
+            <ImageAiTransformDialog cldImage={cldImage}>
+              <Button size="sm" variant="outline">
                 <Sparkles />
               </Button>
             </ImageAiTransformDialog>
 
-            <Button onClick={onDelete} className="hover:bg-primary" size="sm" variant="secondary">
+            <Button onClick={() => onDelete()} size="sm" variant="outline">
               <Trash />
             </Button>
           </div>
@@ -92,7 +131,7 @@ const ImagePicker: FC<ImagePickerProps> = ({ accept, className }) => {
         </>
       ) : (
         <>
-          <Loader2 size={16} className="animate-spin text-gray-500" />
+          <Loader2 size={16} className="animate-spin text-gray-500 mb-1" />
           <p>Uploading image...</p>
         </>
       )}
@@ -100,4 +139,4 @@ const ImagePicker: FC<ImagePickerProps> = ({ accept, className }) => {
   );
 };
 
-export default ImagePicker;
+export default memo(ImagePicker);

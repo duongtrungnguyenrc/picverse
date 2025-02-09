@@ -23,7 +23,7 @@ const SettingSideBar: FC<SettingSideBarProps> = ({}) => {
               <Link
                 href={route.path}
                 className={cn(
-                  "font-semibold p-2 rounded-lg border bg-white text-sm w-full flex items-center gap-2 hover:bg-secondary transition-all",
+                  "font-semibold p-2 rounded-lg border-[1px] bg-white text-sm w-full flex items-center gap-2 hover:bg-secondary transition-all",
                   isActive ? "bg-primary border-primary text-white hover:bg-primary" : "",
                 )}
               >

@@ -3,6 +3,5 @@ picverse-web/.git/
 documents/
 
 start-local-replset.bash
-init-replica.local.js
 
 *.rdb
