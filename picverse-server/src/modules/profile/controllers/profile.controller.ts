@@ -5,8 +5,8 @@ import { Types } from "mongoose";
 import { Auth, AuthUid } from "@common/decorators";
 import { StatusResponseDto } from "@common/dtos";
 import { ProfileService } from "../services";
-import { UpdateProfileDto } from "../dtos";
-import { Profile } from "../schemas";
+import { UpdateProfileDto } from "../models";
+import { Profile } from "../models";
 
 @Controller("profile")
 @ApiTags("Profile")

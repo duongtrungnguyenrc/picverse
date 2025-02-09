@@ -1,7 +1,7 @@
 import { MongooseModule } from "@nestjs/mongoose";
 import { Module } from "@nestjs/common";
 
-import { Account, AccountSchema } from "./schemas";
+import { Account, AccountSchema } from "./models/schemas";
 import { AccountController } from "./controllers";
 import { ProfileModule } from "@modules/profile";
 import { SessionModule } from "@modules/session";

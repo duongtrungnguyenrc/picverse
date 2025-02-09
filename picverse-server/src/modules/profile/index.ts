@@ -1,4 +1,4 @@
 export * from "./services";
-export * from "./schemas";
-export * from "./enums";
+export * from "./models";
+export * from "./models/enums";
 export * from "./profile.module";

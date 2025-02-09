@@ -6,7 +6,7 @@ import { ConfigService } from "@nestjs/config";
 import { compareSync } from "bcrypt";
 import { v4 as uuid } from "uuid";
 
-import { ChangePasswordRequestDto, ForgotPasswordDto, LockAccountDto, RequestActiveAccountDto, ResetPasswordDto, SignUpRequestDto } from "../dtos";
+import { ChangePasswordRequestDto, ForgotPasswordDto, LockAccountDto, RequestActiveAccountDto, ResetPasswordDto, SignUpRequestDto } from "../models";
 import { ACTIVATE_ACCOUNT_TRANSACTION_CACHE_PREFIX, OTP_TTL, RESET_PASSOWRD_TRANSACTION_CACHE_PREFIX } from "../constants";
 import { generateOtp, hashPassword, Repository, withMutateTransaction } from "@common/utils";
 import { CacheService, joinCacheKey } from "@modules/cache";
@@ -14,7 +14,7 @@ import { MailSubject, AccountErrorMessage } from "../enums";
 import { SessionService } from "@modules/session";
 import { ProfileService } from "@modules/profile";
 import { StatusResponseDto } from "@common/dtos";
-import { Account } from "../schemas";
+import { Account } from "../models/schemas";
 
 @Injectable()
 export class AccountService extends Repository<Account> {

@@ -4,7 +4,7 @@ import { Server, Socket } from "socket.io";
 
 import { Auth, SocketAuthTokenPayload } from "@common/decorators";
 import { JWTSocketAuthGuard } from "@common/guards";
-import { CreatePinCommentDto } from "../dtos";
+import { CreatePinCommentDto } from "../models";
 import { CommentService } from "../services";
 
 @WebSocketGateway({ namespace: "comment", transports: ["websocket"] })

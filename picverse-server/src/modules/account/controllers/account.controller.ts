@@ -1,11 +1,11 @@
 import { ApiBody, ApiParam, ApiTags, ApiCreatedResponse, ApiOperation } from "@nestjs/swagger";
 import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
 
-import { ChangePasswordRequestDto, ForgotPasswordDto, LockAccountDto, RequestActiveAccountDto, ResetPasswordDto, SignUpRequestDto } from "../dtos";
+import { ChangePasswordRequestDto, ForgotPasswordDto, LockAccountDto, RequestActiveAccountDto, ResetPasswordDto, SignUpRequestDto } from "../models";
 import { Auth, AuthTokenPayload, AuthUid, IpAddress } from "@common/decorators";
 import { StatusResponseDto } from "@common/dtos";
 import { AccountService } from "../services";
-import { Account } from "../schemas";
+import { Account } from "../models/schemas";
 
 @Controller("account")
 @ApiTags("Account")

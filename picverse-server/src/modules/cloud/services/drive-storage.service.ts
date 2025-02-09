@@ -6,13 +6,13 @@ import { Response } from "express";
 import { Readable } from "stream";
 import { Model } from "mongoose";
 
-import { CloudCredentials, CloudCredentialsDocument, Resource } from "../schemas";
+import { CloudCredentials, CloudCredentialsDocument, Resource } from "../models";
 import { IExternalStorageService } from "../interfaces";
 import { ECloudStorage, EResourceType } from "../enums";
 import { ResourceService } from "./resource.service";
 import { getExpiredTime } from "@common/utils";
 import { EOAuthScopes } from "@common/enums";
-import { UploadFileDto } from "../dtos";
+import { UploadFileDto } from "../models";
 
 @Injectable()
 export class DriveStorageService implements IExternalStorageService {

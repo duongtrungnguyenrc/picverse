@@ -1,7 +1,7 @@
 import { MongooseModule } from "@nestjs/mongoose";
 import { Module } from "@nestjs/common";
 
-import { Pin, PinSchema, Tag, TagSchema, Like, LikeSchema, Comment, CommentSchema } from "./schemas";
+import { Pin, PinSchema, Tag, TagSchema, Like, LikeSchema, Comment, CommentSchema } from "./models";
 import { CommentService, PinService } from "./services";
 import { PinController } from "./controllers";
 import { CommentGateway } from "./gatewies";

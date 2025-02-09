@@ -3,8 +3,8 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { Response } from "express";
 
-import { CreateFolderDto, GetStorageLinkStatusResponseDto, UpdateResourceDto, UploadFileDto } from "../dtos";
-import { CloudCredentials, CloudCredentialsDocument, Resource } from "../schemas";
+import { CreateFolderDto, GetStorageLinkStatusResponseDto, UpdateResourceDto, UploadFileDto } from "../models";
+import { CloudCredentials, CloudCredentialsDocument, Resource } from "../models";
 import { IExternalStorageService, IStorageService } from "../interfaces";
 import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { DropboxStorageService } from "./dropbox-storage.service";

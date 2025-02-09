@@ -2,10 +2,10 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Injectable } from "@nestjs/common";
 import { Model } from "mongoose";
 
-import { CreateNotificationDto } from "../dtos";
+import { CreateNotificationDto } from "../models";
 import { CacheService } from "@modules/cache";
 import { Repository } from "@common/utils";
-import { Notification } from "../schemas";
+import { Notification } from "../models/schemas";
 
 @Injectable()
 export class NotificationService extends Repository<Notification> {

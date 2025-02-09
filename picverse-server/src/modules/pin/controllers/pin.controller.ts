@@ -1,10 +1,11 @@
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Body, Controller, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 
 import { AuthTokenPayload } from "@common/decorators";
-import { CreatePinDto, UpdatePinDto } from "../dtos";
+import { CreatePinDto, UpdatePinDto } from "../models";
 import { StatusResponseDto } from "@common/dtos";
 import { PinService } from "../services";
+import { Pin } from "../models";
 
 @Controller("/pin")
 @ApiTags("Pin")
@@ -25,5 +26,19 @@ export class PinController {
   @ApiOkResponse({ description: "Pin updated, return status", type: StatusResponseDto })
   async updatePin(@AuthTokenPayload("pid") profileId: DocumentId, @Param("pinId") pinId: DocumentId, @Body() payload: CreatePinDto): Promise<StatusResponseDto> {
     return await this.pinService.updatePin(profileId, pinId, payload);
+  }
+
+  @Delete("/:pinId")
+  @ApiOperation({ summary: "Delete a pin" })
+  @ApiOkResponse({ description: "Pin deleted, return status", type: StatusResponseDto })
+  async deletePin(@AuthTokenPayload("pid") profileId: DocumentId, @Param("pinId") pinId: DocumentId): Promise<StatusResponseDto> {
+    return await this.pinService.deletePin(profileId, pinId);
+  }
+
+  @Get("/")
+  @ApiOperation({ summary: "Get all pins" })
+  @ApiOkResponse({ description: "Returns all pins of the user", type: [Pin] })
+  async getAllPins(@AuthTokenPayload("pid") profileId: DocumentId): Promise<Pin[]> {
+    return await this.pinService.getAllPins(profileId);
   }
 }

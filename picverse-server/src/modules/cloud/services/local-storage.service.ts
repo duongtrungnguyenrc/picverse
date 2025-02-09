@@ -5,9 +5,9 @@ import { Connection, Model, Types } from "mongoose";
 import { Response } from "express";
 import * as pump from "pump";
 
-import { CreateFolderDto, UploadFileDto } from "../dtos";
+import { CreateFolderDto, UploadFileDto } from "../models";
 import { ResourceService } from "./resource.service";
-import { Resource, CloudStorage } from "../schemas";
+import { Resource, CloudStorage } from "../models";
 import { IStorageService } from "../interfaces";
 import { EResourceType } from "../enums";
 import { Readable } from "stream";

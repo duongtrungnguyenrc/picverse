@@ -4,7 +4,7 @@ import { Controller, Delete, Get, Param, Post } from "@nestjs/common";
 import { FollowService, NotificationService } from "../services";
 import { Auth, AuthUid, Pagination } from "@common/decorators";
 import { IdParamDto, InfiniteResponse } from "@common/dtos";
-import { Follow, Notification } from "../schemas";
+import { Follow, Notification } from "../models";
 
 @Controller("social")
 @ApiTags("Social")

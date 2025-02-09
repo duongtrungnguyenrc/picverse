@@ -7,7 +7,7 @@ import { JwtRefreshService } from "@modules/jwt-refresh";
 import { JwtAccessService } from "@modules/jwt-access";
 import { CacheService } from "@modules/cache";
 import { Repository } from "@common/utils";
-import { Session } from "../schemas";
+import { Session } from "../models";
 
 @Injectable()
 export class SessionService extends Repository<Session> {

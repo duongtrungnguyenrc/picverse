@@ -4,11 +4,11 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { Response } from "express";
 
 import { ApiPagination, Auth, AuthUid, Pagination } from "@common/decorators";
-import { CreateFolderDto, UpdateResourceDto, UploadFileDto } from "../dtos";
+import { CreateFolderDto, UpdateResourceDto, UploadFileDto } from "../models";
 import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { CloudService } from "../services";
 import { ECloudStorage } from "../enums";
-import { Resource } from "../schemas";
+import { Resource } from "../models";
 
 @Controller("cloud")
 @ApiTags("Cloud")
