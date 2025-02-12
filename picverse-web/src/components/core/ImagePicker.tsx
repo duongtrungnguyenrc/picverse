@@ -13,9 +13,10 @@ import { Button } from "../shadcn";
 type ImagePickerProps = {
   accept?: string;
   className?: string;
+  onChange?: (file: File) => void;
 };
 
-const ImagePicker: FC<ImagePickerProps> = ({ accept, className }) => {
+const ImagePicker: FC<ImagePickerProps> = ({ accept, className, onChange }) => {
   const { data: cldImage, mutate: uploadCloudinaryImage, reset, isPending: isUploading } = useUploadCloudinaryImage();
   const [choosenImage, setChoosenImage] = useState<
     | {
@@ -42,7 +43,7 @@ const ImagePicker: FC<ImagePickerProps> = ({ accept, className }) => {
     [cldImage],
   );
 
-  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const onSelectImage = (event: ChangeEvent<HTMLInputElement>) => {
     const file: File | undefined = event.target.files?.[0];
 
     if (file) {
@@ -81,7 +82,13 @@ const ImagePicker: FC<ImagePickerProps> = ({ accept, className }) => {
         onDelete();
       }
     };
-  }, [cldImage]);
+  }, [cldImage, onDelete]);
+
+  useEffect(() => {
+    if (choosenImage?.image || choosenImage?.transformedImage) {
+      onChange?.(choosenImage.transformedImage || choosenImage.image);
+    }
+  }, [choosenImage]);
 
   return (
     <label
@@ -92,7 +99,7 @@ const ImagePicker: FC<ImagePickerProps> = ({ accept, className }) => {
         isUploading ? "bg-gray-50 pointer-events-none" : "",
       )}
     >
-      <input onChange={onChange} id="media-picker" className="hidden" type="file" accept={accept || "image/*"} />
+      <input onChange={onSelectImage} id="media-picker" className="hidden" type="file" accept={accept || "image/*"} />
 
       {cldImage ? (
         <>
@@ -113,7 +120,7 @@ const ImagePicker: FC<ImagePickerProps> = ({ accept, className }) => {
               </Button>
             </ImageTransformDialog>
 
-            <ImageAiTransformDialog cldImage={cldImage}>
+            <ImageAiTransformDialog onTransformed={onTransformedImage} cldImage={cldImage}>
               <Button size="sm" variant="outline">
                 <Sparkles />
               </Button>

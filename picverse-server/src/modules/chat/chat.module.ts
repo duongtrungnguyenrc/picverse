@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common";
 
 import { Conversation, ConversationSchema, Message, MessageSchema } from "./models";
 import { MessageService, ConversationService, ChatService } from "./services";
+import { ChatController } from "./controllers";
 import { ChatGateway } from "./gatewaies";
 
 @Module({
@@ -18,7 +19,7 @@ import { ChatGateway } from "./gatewaies";
       },
     ]),
   ],
-  controllers: [],
+  controllers: [ChatController],
   providers: [MessageService, ConversationService, ChatService, ChatGateway],
 })
 export class ChatModule {}

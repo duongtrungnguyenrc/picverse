@@ -1,10 +1,10 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotAcceptableException, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { Response } from "express";
 
 import { CreateFolderDto, GetStorageLinkStatusResponseDto, UpdateResourceDto, UploadFileDto } from "../models";
-import { CloudCredentials, CloudCredentialsDocument, Resource } from "../models";
+import { CloudCredentials, Resource } from "../models";
 import { IExternalStorageService, IStorageService } from "../interfaces";
 import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { DropboxStorageService } from "./dropbox-storage.service";
@@ -18,7 +18,7 @@ import { ConfigService } from "@nestjs/config";
 @Injectable()
 export class CloudService {
   constructor(
-    @InjectModel(CloudCredentials.name) private readonly oauthCredentialsModel: Model<CloudCredentialsDocument>,
+    @InjectModel(CloudCredentials.name) private readonly cloudCredentialsModel: Model<CloudCredentials>,
     private readonly resourceService: ResourceService,
     private readonly dropboxStorageService: DropboxStorageService,
     private readonly driveStorageService: DriveStorageService,
@@ -32,7 +32,7 @@ export class CloudService {
   }
 
   async getStorageLinkStatus(accountId: DocumentId): Promise<GetStorageLinkStatusResponseDto> {
-    const linkedCredentials = await this.oauthCredentialsModel.find({ accountId }, "storage");
+    const linkedCredentials = await this.cloudCredentialsModel.find({ accountId }, "storage");
 
     const defaultStatus: GetStorageLinkStatusResponseDto = Object.values(ECloudStorage).reduce(
       (prev, storage) => ({ ...prev, [storage]: false }),
@@ -42,8 +42,20 @@ export class CloudService {
     return linkedCredentials.reduce((prev, credentials) => ({ ...prev, [credentials.storage]: true }), defaultStatus);
   }
 
+  async getStorageSpaceStatus(accountId: DocumentId) {
+    const credentials: Array<Pick<CloudCredentials, "storage">> = await this.cloudCredentialsModel.find({ accountId }, ["storage"]);
+
+    return [ECloudStorage.LOCAL, ...credentials.map((credential) => credential.storage)].reduce(async (prevState, storageName) => {
+      const storage: IStorageService = this.getStorage(storageName);
+      return {
+        ...prevState,
+        [storageName]: await storage.getAvailableSpace(accountId),
+      };
+    }, {});
+  }
+
   async unlinkExternalStorage(accountId: DocumentId, storage: ECloudStorage): Promise<StatusResponseDto> {
-    const credentials = await this.oauthCredentialsModel.findByIdAndDelete({ accountId, storage });
+    const credentials = await this.cloudCredentialsModel.findByIdAndDelete({ accountId, storage });
 
     if (!credentials) {
       throw new BadRequestException(`You do not link with ${storage} storage to unlink`);
@@ -158,15 +170,45 @@ export class CloudService {
     return { message: "Folder deleted success" };
   }
 
-  async uploadFile(accountId: DocumentId, parentId: DocumentId, file: Express.Multer.File, payload: UploadFileDto): Promise<StatusResponseDto> {
-    const storage: IStorageService = this.getStorage(payload.storage ?? ECloudStorage.LOCAL);
-    const fileName = payload.fileName || file.originalname;
+  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto, parentId?: DocumentId, raw?: true): Promise<Resource>;
 
-    await storage.uploadFile(accountId, file, {
-      ...payload,
-      fileName,
-      parentId,
-    });
+  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto, parentId?: DocumentId, raw?: false): Promise<StatusResponseDto>;
+
+  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto, parentId?: DocumentId, raw?: boolean): Promise<StatusResponseDto | Resource> {
+    let storageHandler: IStorageService = this.getStorage(payload.storage ?? ECloudStorage.LOCAL);
+    const fileName: string = payload.fileName || file.originalname;
+
+    const availableSpace: number = await storageHandler.getAvailableSpace(accountId);
+
+    if (file.size > availableSpace) {
+      if (payload.storage) {
+        throw new NotAcceptableException(`No available space to upload to ${payload.storage}`);
+      }
+
+      const credentials = await this.cloudCredentialsModel.find({ accountId });
+
+      if (credentials.length === 0) {
+        throw new NotAcceptableException("No available space to upload");
+      }
+
+      return this.uploadFile(
+        accountId,
+        file,
+        {
+          ...payload,
+          storage: credentials[0].storage,
+        },
+        parentId,
+      );
+    }
+
+    if (raw) {
+      return await storageHandler.uploadFile(accountId, file, {
+        ...payload,
+        fileName,
+        parentId,
+      });
+    }
 
     return { message: `File ${fileName} uploaded success` };
   }
@@ -204,7 +246,7 @@ export class CloudService {
   private async saveOAuthCredentials(accountId: DocumentId, storage: ECloudStorage, tokens: any) {
     const expiresAt = tokens.expiresIn ? getExpiredTime(tokens.expiresIn) : null;
 
-    return this.oauthCredentialsModel.findOneAndUpdate(
+    return this.cloudCredentialsModel.findOneAndUpdate(
       { accountId: new Types.ObjectId(accountId), storage },
       {
         accessToken: tokens.accessToken,

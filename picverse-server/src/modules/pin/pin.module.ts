@@ -5,6 +5,7 @@ import { Pin, PinSchema, Tag, TagSchema, Like, LikeSchema, Comment, CommentSchem
 import { CommentService, PinService } from "./services";
 import { PinController } from "./controllers";
 import { CommentGateway } from "./gatewies";
+import { CloudModule } from "@modules/cloud";
 
 @Module({
   imports: [
@@ -14,8 +15,10 @@ import { CommentGateway } from "./gatewies";
       { name: Like.name, schema: LikeSchema },
       { name: Comment.name, schema: CommentSchema },
     ]),
+    CloudModule,
   ],
   controllers: [PinController],
   providers: [PinService, CommentService, CommentGateway],
+  exports: [PinService],
 })
 export class PinModule {}

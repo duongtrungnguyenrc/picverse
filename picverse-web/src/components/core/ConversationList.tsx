@@ -1,10 +1,10 @@
 "use client";
 
-import { Search, MoreHorizontal, PenSquare } from "lucide-react";
+import { Search, MoreHorizontal, PenSquare, Loader2 } from "lucide-react";
 import { FC, ReactNode, useMemo, useState } from "react";
 
-import { cn, formatTimestamp } from "@app/lib/utils";
-import { useChat } from "@app/lib/hooks";
+import { useChat, useConversations } from "@app/lib/hooks";
+import { formatTimestamp } from "@app/lib/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -21,9 +21,11 @@ type ConversationListProps = {
 };
 
 const ConversationList: FC<ConversationListProps> = ({ children }) => {
-  const { conversations, changeConversation } = useChat();
+  const { changeCurrentConversation } = useChat();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+
+  const { data: conversations = [], isLoading } = useConversations();
 
   const filteredConversations = useMemo(() => {
     if (!search.trim()) return conversations;
@@ -32,10 +34,7 @@ const ConversationList: FC<ConversationListProps> = ({ children }) => {
   }, [conversations, search]);
 
   const onSelectConversation = (conversation: Conversation) => {
-    changeConversation({
-      info: conversation,
-      currentPage: 1,
-    });
+    changeCurrentConversation(conversation);
   };
 
   return (
@@ -67,10 +66,10 @@ const ConversationList: FC<ConversationListProps> = ({ children }) => {
         {/* Search */}
         <div className="p-4">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search Messenger"
-              className="pl-10 h-10 bg-muted rounded-full"
+              placeholder="Search conversation"
+              className="pl-10 text-sm focus-visible:ring-2 ring-offset-background focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none h-10 bg-muted rounded-lg"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -79,7 +78,12 @@ const ConversationList: FC<ConversationListProps> = ({ children }) => {
 
         {/* Conversations */}
         <div className="flex-1 p-2 overflow-y-auto">
-          {filteredConversations.length > 0 ? (
+          {isLoading ? (
+            <div className="w-full flex-center flex-col text-xs text-gray-500 animate-pulse">
+              <Loader2 className="animate-spin w-3 h-3" />
+              Loading conversations
+            </div>
+          ) : filteredConversations.length > 0 ? (
             filteredConversations.map((conversation) => {
               const conversationName: string =
                 conversation.otherMemberProfiles?.reduce((prev, conv) => {
@@ -121,7 +125,7 @@ const ConversationList: FC<ConversationListProps> = ({ children }) => {
               );
             })
           ) : (
-            <div className="text-sm text-center w-full">No conversation found</div>
+            <div className="text-xs text-center w-full text-gray-500">No conversation to present</div>
           )}
         </div>
       </DropdownMenuContent>

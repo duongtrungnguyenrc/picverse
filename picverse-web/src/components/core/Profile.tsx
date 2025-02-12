@@ -15,19 +15,16 @@ const Profile: FC<ProfileProps> = ({ signature }) => {
   const isMyProfile = signature === "me";
 
   const { data: profile, isPending } = useProfile(isMyProfile ? undefined : signature);
-  const { changeConversation } = useChat();
+  const { changeCurrentConversation } = useChat();
 
   const pendingClass: string = isPending ? "animate-pulse" : "";
 
   const onStartNewConversation = () => {
     if (profile) {
-      changeConversation({
-        info: {
-          receiverId: signature,
-          members: [],
-          otherMemberProfiles: [profile],
-        },
-        currentPage: 1,
+      changeCurrentConversation({
+        receiverId: signature,
+        members: [],
+        otherMemberProfiles: [profile],
       });
     }
   };

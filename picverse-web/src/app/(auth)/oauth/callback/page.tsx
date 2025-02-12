@@ -37,6 +37,8 @@ const ThirdPartyCallbackPage: FC<CallbackPropsType> = () => {
             return;
           }
         } catch (error) {
+          console.log(error);
+
           setErrorMessage((error as Error).message || "Error when sign in with third party");
         }
       }

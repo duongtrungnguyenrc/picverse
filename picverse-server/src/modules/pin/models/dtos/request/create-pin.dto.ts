@@ -13,12 +13,9 @@ export class CreatePinDto {
   description?: string;
 
   @ApiProperty()
-  @IsArray({})
-  resources: Array<DocumentId>;
-
-  @ApiProperty()
   @IsArray()
-  tags: Array<string>;
+  @IsOptional()
+  tags?: Array<string>;
 
   @ApiProperty()
   @IsBoolean()

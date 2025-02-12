@@ -1,22 +1,24 @@
 "use client";
 
 import { type FC, useCallback, useEffect, useRef, useState, useMemo, ReactNode } from "react";
+import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { io, type Socket } from "socket.io-client";
 import toast from "react-hot-toast";
 
 import { requestNotificationPermission, showNotification } from "@app/lib/utils";
 import { ChatContext } from "@app/lib/contexts";
+import { QueryKeys } from "@app/lib/constants";
 import { useAuthToken } from "@app/lib/hooks";
 
 type ChatProviderProps = { children: ReactNode };
 
 const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
+  const [currentConversation, setCurrentConversation] = useState<CurrentConversation>(null);
   const [hasNotificationPermission, setHasNotificationPermission] = useState(false);
-  const [currentConversation, setConversation] = useState<CurrentConversation | null>(null);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isConnected, setIsConnected] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+
   const { token, accountId, ready } = useAuthToken();
+  const queryClient = useQueryClient();
   const socketRef = useRef<Socket>();
 
   useEffect(() => {
@@ -36,19 +38,7 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
     socket.on("connect", () => setIsConnected(true));
     socket.on("disconnect", () => setIsConnected(false));
 
-    socket.on("conversations", setConversations);
-
-    socket.on("new-conversation", (conversation: Conversation) => {
-      setConversations((prev) => [{ ...conversation, newNotifications: 1 }, ...prev]);
-      if (hasNotificationPermission) {
-        const sender = conversation.otherMemberProfiles[0];
-        showNotification("New Conversation", {
-          body: `${sender.firstName} ${sender.lastName} started a conversation`,
-          icon: sender.profilePicture,
-        });
-      }
-    });
-
+    socket.on("new-conversation", handleNewConversation);
     socket.on("message", handleNewMessage);
 
     socket.on("error", (error: string) => {
@@ -58,7 +48,7 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
     return () => {
       socket.disconnect();
     };
-  }, [token, accountId, ready, hasNotificationPermission]);
+  }, [token, accountId, ready]);
 
   useEffect(() => {
     const cleanup = initSocket();
@@ -67,35 +57,72 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
     };
   }, [initSocket]);
 
+  const handleNewConversation = useCallback(
+    (conversation: Conversation) => {
+      queryClient.setQueryData<Array<Conversation>>([QueryKeys.CONVERSATIONS], (oldData) => {
+        if (!oldData) return [conversation];
+        return [conversation, ...oldData];
+      });
+
+      if (!currentConversation || !currentConversation._id) {
+        changeCurrentConversation(conversation);
+      }
+
+      if (hasNotificationPermission) {
+        const sender = conversation.otherMemberProfiles[0];
+        showNotification("New Conversation", {
+          body: `${sender.firstName} ${sender.lastName} started a conversation`,
+          icon: sender.profilePicture,
+        });
+      }
+    },
+    [queryClient, hasNotificationPermission],
+  );
+
   const handleNewMessage = useCallback(
     (message: Message) => {
-      const isCurrentConversation = message.conversationId === currentConversation?.info._id;
-      const isSelfMessage = message.senderId === accountId;
+      queryClient.setQueryData<Array<Conversation>>([QueryKeys.CONVERSATIONS], (oldData) => {
+        if (!oldData) return oldData;
 
-      setMessages((prev) => [...prev, message]);
-
-      setConversations((prev) =>
-        prev.map((conv) => {
+        return oldData.map((conv) => {
           if (conv._id !== message.conversationId) return conv;
+
           return {
             ...conv,
             lastMessage: message,
             newNotifications:
-              !isCurrentConversation && !isSelfMessage ? (conv.newNotifications || 0) + 1 : conv.newNotifications,
+              conv._id === currentConversation?._id ? conv.newNotifications : (conv.newNotifications || 0) + 1,
           };
-        }),
+        });
+      });
+
+      queryClient.setQueryData(
+        [QueryKeys.MESSAGES, message.conversationId],
+        (oldData: InfiniteData<InfiniteResponse<Message>>) => {
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page, index) => {
+              const isFirstPage = index + 1 === oldData.pageParams[0];
+
+              return {
+                ...page,
+                data: isFirstPage ? [...page.data, message] : page.data,
+              };
+            }),
+          };
+        },
       );
 
+      const isSelfMessage = message.senderId === accountId;
+      const isCurrentConversation = currentConversation?._id === message.conversationId;
+
       if (!isSelfMessage && !isCurrentConversation && hasNotificationPermission) {
-        const conversation = conversations.find((c) => c._id === message.conversationId);
-        const sender = conversation?.otherMemberProfiles[0];
-        showNotification(`Message from ${sender?.firstName} ${sender?.lastName}`, {
+        showNotification(`New message`, {
           body: message.content,
-          icon: sender?.profilePicture,
         });
       }
     },
-    [currentConversation, accountId, conversations, hasNotificationPermission],
+    [queryClient, accountId, hasNotificationPermission, currentConversation],
   );
 
   const sendMessage = useCallback((payload: SendMessageDto) => {
@@ -108,24 +135,27 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
     });
   }, []);
 
-  const changeConversation = useCallback((conversation: CurrentConversation | null) => {
-    setConversations((prev) =>
-      prev.map((conv) => (conv._id === conversation?.info._id ? { ...conv, newNotifications: undefined } : conv)),
-    );
-    setConversation(conversation);
-  }, []);
+  const changeCurrentConversation = useCallback(
+    (conversation: CurrentConversation) => {
+      if (conversation) {
+        queryClient.setQueryData<Array<Conversation>>([QueryKeys.CONVERSATIONS], (oldData) =>
+          oldData?.map((conv) => (conv._id === conversation._id ? { ...conv, newNotifications: 0 } : conv)),
+        );
+      }
+      setCurrentConversation(conversation);
+    },
+    [queryClient],
+  );
 
   const contextValue = useMemo(
-    () => ({
+    (): ChatContextType => ({
       isConnected,
-      conversations,
       currentConversation,
-      messages,
       sendMessage,
       initSocket,
-      changeConversation,
+      changeCurrentConversation,
     }),
-    [isConnected, conversations, currentConversation, messages, sendMessage, initSocket, changeConversation],
+    [isConnected, currentConversation, sendMessage, initSocket, changeCurrentConversation],
   );
 
   return <ChatContext.Provider value={contextValue}>{children}</ChatContext.Provider>;

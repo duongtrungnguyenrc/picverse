@@ -4,6 +4,7 @@ import { Injectable } from "@nestjs/common";
 import { CalculatedConversation, SendMessageDto, Message } from "../models";
 import { ConversationService } from "./conversation.service";
 import { MessageService } from "./message.service";
+import { InfiniteResponse } from "@common/dtos";
 
 @Injectable()
 export class ChatService {
@@ -16,13 +17,24 @@ export class ChatService {
     const conversations = await this.conversationService.getModel().aggregate([
       {
         $match: {
-          members: accountId,
+          members: accountId.toString(),
         },
       },
       ...this.queryConversations(accountId),
     ]);
 
     return conversations;
+  }
+
+  async getConversationMessages(conversationId: string, pagination: Pagination): Promise<InfiniteResponse<Message>> {
+    return await this.messageService.findMultipleInfinite({ conversationId: new Types.ObjectId(conversationId) }, pagination, {
+      sort: {
+        createdAt: -1,
+      },
+      postProcessData: (data): Array<Message> => {
+        return data.reverse();
+      },
+    });
   }
 
   async sendMessage(
@@ -102,7 +114,7 @@ export class ChatService {
             $filter: {
               input: "$members",
               as: "memberId",
-              cond: { $ne: ["$$memberId", accountId] },
+              cond: { $ne: ["$$memberId", accountId.toString()] },
             },
           },
         },

@@ -24,20 +24,17 @@ declare type NewConversation = {
   receiverProfile: Profile;
 };
 
-declare type CurrentConversation = {
-  info: Omit<Conversation, "_id"> &
-    Partial<BaseModel> & {
-      receiverId?: string;
-    };
-  currentPage: number;
-};
+declare type CurrentConversation =
+  | (Omit<Conversation, "_id"> &
+      Partial<BaseModel> & {
+        receiverId?: string;
+      })
+  | null;
 
 declare type ChatContextType = {
   isConnected: boolean;
-  conversations: Conversation[];
-  currentConversation: CurrentConversation | null;
-  messages: Message[];
+  currentConversation: CurrentConversation;
   initSocket: VoidFunction;
   sendMessage: (payload: SendMessageDto) => void;
-  changeConversation: (conversation: CurrentConversation | null) => void;
+  changeCurrentConversation: (conversation: CurrentConversation) => void;
 };

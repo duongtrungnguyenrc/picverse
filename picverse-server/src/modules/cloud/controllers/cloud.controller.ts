@@ -99,7 +99,7 @@ export class CloudStorageController {
     @Query("parentId") parentId: DocumentId,
     @Body() payload: UploadFileDto,
   ): Promise<StatusResponseDto> {
-    return await this.cloudService.uploadFile(accountId, parentId, file, payload);
+    return await this.cloudService.uploadFile(accountId, file, payload, parentId, false);
   }
 
   @Get("/file/:fileId")
@@ -116,7 +116,8 @@ export class CloudStorageController {
   }
 
   @Auth()
-  @Get("/usage")
-  @ApiOperation({ summary: "Get cloud usage statistic" })
-  async getUsageStatus() {}
+  @Get("/storage/space")
+  async getStorageSpaceStatus(@AuthUid() accountId: DocumentId) {
+    return await this.cloudService.getStorageSpaceStatus(accountId);
+  }
 }

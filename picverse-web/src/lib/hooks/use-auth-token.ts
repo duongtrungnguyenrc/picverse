@@ -21,7 +21,7 @@ export function useAuthToken() {
     if (ready) {
       fetchAuthCookie();
     }
-  }, [ready]);
+  }, [ready, account]);
 
   return { token, ready, accountId: account?._id };
 }

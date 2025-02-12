@@ -24,6 +24,7 @@ import {
   Textarea,
 } from "../shadcn";
 import { createBoardSchema } from "@app/lib/validations";
+import { useCreateBoard } from "@app/lib/hooks";
 
 type CreateBoardDialogProps = {
   children: ReactNode;
@@ -31,6 +32,7 @@ type CreateBoardDialogProps = {
 
 const CreateBoardDialog: FC<CreateBoardDialogProps> = ({ children }) => {
   const [openDialog, setoOenDialog] = useState<boolean>(false);
+  const { mutate, isPending } = useCreateBoard();
 
   const form = useForm<CreateBoardRequest>({
     resolver: zodResolver(createBoardSchema),
@@ -43,7 +45,9 @@ const CreateBoardDialog: FC<CreateBoardDialogProps> = ({ children }) => {
 
   const formErrors = form.formState.errors;
 
-  const onCreateBoard = form.handleSubmit((data) => {});
+  const onCreateBoard = form.handleSubmit((data) => {
+    mutate(data);
+  });
 
   return (
     <Dialog open={openDialog} onOpenChange={setoOenDialog}>
@@ -106,7 +110,9 @@ const CreateBoardDialog: FC<CreateBoardDialogProps> = ({ children }) => {
             />
 
             <DialogFooter>
-              <Button type="submit">Save board</Button>
+              <Button disabled={isPending} type="submit">
+                Save board
+              </Button>
             </DialogFooter>
           </form>
         </Form>

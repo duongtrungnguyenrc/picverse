@@ -13,9 +13,9 @@ declare type Pin = BaseModel &
   };
 
 declare type CreatePinRequest = {
+  file: File;
   title: string;
   description: string;
-  resources: Array<string>;
   tags: Array<string>;
   boardId: string;
   isPublic: boolean;

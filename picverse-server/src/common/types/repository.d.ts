@@ -6,7 +6,10 @@ declare namespace Repository {
     cachePostfix?: string;
   };
 
-  type FindMultipleOptions = FindOptions & {
+  type FindMultipleOptions<T> = FindOptions & {
     sort?: string | { [key: string]: SortOrder | { $meta: any } } | [string, SortOrder][] | undefined | null;
+    postProcessData?: (data: Array<T>) => Array<T>;
   };
+
+  type AggregateOptions = Pick<FindOptions, "force" | "cachePostfix"> & {};
 }

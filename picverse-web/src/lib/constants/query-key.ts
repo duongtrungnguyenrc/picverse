@@ -5,6 +5,8 @@ export enum QueryKeys {
   EXTERNAL_LINK_STATUS = "get-external-link-status",
   PROFILE = "get-profile",
   ACCESS_RECORDS = "get-access-records",
+  CONVERSATIONS = "conversations",
+  MESSAGES = "messages",
 }
 
 export enum MutationKeys {

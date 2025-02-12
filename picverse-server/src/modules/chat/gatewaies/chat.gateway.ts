@@ -26,9 +26,9 @@ export class ChatGateway implements OnGatewayConnection {
       return;
     }
 
-    const conversations = await this.chatService.getUserConversations(profileId);
+    // const conversations = await this.chatService.getUserConversations(profileId);
 
-    client.emit("conversations", conversations);
+    // client.emit("conversations", conversations);
 
     this.connectedClients.set(client.id, profileId.toString());
     console.log(`Client connected: ${client.id} -> ${profileId}`);

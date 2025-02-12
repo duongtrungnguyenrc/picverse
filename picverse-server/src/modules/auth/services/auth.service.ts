@@ -14,6 +14,7 @@ import { ProfileService } from "@modules/profile";
 import { StatusResponseDto } from "@common/dtos";
 import { AccountErrorMessage } from "../enums";
 import { EOAuthScopes } from "@common/enums";
+import { Types } from "mongoose";
 
 @Injectable()
 export class AuthService {
@@ -68,12 +69,12 @@ export class AuthService {
 
         const tokenPair = await this.sesisonService.createSession(newAccount._id, newProfile._id, ipAddress, requestAgent);
         Object.assign(signInResponse, tokenPair);
+      } else {
+        const profile = await this.profileService.exists({ accountId: new Types.ObjectId(account._id) });
+
+        const tokenPair = await this.sesisonService.createSession(account._id, profile._id, ipAddress, requestAgent);
+        Object.assign(signInResponse, tokenPair);
       }
-
-      const profile = await this.profileService.find({ accountId: account._id }, { select: ["_id"], force: true });
-
-      const tokenPair = await this.sesisonService.createSession(account._id, profile._id, ipAddress, requestAgent);
-      Object.assign(signInResponse, tokenPair);
 
       const secret: string = Buffer.from(state, "base64").toString("utf-8");
       const clientOrigin = this.configService.get<string>("CLIENT_ORIGIN");

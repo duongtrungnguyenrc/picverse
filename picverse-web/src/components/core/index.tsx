@@ -34,7 +34,6 @@ export { default as GoogleSignInButton } from "./GoogleSignInButton";
 export { default as ProfileBoardListingControl } from "./ProfileBoardListingControl";
 
 /* PINS COMPONENTS */
-export { default as MediaEditor } from "./MediaEditor";
 export { default as CreatePinForm } from "./CreatePinForm";
 
 /* CLOUD COMPONENTS */

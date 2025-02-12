@@ -4,6 +4,7 @@ import { Bell, Home, Settings, Search, ArrowUp, MessageCircle } from "lucide-rea
 import Link from "next/link";
 
 import ConversationList from "./ConversationList";
+import SignedIn from "./SignedIn";
 
 const FloatingActionNav = () => {
   const scrollToTop = () => {
@@ -11,28 +12,30 @@ const FloatingActionNav = () => {
   };
 
   return (
-    <ul className="fixed bottom-5 left-1/2 -translate-x-[50%] flex-center gap-x-2 transition-all animate-in bg-white rounded-xl p-1 border">
+    <ul className="fixed bottom-5 left-1/2 -translate-x-[50%] flex-center gap-x-2 animate-in bg-white rounded-xl p-1 border transition-all">
       <li className="flex">
         <Link href="/" className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg">
           <Home className="h-4 w-4" />
         </Link>
       </li>
-      <li className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg">
-        <Search className="h-4 w-4" />
-      </li>
-      <li className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg">
-        <Bell className="h-4 w-4" />
-      </li>
-      <ConversationList>
+      <SignedIn>
         <li className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg">
-          <MessageCircle className="h-4 w-4" />
+          <Search className="h-4 w-4" />
         </li>
-      </ConversationList>
-      <li className="flex">
-        <Link href="/settings" className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg">
-          <Settings className="h-4 w-4" />
-        </Link>
-      </li>
+        <li className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg">
+          <Bell className="h-4 w-4" />
+        </li>
+        <ConversationList>
+          <li className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg">
+            <MessageCircle className="h-4 w-4" />
+          </li>
+        </ConversationList>
+        <li className="flex">
+          <Link href="/settings" className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg">
+            <Settings className="h-4 w-4" />
+          </Link>
+        </li>
+      </SignedIn>
       <li className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg" onClick={scrollToTop}>
         <ArrowUp className="h-4 w-4" />
       </li>

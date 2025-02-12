@@ -3,10 +3,8 @@ import { Document, Types } from "mongoose";
 
 import { ECloudStorage } from "../../enums";
 
-export type CloudCredentialsDocument = CloudCredentials & Document;
-
 @Schema({ timestamps: true })
-export class CloudCredentials {
+export class CloudCredentials extends Document<Types.ObjectId> {
   @Prop({ required: true, type: Types.ObjectId, ref: "Account" })
   accountId: Types.ObjectId;
 

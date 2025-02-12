@@ -6,7 +6,7 @@ import { Response } from "express";
 import { Readable } from "stream";
 import { Model } from "mongoose";
 
-import { CloudCredentials, CloudCredentialsDocument, Resource } from "../models";
+import { CloudCredentials, Resource } from "../models";
 import { IExternalStorageService } from "../interfaces";
 import { ECloudStorage, EResourceType } from "../enums";
 import { ResourceService } from "./resource.service";
@@ -19,7 +19,7 @@ export class DriveStorageService implements IExternalStorageService {
   private authClient: Auth.OAuth2Client;
 
   constructor(
-    @InjectModel(CloudCredentials.name) private oauthCredentialsModel: Model<CloudCredentialsDocument>,
+    @InjectModel(CloudCredentials.name) private oauthCredentialsModel: Model<CloudCredentials>,
     private readonly resourceService: ResourceService,
     private readonly configService: ConfigService,
   ) {
@@ -54,7 +54,7 @@ export class DriveStorageService implements IExternalStorageService {
     };
   }
 
-  async refreshAuthToken(credentials: CloudCredentialsDocument): Promise<CloudModule.StorageRefreshTokenResponse> {
+  async refreshAuthToken(credentials: CloudCredentials): Promise<CloudModule.StorageRefreshTokenResponse> {
     const driveAuthClient: Auth.OAuth2Client = new google.auth.OAuth2(this.configService.get<string>("OAUTH_CLIENT_ID"), this.configService.get<string>("OAUTH_CLIENT_SECRET"));
 
     driveAuthClient.setCredentials({
@@ -147,7 +147,7 @@ export class DriveStorageService implements IExternalStorageService {
     }
   }
 
-  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto): Promise<boolean> {
+  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto): Promise<Resource> {
     const drive = await this.getDriveInstance(accountId);
 
     if (!drive) throw new BadRequestException(`Please link drive storage to continue`);
@@ -190,24 +190,20 @@ export class DriveStorageService implements IExternalStorageService {
       },
     });
 
-    if (response.data.id) {
-      const result = response.data;
+    const result = response.data;
 
-      const createdResource: Resource = await this.resourceService.create({
-        referenceId: result.id,
-        name: file.originalname,
-        parentId: payload.parentId,
-        type: EResourceType.FILE,
-        storage: ECloudStorage.DRIVE,
-        accountId,
-        size: result.size,
-        mimeType: file.mimetype,
-      });
+    const createdResource: Resource = await this.resourceService.create({
+      referenceId: result.id,
+      name: file.originalname,
+      parentId: payload.parentId,
+      type: EResourceType.FILE,
+      storage: ECloudStorage.DRIVE,
+      accountId,
+      size: result.size,
+      mimeType: file.mimetype,
+    });
 
-      return !!createdResource;
-    }
-
-    return false;
+    return createdResource;
   }
 
   async deleteFile(accountId: DocumentId, file: Resource | DocumentId): Promise<boolean> {

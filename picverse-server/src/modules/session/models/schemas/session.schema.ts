@@ -4,7 +4,7 @@ import { Document, Types } from "mongoose";
 @Schema({ timestamps: true })
 export class Session extends Document<Types.ObjectId> {
   @Prop({ type: Types.ObjectId, ref: "Account" })
-  accountId: Types.ObjectId;
+  accountId: DocumentId;
 
   @Prop({ default: true })
   activating: boolean;

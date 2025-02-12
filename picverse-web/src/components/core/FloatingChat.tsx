@@ -1,11 +1,11 @@
 "use client";
 
 import { FC, useState, useRef, useCallback, useEffect } from "react";
-import { Minus, X, Image, Smile, Send } from "lucide-react";
+import { Minus, X, Image, Smile, Send, Loader2 } from "lucide-react";
 import { PopoverClose } from "@radix-ui/react-popover";
 import Picker from "@emoji-mart/react";
 
-import { useChat } from "@app/lib/hooks";
+import { useChat, useMessages } from "@app/lib/hooks";
 import { cn } from "@app/lib/utils";
 import {
   Avatar,
@@ -21,14 +21,21 @@ import {
 type FloatingChatProps = {};
 
 const FloatingChat: FC<FloatingChatProps> = () => {
-  const { messages, sendMessage, currentConversation, changeConversation } = useChat();
+  const { sendMessage, currentConversation, changeCurrentConversation } = useChat();
   const [open, setOpen] = useState(true);
   const [input, setInput] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  const { data: messagesData, isLoading } = useMessages(currentConversation?._id || "");
+
+  const messages = messagesData?.pages?.reduce((prev, page) => [...page.data, ...prev], [] as Array<Message>) || [];
 
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+    messagesContainerRef.current?.scrollTo({
+      top: messagesContainerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
 
   useEffect(() => {
     scrollToBottom();
@@ -38,8 +45,8 @@ const FloatingChat: FC<FloatingChatProps> = () => {
     if (!input.trim()) return;
 
     sendMessage({
-      conversationId: currentConversation?.info._id,
-      receiverId: currentConversation?.info.receiverId,
+      conversationId: currentConversation?._id,
+      receiverId: currentConversation?.receiverId,
       content: input.trim(),
     });
 
@@ -47,9 +54,9 @@ const FloatingChat: FC<FloatingChatProps> = () => {
   }, [input, currentConversation, sendMessage]);
 
   const onClose = useCallback(() => {
-    changeConversation(null);
+    changeCurrentConversation(null);
     setOpen(false);
-  }, [changeConversation]);
+  }, [changeCurrentConversation]);
 
   useEffect(() => {
     if (currentConversation) {
@@ -58,14 +65,10 @@ const FloatingChat: FC<FloatingChatProps> = () => {
   }, [currentConversation]);
 
   const conversationName: string =
-    currentConversation?.info.otherMemberProfiles?.reduce((prev, conv) => {
-      return prev ? `${prev}, ${conv.firstName} ${conv.lastName}` : `${conv.firstName} ${conv.lastName}`;
-    }, "") || "Unknow conversation";
+    `${currentConversation?.otherMemberProfiles?.[0]?.firstName} ${currentConversation?.otherMemberProfiles?.[0]?.lastName}` ||
+    "Unknow conversation";
 
-  const splitedName: Array<string> = (
-    `${currentConversation?.info.otherMemberProfiles?.[0]?.lastName}${currentConversation?.info.otherMemberProfiles?.[0]?.lastName}` ||
-    "Unknown"
-  ).split(" ");
+  const splitedName: Array<string> = conversationName.split(" ");
 
   const fallbackName: string = splitedName[0]?.[0] + splitedName[splitedName.length - 1]?.[0];
 
@@ -84,9 +87,11 @@ const FloatingChat: FC<FloatingChatProps> = () => {
             <div>
               <ChatHeader conversationName={conversationName} fallbackName={fallbackName} onClose={onClose} />
               <ChatMessages
+                fallbackName={fallbackName}
                 currentConversation={currentConversation}
                 messages={messages}
-                messagesEndRef={messagesEndRef}
+                messagesContainerRef={messagesContainerRef}
+                isLoading={isLoading}
               />
               <ChatInput input={input} setInput={setInput} handleSend={handleSend} />
             </div>
@@ -150,25 +155,38 @@ const ChatHeader: FC<{ conversationName: string; fallbackName: string; onClose: 
 const ChatMessages: FC<{
   currentConversation: CurrentConversation;
   messages: Message[];
-  messagesEndRef: React.RefObject<HTMLDivElement>;
-}> = ({ currentConversation, messages, messagesEndRef }) => (
-  <div className="h-[400px] overflow-y-auto p-4 space-y-4">
-    {messages.map((message) => {
-      const isOwn = currentConversation?.info.otherMemberProfiles.some((profile) => profile._id == message.senderId);
+  fallbackName: string;
+  isLoading: boolean;
+  messagesContainerRef: React.RefObject<HTMLDivElement>;
+}> = ({ currentConversation, isLoading, fallbackName, messages, messagesContainerRef }) => (
+  <div ref={messagesContainerRef} className="h-[400px] overflow-y-auto p-4 space-y-4">
+    {isLoading ? (
+      <div className="w-full flex-center flex-col text-xs text-gray-500 animate-pulse">
+        <Loader2 className="animate-spin w-3 h-3" />
+        Loading messages
+      </div>
+    ) : (
+      messages.map((message) => {
+        const isOwn =
+          currentConversation?.otherMemberProfiles.some((profile) => profile._id == message.senderId) || false;
 
-      return <ChatMessage key={message._id} message={message} isOwn={isOwn} />;
-    })}
-    <div ref={messagesEndRef} />
+        return <ChatMessage key={message._id} fallbackName={fallbackName} message={message} isOwn={isOwn} />;
+      })
+    )}
   </div>
 );
 
-const ChatMessage: FC<{ message: Message; isOwn: boolean }> = ({ message, isOwn }) => {
+const ChatMessage: FC<{ message: Message; fallbackName: string; isOwn: boolean }> = ({
+  message,
+  fallbackName,
+  isOwn,
+}) => {
   return (
     <div className={cn("flex", !isOwn ? "justify-end" : "justify-start")}>
       {isOwn && (
         <Avatar className="w-6 h-6 mr-2">
           <AvatarImage src="https://example.com/default-avatar.png" alt="User" />
-          <AvatarFallback>U</AvatarFallback>
+          <AvatarFallback className="text-[0.5rem]">{fallbackName}</AvatarFallback>
         </Avatar>
       )}
       <div

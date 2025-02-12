@@ -2,9 +2,11 @@
 
 import { useForm } from "react-hook-form";
 import { Upload } from "lucide-react";
+import toast from "react-hot-toast";
 import { FC } from "react";
 
 import { ContentSection, ImagePicker, TagInput } from ".";
+import { useCreatePin } from "@app/lib/hooks";
 import {
   Form,
   FormControl,
@@ -26,11 +28,11 @@ import {
 type CreatePinFormProps = {};
 
 const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
+  const { mutate } = useCreatePin();
   const form = useForm<CreatePinRequest>({
     defaultValues: {
       title: "",
       description: "",
-      resources: [],
       tags: [],
       isPublic: false,
       allowComment: false,
@@ -40,7 +42,14 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
 
   const formErrors = form.formState.errors;
 
-  const onCreatePin = form.handleSubmit((data) => {});
+  const onCreatePin = form.handleSubmit((data) => {
+    mutate(data, {
+      onSuccess() {
+        toast.success("Pin created success");
+        form.reset();
+      },
+    });
+  });
 
   return (
     <Form {...form}>
@@ -67,12 +76,12 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
             <div className="col-span-full md:col-span-6 lg:col-span-5 h-full">
               <FormField
                 control={form.control}
-                name="title"
+                name="file"
                 render={({ field }) => (
                   <FormItem className="h-full flex flex-col space-y-4">
                     <FormLabel>Media</FormLabel>
                     <FormControl>
-                      <ImagePicker />
+                      <ImagePicker onChange={field.onChange} />
                     </FormControl>
                     {/* {formErrors.firstName && <FormMessage>{formErrors.firstName.message}</FormMessage>} */}
                   </FormItem>

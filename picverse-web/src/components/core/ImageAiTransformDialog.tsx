@@ -33,7 +33,7 @@ import { aspectRatioOptions, transformationFeatures } from "@app/lib/constants";
 type ImageAiTransformDialogProps = {
   children: React.ReactNode;
   cldImage: CloudinaryImage;
-  onTransformed?: (transformedImage: File) => void;
+  onTransformed: (transformedImage: File) => void;
 };
 
 export default function ImageTransformDialog({ children, cldImage, onTransformed }: ImageAiTransformDialogProps) {
@@ -83,18 +83,27 @@ export default function ImageTransformDialog({ children, cldImage, onTransformed
     setActiveFeature(value);
   };
 
-  const onApplyTransformation = () => {
-    if (transformationConfig && onTransformed) {
+  const onApplyTransformation = async () => {
+    if (transformationConfig) {
       const transformedUrl = getCldImageUrl({
         src: cldImage.public_id,
         ...transformationConfig,
       });
 
-      
+      try {
+        const response = await fetch(transformedUrl);
+        const blob = await response.blob();
 
-      // onTransformed(transformedUrl);
-      resetState();
-      setOpenDialog(false);
+        const file = new File([blob], `transformed-${cldImage.public_id}.png`, { type: blob.type });
+
+        onTransformed(file);
+
+        resetState();
+        setOpenDialog(false);
+      } catch (error) {
+        toast.error("Failed to fetch transformed image");
+        console.error(error);
+      }
     } else {
       toast.error("Please select a transformation");
     }

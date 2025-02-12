@@ -14,6 +14,7 @@ import { AuthModule } from "@modules/auth";
 import { BoardModule } from "@modules/board";
 import { PinModule } from "@modules/pin";
 import { ChatModule } from "@modules/chat";
+import { FeedModule } from "@modules/feed";
 
 @Module({
   imports: [
@@ -41,8 +42,7 @@ import { ChatModule } from "@modules/chat";
     BoardModule,
     PinModule,
     ChatModule,
+    FeedModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

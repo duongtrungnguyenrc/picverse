@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
-import { CloudCredentials, CloudCredentialsDocument, Resource } from "../models";
+import { CloudCredentials, Resource } from "../models";
 import { IExternalStorageService } from "../interfaces";
 import { getExpiredTime } from "@common/utils";
 import { ECloudStorage, EResourceType } from "../enums";
@@ -17,7 +17,7 @@ export class DropboxStorageService implements IExternalStorageService {
   private dropboxAuth: DropboxAuth;
 
   constructor(
-    @InjectModel(CloudCredentials.name) private oauthCredentialsModel: Model<CloudCredentialsDocument>,
+    @InjectModel(CloudCredentials.name) private oauthCredentialsModel: Model<CloudCredentials>,
     private readonly resourceService: ResourceService,
     private readonly configService: ConfigService,
   ) {
@@ -47,7 +47,7 @@ export class DropboxStorageService implements IExternalStorageService {
     };
   }
 
-  async refreshAuthToken(credentials: CloudCredentialsDocument): Promise<CloudModule.StorageRefreshTokenResponse> {
+  async refreshAuthToken(credentials: CloudCredentials): Promise<CloudModule.StorageRefreshTokenResponse> {
     const dropboxAuth: DropboxAuth = new DropboxAuth({
       clientId: this.configService.get<string>("DROPBOX_APP_KEY"),
       clientSecret: this.configService.get<string>("DROPBOX_APP_SECRET"),
@@ -150,28 +150,24 @@ export class DropboxStorageService implements IExternalStorageService {
     }
   }
 
-  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto): Promise<boolean> {
+  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto): Promise<Resource> {
     const dropbox = await this.getDropboxInstance(accountId);
     const response = await dropbox.filesUpload({ path: `/picverse/${file.originalname}`, contents: file.buffer });
 
-    if (response.result && "id" in response.result) {
-      const result = response.result;
+    const result = response.result;
 
-      const createdResource: Resource = await this.resourceService.create({
-        referenceId: result.id,
-        name: file.originalname,
-        parentId: payload.parentId,
-        type: EResourceType.FILE,
-        storage: ECloudStorage.DROPBOX,
-        accountId,
-        size: result.size,
-        mimeType: file.mimetype,
-      });
+    const createdResource: Resource = await this.resourceService.create({
+      referenceId: result.id,
+      name: file.originalname,
+      parentId: payload.parentId,
+      type: EResourceType.FILE,
+      storage: ECloudStorage.DROPBOX,
+      accountId,
+      size: result.size,
+      mimeType: file.mimetype,
+    });
 
-      return !!createdResource;
-    }
-
-    return false;
+    return createdResource;
   }
 
   async deleteFile(accountId: DocumentId, file: Resource | DocumentId): Promise<boolean> {
