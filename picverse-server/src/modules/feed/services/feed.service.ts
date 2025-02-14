@@ -11,20 +11,18 @@ export class FeedService {
   ) {}
 
   async loadFeed(pagination: Pagination, accountId?: DocumentId) {
-    let filter = {};
+    let filter: any = { isPublic: true };
 
-    if (accountId) {
-      const followUsers = await this.followService.findMultiple({ follower: accountId });
-      const followingIds = followUsers.map((user) => user.following);
+    // if (accountId) {
+    //   const followUsers = await this.followService.findMultiple({ follower: accountId });
+    //   const followingIds = followUsers.map((user) => user.following);
 
-      filter = { accountId: { $in: followingIds } };
-    } else {
-      filter = {};
-    }
+    //   filter = { ...filter, accountId: { $in: followingIds } };
+    // }
 
     try {
       return await this.pinService.findMultipleInfinite(filter, pagination, {
-        populate: ["tags"],
+        select: ["_id", "resource"],
         sort: { createdAt: -1 },
       });
     } catch (error) {

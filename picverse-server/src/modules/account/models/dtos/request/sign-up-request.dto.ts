@@ -34,6 +34,6 @@ export class SignUpRequestDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsPhoneNumber("VN")
+  @IsPhoneNumber()
   phone: string;
 }

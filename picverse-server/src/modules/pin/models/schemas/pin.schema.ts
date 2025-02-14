@@ -6,10 +6,10 @@ import { Resource } from "@modules/cloud";
 
 @Schema({ timestamps: true })
 export class Pin extends Document<Types.ObjectId> {
-  @Prop({ type: Types.ObjectId, ref: "Account", select: false })
-  accountId: DocumentId;
+  @Prop({ type: Types.ObjectId, ref: "Account" })
+  authorId: DocumentId;
 
-  @Prop({ type: Types.ObjectId, ref: "Board", select: false })
+  @Prop({ type: Types.ObjectId, ref: "Board" })
   boardId: DocumentId;
 
   @Prop({ required: true })

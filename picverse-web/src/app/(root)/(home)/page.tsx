@@ -6,7 +6,6 @@ type HomePageProps = {};
 const HomePage: FC<HomePageProps> = ({}: HomePageProps) => {
   return (
     <>
-      <Hero />
       <Showcase />
     </>
   );

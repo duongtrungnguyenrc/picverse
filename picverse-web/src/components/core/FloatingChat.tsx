@@ -28,7 +28,7 @@ const FloatingChat: FC<FloatingChatProps> = () => {
 
   const { data: messagesData, isLoading } = useMessages(currentConversation?._id || "");
 
-  const messages = messagesData?.pages?.reduce((prev, page) => [...page.data, ...prev], [] as Array<Message>) || [];
+  const messages = (messagesData?.pages || []).reduce((prev, page) => [...page.data, ...prev], [] as Array<Message>);
 
   const scrollToBottom = useCallback(() => {
     messagesContainerRef.current?.scrollTo({

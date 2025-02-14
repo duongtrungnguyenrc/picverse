@@ -1,40 +1,38 @@
-import { FC } from "react";
-import { Button } from "../shadcn";
+"use client";
+
+import { FC, useMemo } from "react";
 import MansoryPinListing from "./MansoryPinListing";
+import { useFeeds } from "@app/lib/hooks";
+import { Button } from "../shadcn";
 
-type ShowcaseProps = {};
+const Showcase: FC = () => {
+  const { data: feeds, isFetching, fetchNextPage, hasNextPage } = useFeeds(); // Thêm fetchNextPage & hasNextPage
 
-const Showcase: FC<ShowcaseProps> = ({}) => {
+  const pins = useMemo(
+    () => (feeds?.pages || []).reduce((prev, page) => [...prev, ...page.data], [] as Array<Pin>),
+    [feeds],
+  );
+
   return (
-    <section id="gallery" className="p-5 lg:p-10">
-      <div className="flex flex-col md:items-center">
-        <h1 className="h2">Popular collections</h1>
-        <p className="mt-2">Top-rated and trending templates, adored by users most</p>
-        <ul className="items-center flex gap-3 mt-5 lg:mt-10 max-w-full overflow-x-auto py-5">
+    <section id="gallery" className="lg:px-10 header-spacing">
+      <div className="flex flex-col px-1.5">
+        <ul className="items-center flex max-w-full overflow-x-auto">
           <li>
-            <Button variant="outline">All</Button>
+            <Button variant="ghost">All</Button>
           </li>
           <li>
-            <Button variant="outline">Car</Button>
+            <Button variant="ghost">Car</Button>
           </li>
           <li>
-            <Button variant="outline">Background</Button>
+            <Button variant="ghost">Background</Button>
           </li>
           <li>
-            <Button variant="outline">Images</Button>
-          </li>
-          <li>
-            <Button variant="outline">Background</Button>
-          </li>
-          <li>
-            <Button variant="outline">Background</Button>
+            <Button variant="ghost">Images</Button>
           </li>
         </ul>
       </div>
 
-      <div className="mt-5 lg:mt-10">
-        <MansoryPinListing />
-      </div>
+      <MansoryPinListing pins={pins} loadMore={hasNextPage ? fetchNextPage : undefined} isFetching={isFetching} />
     </section>
   );
 };

@@ -11,3 +11,4 @@ export * from "./use-element-size";
 export * from "./use-auth-token";
 export * from "./use-chat";
 export * from "./use-pin";
+export * from "./use-feed";

@@ -1,10 +1,11 @@
 declare type Pin = BaseModel &
-  TimeStampedModel & {
-    profileId: Profile;
+  TimeStampModel & {
+    author?: Profile;
+    authorId: string;
     boardId: DocumentId;
     title: string;
     description: string;
-    resources: Array<Resource>;
+    resource: string;
     tags: Array<Tag>;
     isPublic: boolean;
     allowComment: boolean;

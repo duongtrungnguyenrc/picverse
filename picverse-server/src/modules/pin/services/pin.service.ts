@@ -30,7 +30,7 @@ export class PinService extends Repository<Pin> {
       true,
     );
 
-    await this.create({ ...payload, accountId, resource: uploadedResource._id });
+    await this.create({ ...payload, authorId: accountId, resource: uploadedResource._id });
 
     return { message: "Pin created success" };
   }

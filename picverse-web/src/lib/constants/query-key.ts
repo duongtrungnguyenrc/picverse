@@ -7,6 +7,7 @@ export enum QueryKeys {
   ACCESS_RECORDS = "get-access-records",
   CONVERSATIONS = "conversations",
   MESSAGES = "messages",
+  FEEDS = "feeds",
 }
 
 export enum MutationKeys {

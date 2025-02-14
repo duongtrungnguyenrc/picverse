@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, ReactNode, useCallback, useEffect, useState } from "react";
+import { type FC, type ReactNode, useCallback, useEffect, useState, useRef } from "react";
 import { clearAuthCookie, getCookie } from "@app/lib/actions";
 import { AuthContext } from "@app/lib/contexts";
 import { httpClient } from "@app/lib/utils";
@@ -9,10 +9,13 @@ type AuthProviderProps = {
   children: ReactNode;
 };
 
+const SLATE_TIME = 5 * 60 * 1000;
+
 const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [state, setState] = useState<Pick<AuthContext, "ready" | "account">>({
     ready: false,
   });
+  const lastFetchTime = useRef<number>(0);
 
   useEffect(() => {
     authorizeClient();
@@ -24,14 +27,17 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       30 * 60 * 1000,
     );
 
-    const handleFocus = () => authorizeClient();
+    const handleFocus = () => {
+      const currentTime = Date.now();
+      if (currentTime - lastFetchTime.current > SLATE_TIME) {
+        authorizeClient();
+      }
+    };
     window.addEventListener("focus", handleFocus);
-    document.addEventListener("visibilitychange", handleFocus);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener("focus", handleFocus);
-      document.removeEventListener("visibilitychange", handleFocus);
     };
   }, []);
 
@@ -50,6 +56,7 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
       actions?.onSuccess?.();
       setState({ account: response.data, ready: true });
+      lastFetchTime.current = Date.now();
     } catch (error) {
       actions?.onFailed?.();
       setState({ account: undefined, ready: true });

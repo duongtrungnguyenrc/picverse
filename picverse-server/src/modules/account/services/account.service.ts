@@ -46,14 +46,14 @@ export class AccountService extends Repository<Account> {
 
       await this.profileService.create({ accountId: createdAccount._id, ...profileInfo }, { session });
 
-      this.mailerService.sendMail({
-        subject: MailSubject.ACCOUNT_REGISTERD,
-        to: createdAccount.email,
-        template: "account-registered",
-        context: {
-          fullName: `${profileInfo.firstName} ${profileInfo.lastName}`,
-        },
-      });
+      // this.mailerService.sendMail({
+      //   subject: MailSubject.ACCOUNT_REGISTERD,
+      //   to: createdAccount.email,
+      //   template: "account-registered",
+      //   context: {
+      //     fullName: `${profileInfo.firstName} ${profileInfo.lastName}`,
+      //   },
+      // });
       const { password: _, ...rawAcount }: Account = createdAccount.toObject();
 
       return {
