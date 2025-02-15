@@ -3,14 +3,22 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { Response } from "express";
 
-import { CreateFolderDto, GetStorageLinkStatusResponseDto, UpdateResourceDto, UploadFileDto } from "../models";
-import { CloudCredentials, Resource } from "../models";
-import { IExternalStorageService, IStorageService } from "../interfaces";
+import {
+  CreateFolderDto,
+  GetStorageLinkStatusResponseDto,
+  UpdateResourceDto,
+  UploadFileDto,
+  IExternalStorageService,
+  IStorageService,
+  ECloudStorage,
+  EResourceType,
+  CloudCredentials,
+  Resource,
+} from "../models";
 import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { DropboxStorageService } from "./dropbox-storage.service";
 import { DriveStorageService } from "./drive-storage.service";
 import { LocalStorageService } from "./local-storage.service";
-import { ECloudStorage, EResourceType } from "../enums";
 import { ResourceService } from "./resource.service";
 import { getExpiredTime } from "@common/utils";
 import { ConfigService } from "@nestjs/config";

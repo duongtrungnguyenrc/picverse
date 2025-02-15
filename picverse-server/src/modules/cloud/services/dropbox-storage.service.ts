@@ -2,15 +2,12 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { Dropbox, DropboxAuth, DropboxResponse } from "dropbox";
 import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
+import { Response } from "express";
 import { Model } from "mongoose";
 
-import { CloudCredentials, Resource } from "../models";
-import { IExternalStorageService } from "../interfaces";
-import { getExpiredTime } from "@common/utils";
-import { ECloudStorage, EResourceType } from "../enums";
-import { Response } from "express";
+import { UploadFileDto, IExternalStorageService, ECloudStorage, EResourceType, CloudCredentials, Resource } from "../models";
 import { ResourceService } from "./resource.service";
-import { UploadFileDto } from "../models";
+import { getExpiredTime } from "@common/utils";
 
 @Injectable()
 export class DropboxStorageService implements IExternalStorageService {

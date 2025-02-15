@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
-import { Tag } from "./tag.schema";
 import { Resource } from "@modules/cloud";
 
 @Schema({ timestamps: true })
@@ -21,8 +20,8 @@ export class Pin extends Document<Types.ObjectId> {
   @Prop({ type: Types.ObjectId, ref: "Resource" })
   resource: Resource | DocumentId;
 
-  @Prop({ type: [{ type: Types.ObjectId }], ref: "Tag" })
-  tags: Array<Tag>;
+  @Prop({ type: [String] })
+  tags: Array<string>;
 
   @Prop({ default: true })
   isPublic: boolean;
@@ -32,6 +31,15 @@ export class Pin extends Document<Types.ObjectId> {
 
   @Prop({ default: true })
   allowShare: boolean;
+
+  @Prop({ type: String, select: false })
+  vectorId: string;
+
+  @Prop({ select: false })
+  textEmbedding: number[];
+
+  @Prop({ select: false })
+  imageEmbedding: number[];
 
   @Prop({ type: Date })
   createdAt: Date;

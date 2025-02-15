@@ -15,6 +15,7 @@ import { BoardModule } from "@modules/board";
 import { PinModule } from "@modules/pin";
 import { ChatModule } from "@modules/chat";
 import { FeedModule } from "@modules/feed";
+import { VectorModule } from "@modules/vector";
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { FeedModule } from "@modules/feed";
       },
       inject: [ConfigService],
     }),
+    VectorModule,
     CacheModule.forRoot(),
     JwtAccessModule,
     JwtRefreshModule,

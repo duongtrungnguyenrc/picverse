@@ -1,6 +1,5 @@
 import { IStorageService } from "./base-cloud-storage.interface";
-import { CloudCredentials } from "../models";
-import { ECloudStorage } from "../enums";
+import { CloudCredentials, ECloudStorage } from "..";
 
 export interface IExternalStorageService extends IStorageService {
   getAuthUrl(accountId: DocumentId): string | Promise<string>;

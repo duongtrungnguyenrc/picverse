@@ -1,7 +1,6 @@
 import { Response } from "express";
 
-import { UploadFileDto } from "../models";
-import { Resource } from "../models";
+import { Resource, UploadFileDto } from "..";
 
 export interface IStorageService {
   getAvailableSpace(accountId: DocumentId): Promise<number>;

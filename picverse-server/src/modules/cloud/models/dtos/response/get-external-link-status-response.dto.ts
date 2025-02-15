@@ -1,5 +1,6 @@
-import { ECloudStorage } from "@modules/cloud/enums";
 import { ApiResponseProperty } from "@nestjs/swagger";
+
+import { ECloudStorage } from "../..";
 
 export class GetStorageLinkStatusResponseDto implements Record<ECloudStorage, boolean> {
   @ApiResponseProperty()

@@ -6,9 +6,8 @@ import { Response } from "express";
 import { ApiPagination, Auth, AuthUid, Pagination } from "@common/decorators";
 import { CreateFolderDto, UpdateResourceDto, UploadFileDto } from "../models";
 import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
+import { Resource, ECloudStorage } from "../models";
 import { CloudService } from "../services";
-import { ECloudStorage } from "../enums";
-import { Resource } from "../models";
 
 @Controller("cloud")
 @ApiTags("Cloud")

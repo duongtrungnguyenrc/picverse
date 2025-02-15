@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types, Document } from "mongoose";
 
-import { ECloudStorage, EResourceType } from "../../enums";
+import { ECloudStorage, EResourceType } from "../enums";
 
 @Schema({ timestamps: true })
 export class Resource extends Document<DocumentId> {

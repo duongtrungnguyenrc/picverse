@@ -3,7 +3,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInter
 
 import { CreatePinDto, UpdatePinDto } from "../models";
 import { StatusResponseDto } from "@common/dtos";
-import { AuthUid } from "@common/decorators";
+import { Auth, AuthUid } from "@common/decorators";
 import { PinService } from "../services";
 import { Pin } from "../models";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -13,6 +13,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 export class PinController {
   constructor(private readonly pinService: PinService) {}
 
+  @Auth()
   @Post("/")
   @ApiOperation({ summary: "Create a new pin" })
   @UseInterceptors(FileInterceptor("file"))

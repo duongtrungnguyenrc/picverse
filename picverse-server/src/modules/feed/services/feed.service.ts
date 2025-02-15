@@ -1,32 +1,66 @@
 import { Injectable } from "@nestjs/common";
 
-import { FollowService } from "@modules/social";
-import { PinService } from "@modules/pin";
+import { Pin, PinInteractionService, PinService } from "@modules/pin";
+import { VectorService } from "@modules/vector";
+import { InfiniteResponse } from "@common/dtos";
 
 @Injectable()
 export class FeedService {
   constructor(
     private readonly pinService: PinService,
-    private readonly followService: FollowService,
+    private readonly pinInteractionService: PinInteractionService,
+    private readonly vectorService: VectorService,
   ) {}
 
-  async loadFeed(pagination: Pagination, accountId?: DocumentId) {
-    let filter: any = { isPublic: true };
+  async loadFeed(pagination: Pagination, accountId: DocumentId): Promise<InfiniteResponse<Pin>> {
+    const { page, limit } = pagination;
 
-    // if (accountId) {
-    //   const followUsers = await this.followService.findMultiple({ follower: accountId });
-    //   const followingIds = followUsers.map((user) => user.following);
+    const interactionPins = await this.pinInteractionService.getModel().find({ accountId }, "pinId").sort({ createdAt: -1 }).limit(100).exec();
 
-    //   filter = { ...filter, accountId: { $in: followingIds } };
-    // }
+    const userPins = await this.pinService
+      .getModel()
+      .find({ _id: { $in: interactionPins.map((p) => p.pinId) } }, ["textEmbedding", "imageEmbedding"])
+      .exec();
 
-    try {
-      return await this.pinService.findMultipleInfinite(filter, pagination, {
-        select: ["_id", "resource"],
-        sort: { createdAt: -1 },
-      });
-    } catch (error) {
-      console.log(error);
+    let recommendedPins: Pin[] = [];
+    let similarPinIds: string[] = [];
+
+    if (userPins.length > 0) {
+      const [sumText, sumImage] = userPins.reduce(
+        ([textAcc, imageAcc], { textEmbedding, imageEmbedding }) => {
+          textEmbedding.forEach((v, i) => (textAcc[i] += v));
+          imageEmbedding.forEach((v, i) => (imageAcc[i] += v));
+          return [textAcc, imageAcc];
+        },
+        [new Array(384).fill(0), new Array(384).fill(0)],
+      );
+
+      const avgTextEmbedding = sumText.map((v) => v / userPins.length);
+      const avgImageEmbedding = sumImage.map((v) => v / userPins.length);
+
+      similarPinIds = (await this.vectorService.searchSimilar(PinService.name, avgTextEmbedding, avgImageEmbedding, Math.ceil(limit))).map((s) => s.id);
+
+      recommendedPins = await this.pinService
+        .getModel()
+        .find({ vectorId: { $in: similarPinIds } }, ["_id", "title", "tags", "isPublic", "resource"])
+        .limit(Math.ceil(limit / 2));
     }
+
+    const remainingLimit = limit - recommendedPins.length;
+    const randomPins = await this.pinService
+      .getModel()
+      .find({ vectorId: { $nin: similarPinIds } }, ["_id", "title", "tags", "isPublic", "resource"])
+      .skip((page - 1) * remainingLimit)
+      .limit(remainingLimit)
+      .exec();
+
+    const finalPins = [...recommendedPins, ...randomPins];
+
+    const nextCursor = finalPins.length >= limit ? page + 1 : undefined;
+
+    return {
+      data: finalPins,
+      nextCursor,
+    };
   }
 }

@@ -43,6 +43,8 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
   const authorizeClient = useCallback(async (actions?: { onSuccess?: VoidFunction; onFailed?: VoidFunction }) => {
     try {
+      setState((prev) => ({ ...prev, ready: false }));
+
       const [accessToken, refreshToken] = await Promise.all([
         getCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX),
         getCookie(process.env.NEXT_PUBLIC_REFRESH_TOKEN_PREFIX),

@@ -34,6 +34,15 @@ services:
     volumes:
       - mongo-arbiter-data:/data/db
 
+  qdrant:
+    image: qdrant/qdrant:v1.8.1
+    container_name: qdrant_db
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage 
+
   config-rs:
     image: mongo:latest
     container_name: config-rs
@@ -94,6 +103,8 @@ volumes:
   mongo-primary-data:
   mongo-secondary-data:
   mongo-arbiter-data:
+  qdrant_data:
+    driver: local
 
 networks:
   picverse-network:

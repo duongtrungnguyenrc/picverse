@@ -3,14 +3,12 @@ import { GridFSBucket, GridFSBucketWriteStream, GridFSBucketWriteStreamOptions }
 import { InjectConnection, InjectModel } from "@nestjs/mongoose";
 import { Connection, Model, Types } from "mongoose";
 import { Response } from "express";
+import { Readable } from "stream";
 import * as pump from "pump";
 
+import { Resource, CloudStorage, IStorageService, EResourceType } from "../models";
 import { CreateFolderDto, UploadFileDto } from "../models";
 import { ResourceService } from "./resource.service";
-import { Resource, CloudStorage } from "../models";
-import { IStorageService } from "../interfaces";
-import { EResourceType } from "../enums";
-import { Readable } from "stream";
 
 @Injectable()
 export class LocalStorageService implements IStorageService {
