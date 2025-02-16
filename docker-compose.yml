@@ -83,6 +83,7 @@ services:
       - mongo-secondary
       - mongo-arbiter
       - redis-cache
+      - qdrant
     environment:
       - REDIS_URL=redis://redis-cache:6379
       - MONGO_URI=mongodb://mongo-primary:27017,picverse-mongo-secondary:27017,mongo-arbiter:27017/picverse?replicaSet=rs0
