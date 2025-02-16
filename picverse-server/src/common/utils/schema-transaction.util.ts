@@ -7,11 +7,11 @@ export async function withMutateTransaction<T extends Document, K = T>(model: Mo
   try {
     const result = await callback(session);
     await session.commitTransaction();
-
     return result;
   } catch (error) {
-    await session.abortTransaction();
-
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     throw error;
   } finally {
     await session.endSession();
