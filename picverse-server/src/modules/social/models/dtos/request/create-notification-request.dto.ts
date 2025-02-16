@@ -1,5 +1,5 @@
 export class CreateNotificationDto {
-  account: DocumentId;
+  to: DocumentId;
   from?: DocumentId;
   type: string;
   message: string;

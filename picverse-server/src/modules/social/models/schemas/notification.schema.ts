@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
+import { ENotificationType } from "../enums";
 import { Account } from "@modules/account";
-import { ENotificationType } from "../../enums";
 import { Profile } from "@modules/profile";
 
 @Schema({ timestamps: true })
@@ -14,7 +14,7 @@ export class Notification extends Document<Types.ObjectId> {
   from?: Profile;
 
   @Prop({ required: true, enum: ENotificationType })
-  type: string;
+  type: ENotificationType;
 
   @Prop({ required: true })
   message: string;

@@ -15,8 +15,8 @@ export class AccountController {
   @Post("/sign-up")
   @ApiOperation({ summary: "Register new account & profile" })
   @ApiBody({ type: SignUpRequestDto })
-  @ApiCreatedResponse({ description: "Sign up account success. Return status", type: Account })
-  async signUp(@Body() payload: SignUpRequestDto): Promise<Account> {
+  @ApiCreatedResponse({ description: "Sign up account success. Return status", type: StatusResponseDto })
+  async signUp(@Body() payload: SignUpRequestDto): Promise<StatusResponseDto> {
     return await this.accountService.signUp(payload);
   }
 

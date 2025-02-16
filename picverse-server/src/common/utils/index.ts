@@ -5,3 +5,4 @@ export * from "./schema-transaction.util";
 export * from "./time.util";
 export * from "./base-schema.util";
 export * from "./passcode.util";
+export * from "./multer.utils";

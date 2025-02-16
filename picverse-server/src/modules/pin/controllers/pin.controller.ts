@@ -2,8 +2,8 @@ import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, 
 import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors } from "@nestjs/common";
 
 import { CreatePinDto, UpdatePinDto } from "../models";
-import { StatusResponseDto } from "@common/dtos";
-import { Auth, AuthUid } from "@common/decorators";
+import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
+import { ApiPagination, Auth, AuthUid, Pagination } from "@common/decorators";
 import { PinService } from "../services";
 import { Pin } from "../models";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -44,5 +44,12 @@ export class PinController {
   @ApiOkResponse({ description: "Returns all pins of the user", type: [Pin] })
   async getAllPins(@AuthUid() accountId: DocumentId): Promise<Pin[]> {
     return await this.pinService.getAllPins(accountId);
+  }
+
+  @Get("/similar/:pinId")
+  @ApiPagination()
+  @ApiOkResponse({ type: InfiniteResponse<Pin> })
+  async getSimilarPins(@Param("pinId") pinId: string, @Pagination() pagination: Pagination): Promise<InfiniteResponse<Pin>> {
+    return this.pinService.getSimilarPins(pinId, pagination);
   }
 }

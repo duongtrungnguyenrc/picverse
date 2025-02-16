@@ -3,10 +3,13 @@ import { Module } from "@nestjs/common";
 
 import { Pin, PinSchema, PinInteraction, PinInteractionSchema, Like, LikeSchema, Comment, CommentSchema } from "./models";
 import { CommentService, PinInteractionService, PinService } from "./services";
-import { PinController } from "./controllers";
-import { CommentGateway } from "./gatewies";
-import { CloudModule } from "@modules/cloud";
+import { ModerationModule } from "@modules/moderation";
 import { VectorModule } from "@modules/vector";
+import { PinController } from "./controllers";
+import { PinInteractionGateway } from "./gatewaies";
+import { CloudModule } from "@modules/cloud";
+import { SocialModule } from "@modules/social";
+import { ProfileModule } from "@modules/profile";
 
 @Module({
   imports: [
@@ -18,9 +21,12 @@ import { VectorModule } from "@modules/vector";
     ]),
     VectorModule,
     CloudModule,
+    ModerationModule,
+    SocialModule,
+    ProfileModule,
   ],
   controllers: [PinController],
-  providers: [PinService, PinInteractionService, CommentService, CommentGateway],
+  providers: [PinService, PinInteractionService, CommentService, PinInteractionGateway],
   exports: [PinService, PinInteractionService],
 })
 export class PinModule {}

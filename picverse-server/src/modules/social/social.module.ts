@@ -4,7 +4,8 @@ import { Module } from "@nestjs/common";
 import { Follow, FollowSchema, Notification, NotificationSchema } from "./models/schemas";
 import { FollowService, NotificationService } from "./services";
 import { ProfileModule } from "@modules/profile";
-import { SocialController } from "./controller";
+import { SocialController } from "./controllers";
+import { SocialGateway } from "./gatewaies";
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { SocialController } from "./controller";
     ProfileModule,
   ],
   controllers: [SocialController],
-  providers: [FollowService, NotificationService],
-  exports: [FollowService, NotificationService],
+  providers: [FollowService, NotificationService, SocialGateway],
+  exports: [NotificationService],
 })
 export class SocialModule {}

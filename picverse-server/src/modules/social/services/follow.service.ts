@@ -2,12 +2,11 @@ import { BadGatewayException, BadRequestException, Injectable } from "@nestjs/co
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
-import { ENotificationType, SocialErrorMessages } from "../enums";
+import { ENotificationType, SocialErrorMessages, Follow } from "../models";
 import { NotificationService } from "./notification.service";
 import { Profile, ProfileService } from "@modules/profile";
 import { CacheService } from "@modules/cache";
 import { Repository } from "@common/utils";
-import { Follow } from "../models/schemas";
 
 @Injectable()
 export class FollowService extends Repository<Follow> {
@@ -37,7 +36,7 @@ export class FollowService extends Repository<Follow> {
     const createdFollow: Follow = await this.create({ follower: profile._id, following: targetProfileId });
 
     this.notificationService.sendNotification({
-      account: accountId,
+      to: accountId,
       from: profile._id,
       type: ENotificationType.NEW_FOLLOW,
       message: `${profile.firstName} ${profile.lastName} started follow you`,

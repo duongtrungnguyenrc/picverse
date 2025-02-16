@@ -178,12 +178,19 @@ export class CloudService {
     return { message: "Folder deleted success" };
   }
 
-  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto, parentId?: DocumentId, raw?: true): Promise<Resource>;
+  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto, parentId?: DocumentId, raw?: true, index?: number): Promise<Resource>;
 
-  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto, parentId?: DocumentId, raw?: false): Promise<StatusResponseDto>;
+  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto, parentId?: DocumentId, raw?: false, index?: number): Promise<StatusResponseDto>;
 
-  async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto, parentId?: DocumentId, raw?: boolean): Promise<StatusResponseDto | Resource> {
-    let storageHandler: IStorageService = this.getStorage(payload.storage ?? ECloudStorage.LOCAL);
+  async uploadFile(
+    accountId: DocumentId,
+    file: Express.Multer.File,
+    payload: UploadFileDto,
+    parentId?: DocumentId,
+    raw?: boolean,
+    index?: number,
+  ): Promise<StatusResponseDto | Resource> {
+    const storageHandler: IStorageService = this.getStorage(payload.storage ?? ECloudStorage.LOCAL);
     const fileName: string = payload.fileName || file.originalname;
 
     const availableSpace: number = await storageHandler.getAvailableSpace(accountId);
@@ -199,23 +206,31 @@ export class CloudService {
         throw new NotAcceptableException("No available space to upload");
       }
 
+      const currentIndex: number = index || 0;
+
+      if (currentIndex + 1 > credentials.length) throw new NotAcceptableException("No available space to upload");
+
       return this.uploadFile(
         accountId,
         file,
         {
           ...payload,
-          storage: credentials[0].storage,
+          storage: credentials[currentIndex].storage,
         },
         parentId,
+        undefined,
+        currentIndex + 1,
       );
     }
 
+    const uploadedResource = await storageHandler.uploadFile(accountId, file, {
+      ...payload,
+      fileName,
+      parentId,
+    });
+
     if (raw) {
-      return await storageHandler.uploadFile(accountId, file, {
-        ...payload,
-        fileName,
-        parentId,
-      });
+      return uploadedResource;
     }
 
     return { message: `File ${fileName} uploaded success` };

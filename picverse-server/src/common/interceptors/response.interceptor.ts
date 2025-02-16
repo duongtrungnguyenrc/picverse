@@ -1,4 +1,4 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler, NotFoundException } from "@nestjs/common";
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from "@nestjs/common";
 import { map } from "rxjs/operators";
 import { Observable } from "rxjs";
 import { Request } from "express";
@@ -9,33 +9,33 @@ export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request: Request = context.switchToHttp().getRequest();
 
+    const headers = request.headers;
+
     return next.handle().pipe(
       map((data) => {
-        if (request.method === "get" && (data === null || data === undefined)) {
-          throw new NotFoundException("Resource not found");
-        }
+        const isDateString = (value: any): boolean => {
+          return typeof value === "string" && !isNaN(Date.parse(value));
+        };
 
-        const isDateString = (value: string): boolean => !isNaN(Date.parse(value));
+        const formatDate = (date: Date): string => {
+          const locale = headers.locale ? Intl.getCanonicalLocales(headers.locale) : undefined;
 
-        const formatDate = (date: Date): string => (date.toISOString().includes("T00:00:00.000Z") ? date.toLocaleDateString("vi-VN") : date.toLocaleString("vi-VN"));
+          return date.toISOString().endsWith("T00:00:00.000Z") ? date.toLocaleDateString(locale) : date.toLocaleString(locale);
+        };
 
         const transformResponseObject = (obj: any): any => {
           if (obj instanceof Date) {
             return formatDate(obj);
-          }
-
-          if (typeof obj === "string" && isDateString(obj)) {
+          } else if (isDateString(obj)) {
             return formatDate(new Date(obj));
-          }
-
-          if (Array.isArray(obj)) {
+          } else if (Array.isArray(obj)) {
             return obj.map(transformResponseObject);
+          } else if (obj instanceof Types.ObjectId) {
+            return obj.toString();
+          } else if (obj && typeof obj === "object") {
+            if (obj.toObject) obj = obj.toObject();
+            return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, transformResponseObject(value)]));
           }
-
-          if (obj instanceof Types.ObjectId)
-            if (obj && typeof obj === "object") {
-              return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, transformResponseObject(value)]));
-            }
 
           return obj;
         };

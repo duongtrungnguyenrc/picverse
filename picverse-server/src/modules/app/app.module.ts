@@ -16,6 +16,7 @@ import { PinModule } from "@modules/pin";
 import { ChatModule } from "@modules/chat";
 import { FeedModule } from "@modules/feed";
 import { VectorModule } from "@modules/vector";
+import { SearchModule } from "@modules/search";
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { VectorModule } from "@modules/vector";
     PinModule,
     ChatModule,
     FeedModule,
+    SearchModule,
   ],
 })
 export class AppModule {}

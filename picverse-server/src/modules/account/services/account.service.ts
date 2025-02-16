@@ -30,8 +30,8 @@ export class AccountService extends Repository<Account> {
     super(AccountModel, cacheService);
   }
 
-  async signUp(data: SignUpRequestDto): Promise<Account> {
-    return await withMutateTransaction<Account>(this.getModel(), async (session: ClientSession) => {
+  async signUp(data: SignUpRequestDto): Promise<StatusResponseDto> {
+    return await withMutateTransaction<Account, StatusResponseDto>(this.getModel(), async (session: ClientSession) => {
       const { email, password, ...profileInfo } = data;
 
       const hashedPassword: string = await hashPassword(password);
@@ -46,25 +46,9 @@ export class AccountService extends Repository<Account> {
 
       await this.profileService.create({ accountId: createdAccount._id, ...profileInfo }, { session });
 
-      try {
-        this.mailerService.sendMail({
-          subject: MailSubject.ACCOUNT_REGISTERD,
-          to: createdAccount.email,
-          template: "account-registered",
-          context: {
-            fullName: `${profileInfo.firstName} ${profileInfo.lastName}`,
-          },
-        });
-      } catch (error) {
-        console.log("Send mail error: ", error);
-      }
-
-      const { password: _, ...rawAcount }: Account = createdAccount.toObject();
-
       return {
-        ...rawAcount,
-        password: undefined,
-      } as Account;
+        message: "Sign up success",
+      };
     });
   }
 

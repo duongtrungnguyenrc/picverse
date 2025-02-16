@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from "axios";
+import { getUserLocale } from "get-user-locale";
 
 import { clearAuthCookie, getCookie, setAuthCookie } from "../actions";
 
@@ -11,6 +12,7 @@ axiosInstance.interceptors.request.use(async (config) => {
   const accessToken: string | undefined = await getCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX);
 
   config.headers.Authorization = `Bearer ${accessToken}`;
+  config.headers.locale = getUserLocale();
 
   return config;
 });

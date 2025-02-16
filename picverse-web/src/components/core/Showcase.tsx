@@ -6,7 +6,7 @@ import { useFeeds } from "@app/lib/hooks";
 import { Button } from "../shadcn";
 
 const Showcase: FC = () => {
-  const { data: feeds, isFetching, fetchNextPage, hasNextPage } = useFeeds(); // Thêm fetchNextPage & hasNextPage
+  const { data: feeds, isFetching, fetchNextPage, hasNextPage } = useFeeds();
 
   const pins = useMemo(
     () => (feeds?.pages || []).reduce((prev, page) => [...prev, ...page.data], [] as Array<Pin>),

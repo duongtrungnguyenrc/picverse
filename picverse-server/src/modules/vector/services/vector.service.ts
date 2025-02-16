@@ -2,6 +2,7 @@ import { FeatureExtractionPipeline, ImageFeatureExtractionPipeline } from "@xeno
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { ConfigService } from "@nestjs/config";
+import { multerToBlobUrl } from "@common/utils";
 
 @Injectable()
 export class VectorService implements OnModuleInit {
@@ -26,8 +27,17 @@ export class VectorService implements OnModuleInit {
     return Array.from(output.data);
   }
 
-  async generateImageEmbedding(imageUrl: string): Promise<number[]> {
-    const output = await this.imageEmbedder(imageUrl);
+  async generateImageEmbedding(urlOrMulterFile: string | Express.Multer.File): Promise<number[]> {
+    if (typeof urlOrMulterFile != "string") {
+      const url: string = multerToBlobUrl(urlOrMulterFile);
+
+      return await this.generateImageEmbedding(url).then((res) => {
+        URL.revokeObjectURL(url);
+        return res;
+      });
+    }
+
+    const output = await this.imageEmbedder(urlOrMulterFile);
 
     return Array.from(output.data).slice(0, 384);
   }

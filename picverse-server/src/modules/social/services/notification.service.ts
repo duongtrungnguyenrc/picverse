@@ -6,22 +6,19 @@ import { CreateNotificationDto } from "../models";
 import { CacheService } from "@modules/cache";
 import { Repository } from "@common/utils";
 import { Notification } from "../models/schemas";
+import { SocialGateway } from "../gatewaies";
 
 @Injectable()
 export class NotificationService extends Repository<Notification> {
-  constructor(@InjectModel(Notification.name) NotificationModel: Model<Notification>, cacheService: CacheService) {
+  constructor(
+    @InjectModel(Notification.name) NotificationModel: Model<Notification>,
+    cacheService: CacheService,
+    private readonly socialGateway: SocialGateway,
+  ) {
     super(NotificationModel, cacheService);
-
-    // admin.initializeApp({
-    //   credential: admin.credential.cert({
-    //     projectId: "PROJECT_ID",
-    //     clientEmail: "CLIENT_EMAIL",
-    //     privateKey: "PRIVATE_KEY",
-    //   }),
-    // });
   }
 
   async sendNotification(notification: CreateNotificationDto): Promise<void> {
-    // create and handle push noti
+    this.socialGateway.server.to(notification.to.toString()).emit("notification", notification);
   }
 }

@@ -18,20 +18,16 @@ export class ChatGateway implements OnGatewayConnection {
   constructor(private readonly chatService: ChatService) {}
 
   async handleConnection(client: Socket) {
-    const profileId: DocumentId = getSocketTokenPayload(client, "uid") as DocumentId;
+    const accountId: DocumentId = getSocketTokenPayload(client, "uid") as DocumentId;
 
-    if (!profileId) {
+    if (!accountId) {
       client.emit("error", "Unauthorized");
       client.disconnect();
       return;
     }
 
-    // const conversations = await this.chatService.getUserConversations(profileId);
-
-    // client.emit("conversations", conversations);
-
-    this.connectedClients.set(client.id, profileId.toString());
-    console.log(`Client connected: ${client.id} -> ${profileId}`);
+    this.connectedClients.set(client.id, accountId.toString());
+    console.log(`Client connected: ${client.id} -> ${accountId}`);
   }
 
   handleDisconnect(client: Socket) {

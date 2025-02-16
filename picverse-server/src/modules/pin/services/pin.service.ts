@@ -1,13 +1,13 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { NotAcceptableException, Injectable, NotFoundException } from "@nestjs/common";
+import { multerToBlobUrl, Repository } from "@common/utils";
 import { InjectModel } from "@nestjs/mongoose";
-import { ConfigService } from "@nestjs/config";
-import { Repository } from "@common/utils";
 import { randomUUID } from "crypto";
 import { Model } from "mongoose";
 
+import { ImageModerationService, TextModerationService } from "@modules/moderation";
+import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { CloudService, Resource } from "@modules/cloud";
 import { CreatePinDto, UpdatePinDto } from "../models";
-import { StatusResponseDto } from "@common/dtos";
 import { VectorService } from "@modules/vector";
 import { CacheService } from "@modules/cache";
 import { Pin } from "../models";
@@ -19,12 +19,26 @@ export class PinService extends Repository<Pin> {
     cacheService: CacheService,
     private readonly cloudService: CloudService,
     private readonly vectorService: VectorService,
-    private readonly configService: ConfigService,
+    private readonly imageModerationService: ImageModerationService,
+    private readonly textModerationService: TextModerationService,
   ) {
     super(pinModel, cacheService, Pin.name);
   }
 
   async createPin(accountId: DocumentId, file: Express.Multer.File, payload: CreatePinDto): Promise<StatusResponseDto> {
+    const [imageModerationResult, textModerationResult] = await Promise.all([
+      this.imageModerationService.moderateContent(multerToBlobUrl(file)),
+      this.textModerationService.moderateContent(`${payload.title}; ${payload.description}`),
+    ]);
+
+    if (imageModerationResult) {
+      throw new NotAcceptableException(`${imageModerationResult.join(", ")} media content is not allowed`);
+    }
+
+    if (textModerationResult) {
+      throw new NotAcceptableException(`${textModerationResult.join(", ")} content is not allowed`);
+    }
+
     const uploadedResource: Resource = await this.cloudService.uploadFile(
       accountId,
       file,
@@ -35,9 +49,10 @@ export class PinService extends Repository<Pin> {
       true,
     );
 
-    const textEmbedding: number[] = await this.vectorService.generateTextEmbedding(payload.title, payload.description, payload.tags);
-    const imageEmbedding = await this.vectorService.generateImageEmbedding(`${this.configService.get<string>("FILE_DOWNLOAD_URL")}/${uploadedResource._id}`);
-
+    const [textEmbedding, imageEmbedding] = await Promise.all([
+      this.vectorService.generateTextEmbedding(payload.title, payload.description, payload.tags),
+      this.vectorService.generateImageEmbedding(file),
+    ]);
     const vectorId: string = randomUUID();
 
     const createdPin = await this.create({ ...payload, authorId: accountId, resource: uploadedResource._id, vectorId, textEmbedding, imageEmbedding });
@@ -65,13 +80,14 @@ export class PinService extends Repository<Pin> {
     return await this._model.find({ accountId }).exec();
   }
 
-  // async getSimilarPins(pinId: string, limit = 10): Promise<Pin[]> {
-  //   const pin = await this.find(pinId, { select: "vectorId" });
-  //   if (!pin) throw new NotFoundException("Pin not found");
+  async getSimilarPins(pinId: DocumentId | string, pagination: Pagination): Promise<InfiniteResponse<Pin>> {
+    const pin = await this.find(pinId, { select: ["textEmbedding", "imageEmbedding"] });
+    if (!pin) throw new NotFoundException("Pin not found");
 
-  //   const similarPinIds = await this.vectorService.searchSimilar("pin_collection", [pin.vectorId], limit);
-  //   return this._model.find({ vectorId: { $in: similarPinIds.map((s) => s.id) } });
-  // }
+    const similarPinIds = await this.vectorService.searchSimilar(PinService.name, pin.textEmbedding, pin.imageEmbedding, pagination.limit);
+
+    return this.findMultipleInfinite({ vectorId: { $in: similarPinIds.map((s) => s.id) } }, pagination);
+  }
 
   async deletePin(accountId: DocumentId, pinId: DocumentId): Promise<StatusResponseDto> {
     const pin = await this.exists({ _id: pinId, accountId });
