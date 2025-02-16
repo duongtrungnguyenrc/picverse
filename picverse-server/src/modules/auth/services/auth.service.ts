@@ -97,6 +97,10 @@ export class AuthService {
       },
     );
 
+    if (!account) {
+      throw new UnauthorizedException(AccountErrorMessage.WRONG_EMAIL_OR_PASSWORD);
+    }
+
     const profile = await this.profileService.find({ accountId: account._id }, { select: ["_id"] });
 
     if (!account || !profile || !compareSync(password, account.password)) {

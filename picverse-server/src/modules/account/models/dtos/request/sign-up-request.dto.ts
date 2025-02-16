@@ -1,4 +1,4 @@
-import { IsDateString, IsEmail, IsEnum, IsNotEmpty, IsPhoneNumber, IsString } from "class-validator";
+import { IsDateString, IsEmail, IsEnum, IsNotEmpty, IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 import { EGender } from "@modules/profile";
@@ -34,6 +34,6 @@ export class SignUpRequestDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsPhoneNumber()
+  @IsString()
   phone: string;
 }
