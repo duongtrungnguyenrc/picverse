@@ -20,6 +20,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 200m
           script: |
             cd ~/picverse
 
@@ -37,6 +38,7 @@ jobs:
 
             echo "Verifying container status..."
             docker ps
+            
 
       - name: Notify success
         run: echo "Deployment completed successfully."
