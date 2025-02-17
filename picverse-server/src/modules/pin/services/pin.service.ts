@@ -1,16 +1,18 @@
-import { NotAcceptableException, Injectable, NotFoundException } from "@nestjs/common";
+import { NotAcceptableException, Injectable, NotFoundException, forwardRef, Inject } from "@nestjs/common";
 import { multerToBlobUrl, Repository } from "@common/utils";
 import { InjectModel } from "@nestjs/mongoose";
 import { randomUUID } from "crypto";
 import { Model } from "mongoose";
 
 import { ImageModerationService, TextModerationService } from "@modules/moderation";
+import { CreatePinDto, UpdatePinDto, PinDetailResponseDto, Pin } from "../models";
 import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { CloudService, Resource } from "@modules/cloud";
-import { CreatePinDto, UpdatePinDto } from "../models";
+import { ProfileService } from "@modules/profile";
 import { VectorService } from "@modules/vector";
 import { CacheService } from "@modules/cache";
-import { Pin } from "../models";
+import { BoardService } from "@modules/board";
+import { LikeService } from "./like.service";
 
 @Injectable()
 export class PinService extends Repository<Pin> {
@@ -21,6 +23,9 @@ export class PinService extends Repository<Pin> {
     private readonly vectorService: VectorService,
     private readonly imageModerationService: ImageModerationService,
     private readonly textModerationService: TextModerationService,
+    private readonly boardService: BoardService,
+    private readonly profileService: ProfileService,
+    @Inject(forwardRef(() => LikeService)) private readonly likeService: LikeService,
   ) {
     super(pinModel, cacheService, Pin.name);
   }
@@ -76,11 +81,28 @@ export class PinService extends Repository<Pin> {
     return { message: "Pin updated success" };
   }
 
+  async getPinDetail(pinId: DocumentId, accountId?: DocumentId): Promise<PinDetailResponseDto> {
+    const { authorId, boardId, ...pin } = await this.find(pinId);
+
+    const [board, author, isLiked] = await Promise.all([
+      boardId ? this.boardService.find(boardId) : null,
+      this.profileService.find({ accountId: authorId }, { select: ["_id", "authorId", "firstName", "lastName", "avatar"] }),
+      accountId ? this.likeService.exists({ pinId, accountId }) : false,
+    ]);
+
+    return {
+      ...pin,
+      board,
+      author,
+      liked: !!isLiked,
+    };
+  }
+
   async getAllPins(accountId: DocumentId): Promise<Array<Pin>> {
     return await this._model.find({ accountId }).exec();
   }
 
-  async getSimilarPins(pinId: DocumentId | string, pagination: Pagination): Promise<InfiniteResponse<Pin>> {
+  async getSimilarPins(pinId: DocumentId, pagination: Pagination): Promise<InfiniteResponse<Pin>> {
     const pin = await this.find(pinId, { select: ["textEmbedding", "imageEmbedding"] });
     if (!pin) throw new NotFoundException("Pin not found");
 

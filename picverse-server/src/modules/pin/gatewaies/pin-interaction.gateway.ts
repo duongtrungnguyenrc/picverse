@@ -2,10 +2,10 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { Logger, UsePipes, ValidationPipe } from "@nestjs/common";
 import { Server, Socket } from "socket.io";
 
+import { CreatePinCommentDto, CreatePinLikeDto } from "../models";
 import { Auth, SocketAuthTokenPayload } from "@common/decorators";
 import { CommentService, LikeService } from "../services";
 import { JWTSocketAuthGuard } from "@common/guards";
-import { CreatePinCommentDto, CreatePinLikeDto } from "../models";
 
 @WebSocketGateway({ namespace: "pin-interaction", transports: ["websocket"] })
 @UsePipes(new ValidationPipe({ exceptionFactory: (errors) => new WsException(errors) }))

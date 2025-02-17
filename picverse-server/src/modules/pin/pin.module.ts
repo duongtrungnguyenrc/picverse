@@ -10,6 +10,7 @@ import { PinInteractionGateway } from "./gatewaies";
 import { CloudModule } from "@modules/cloud";
 import { SocialModule } from "@modules/social";
 import { ProfileModule } from "@modules/profile";
+import { BoardModule } from "@modules/board";
 
 @Module({
   imports: [
@@ -24,9 +25,10 @@ import { ProfileModule } from "@modules/profile";
     ModerationModule,
     SocialModule,
     ProfileModule,
+    BoardModule,
   ],
   controllers: [PinController],
-  providers: [PinService, PinInteractionService, CommentService, LikeService, PinInteractionGateway],
+  providers: [PinService, CommentService, LikeService, PinInteractionService, PinInteractionGateway],
   exports: [PinService, PinInteractionService],
 })
 export class PinModule {}

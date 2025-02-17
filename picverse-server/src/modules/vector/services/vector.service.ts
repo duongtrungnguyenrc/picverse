@@ -22,7 +22,7 @@ export class VectorService implements OnModuleInit {
   }
 
   async generateTextEmbedding(title: string, description: string, tags: string[]): Promise<number[]> {
-    const text = `${title} ${description} ${tags.join(" ")}`;
+    const text = `${title} ${description} ${tags?.join(" ")}`;
     const output = await this.textEmbedder(text, { pooling: "mean", normalize: true });
     return Array.from(output.data);
   }

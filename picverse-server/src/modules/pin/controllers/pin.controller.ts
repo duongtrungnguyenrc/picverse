@@ -1,12 +1,11 @@
-import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors } from "@nestjs/common";
-
-import { CreatePinDto, UpdatePinDto } from "../models";
-import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
-import { ApiPagination, Auth, AuthUid, Pagination } from "@common/decorators";
-import { PinService } from "../services";
-import { Pin } from "../models";
 import { FileInterceptor } from "@nestjs/platform-express";
+
+import { CreatePinDto, UpdatePinDto, PinDetailResponseDto, Pin } from "../models";
+import { ApiPagination, Auth, AuthUid, Pagination } from "@common/decorators";
+import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
+import { PinService } from "../services";
 
 @Controller("/pin")
 @ApiTags("Pin")
@@ -46,10 +45,18 @@ export class PinController {
     return await this.pinService.getAllPins(accountId);
   }
 
+  @Get("/:pinId")
+  @ApiOperation({ summary: "Get pin detail" })
+  @ApiParam({ name: "pinId", description: "Pin id" })
+  @ApiOkResponse({ description: "Returns all pin detail", type: PinDetailResponseDto })
+  async getPinDetail(@Param("pinId") pinId: DocumentId, @AuthUid() accountId?: DocumentId): Promise<PinDetailResponseDto> {
+    return await this.pinService.getPinDetail(pinId, accountId);
+  }
+
   @Get("/similar/:pinId")
   @ApiPagination()
   @ApiOkResponse({ type: InfiniteResponse<Pin> })
-  async getSimilarPins(@Param("pinId") pinId: string, @Pagination() pagination: Pagination): Promise<InfiniteResponse<Pin>> {
+  async getSimilarPins(@Param("pinId") pinId: DocumentId, @Pagination() pagination: Pagination): Promise<InfiniteResponse<Pin>> {
     return this.pinService.getSimilarPins(pinId, pagination);
   }
 }

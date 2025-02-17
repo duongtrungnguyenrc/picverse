@@ -13,3 +13,4 @@ export * from "./use-chat";
 export * from "./use-pin";
 export * from "./use-feed";
 export * from "./use-search";
+export * from "./use-social";

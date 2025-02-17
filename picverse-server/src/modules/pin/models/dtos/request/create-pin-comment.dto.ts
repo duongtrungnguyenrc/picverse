@@ -1,5 +1,5 @@
+import { IsMongoId, IsOptional, IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsMongoId, IsString } from "class-validator";
 
 export class CreatePinCommentDto {
   @ApiProperty()
@@ -9,4 +9,9 @@ export class CreatePinCommentDto {
   @ApiProperty()
   @IsMongoId()
   pinId: DocumentId;
+
+  @ApiProperty()
+  @IsMongoId()
+  @IsOptional()
+  replyFor?: DocumentId;
 }

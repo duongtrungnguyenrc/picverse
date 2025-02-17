@@ -53,7 +53,7 @@ const SettingProfilePage: FC<SettingProfilePageProps> = ({}) => {
         <ContentSection className="space-y-5" heading="Profile information">
           <FormField
             control={form.control}
-            name="profilePicture"
+            name="avatar"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Avatar:</FormLabel>
@@ -69,7 +69,7 @@ const SettingProfilePage: FC<SettingProfilePageProps> = ({}) => {
                     </Button>
                   </div>
                 </FormControl>
-                {formErrors.profilePicture && <FormMessage>{formErrors.profilePicture.message}</FormMessage>}
+                {formErrors.avatar && <FormMessage>{formErrors.avatar.message}</FormMessage>}
               </FormItem>
             )}
           />

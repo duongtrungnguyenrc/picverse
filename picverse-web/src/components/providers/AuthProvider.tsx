@@ -12,7 +12,7 @@ type AuthProviderProps = {
 const SLATE_TIME = 5 * 60 * 1000;
 
 const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
-  const [state, setState] = useState<Pick<AuthContext, "ready" | "account">>({
+  const [state, setState] = useState<Pick<AuthContextType, "ready" | "account" | "accessToken" | "refreshToken">>({
     ready: false,
   });
   const lastFetchTime = useRef<number>(0);
@@ -57,7 +57,7 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       const response = await httpClient.get<Account>("/account");
 
       actions?.onSuccess?.();
-      setState({ account: response.data, ready: true });
+      setState({ account: response.data, ready: true, accessToken, refreshToken });
       lastFetchTime.current = Date.now();
     } catch (error) {
       actions?.onFailed?.();

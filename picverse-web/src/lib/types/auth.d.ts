@@ -1,8 +1,10 @@
-type AuthContext = {
+type AuthContextType = {
   account?: Account;
   ready: boolean;
   authorizeClient: (actions?: { onSuccess?: VoidFunction; onFailed?: VoidFunction }) => Promise<void> | void;
   clearAuth: VoidFunction;
+  accessToken?: string;
+  refreshToken?: string;
 };
 
 declare type Require2FAResponse = {

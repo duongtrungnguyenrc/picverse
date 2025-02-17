@@ -8,7 +8,7 @@ declare type Profile = BaseModel &
     birth: string;
     gender: EGender;
     phone: string;
-    profilePicture: string;
+    avatar: string;
     bio: string;
     isPublic: string;
   };

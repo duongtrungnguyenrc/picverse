@@ -8,10 +8,7 @@ import { Button } from "../shadcn";
 const Showcase: FC = () => {
   const { data: feeds, isFetching, fetchNextPage, hasNextPage } = useFeeds();
 
-  const pins = useMemo(
-    () => (feeds?.pages || []).reduce((prev, page) => [...prev, ...page.data], [] as Array<Pin>),
-    [feeds],
-  );
+  const pins = useMemo(() => (feeds?.pages || []).flatMap((page) => page.data) as Array<Pin>, [feeds]);
 
   return (
     <section id="gallery" className="lg:px-10 header-spacing">

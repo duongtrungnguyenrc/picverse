@@ -2,7 +2,7 @@
 
 import { FC, useEffect, useMemo, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { Search, UserCircle } from "lucide-react";
+import { Command, Search, UserCircle } from "lucide-react";
 import Image from "next/image";
 
 import { Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Button } from "../shadcn";
@@ -44,9 +44,22 @@ const SearchDialog: FC = () => {
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogTrigger asChild>
-        <Button size="sm" className="rounded-lg h-10 w-10" variant="outline">
-          <Search size={18} />
-        </Button>
+        <div>
+          <Button size="sm" className="lg:hidden rounded-lg transition-all h-10 w-10" variant="outline">
+            <Search size={18} />
+          </Button>
+          <div className="relative hidden lg:block transition-all">
+            <div className="flex items-center gap-1 text-gray-400 text-sm absolute right-3 left-3 top-0 bottom-0">
+              <Search size={18} />
+            </div>
+
+            <Input className="rounded-lg text-sm px-10 h-10" placeholder="Search..." />
+
+            <div className="flex items-center gap-1 text-gray-400 text-sm absolute right-3 top-0 bottom-0">
+              <Command size={14} /> K
+            </div>
+          </div>
+        </div>
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-screen overflow-y-auto">
         <DialogHeader>

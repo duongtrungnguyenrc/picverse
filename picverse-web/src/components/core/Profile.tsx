@@ -38,7 +38,7 @@ const Profile: FC<ProfileProps> = ({ signature }) => {
           >
             {profile && (
               <>
-                <AvatarImage src={profile.profilePicture} alt={profile.firstName} />
+                <AvatarImage src={profile.avatar} alt={profile.firstName} />
                 <AvatarFallback className="text-6xl">{`${profile.firstName[0]}${profile.lastName[0]}`}</AvatarFallback>
               </>
             )}

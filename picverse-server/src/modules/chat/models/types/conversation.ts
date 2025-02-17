@@ -8,6 +8,6 @@ export type IConversation = {
 
 export type CalculatedConversation = IConversation & {
   lastMessage: IMessage;
-  otherMemberProfiles: Array<Pick<Profile, "_id" | "firstName" | "lastName" | "profilePicture">>;
+  otherMemberProfiles: Array<Pick<Profile, "_id" | "firstName" | "lastName" | "avatar">>;
   newNotifications?: number;
 };

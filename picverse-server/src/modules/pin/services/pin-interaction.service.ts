@@ -1,5 +1,5 @@
 import { InjectModel } from "@nestjs/mongoose";
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { Model } from "mongoose";
 
 import { ENotificationType, NotificationService } from "@modules/social";
@@ -15,8 +15,8 @@ export class PinInteractionService extends Repository<PinInteraction> {
     @InjectModel(PinInteraction.name) commentModel: Model<PinInteraction>,
     cacheService: CacheService,
     private readonly notificationService: NotificationService,
-    private readonly pinService: PinService,
     private readonly profileService: ProfileService,
+    @Inject(forwardRef(() => PinService)) private readonly pinService: PinService,
   ) {
     super(commentModel, cacheService);
   }

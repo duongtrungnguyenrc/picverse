@@ -1,7 +1,8 @@
 "use client";
 
 import { type FC, useEffect, useRef, useState } from "react";
-import { chunk } from "@app/lib/utils";
+import { chunk, getResourceUrl } from "@app/lib/utils";
+import PinDrawer from "./PinDrawer";
 
 type MansoryPinListingProps = {
   pins: Array<Pin>;
@@ -90,27 +91,28 @@ const MansoryPinListing: FC<MansoryPinListingProps> = ({ pins, loadMore, isFetch
     return () => window.removeEventListener("resize", handleColumns);
   }, []);
 
-  const data = pins.map((pin) => ({
-    src: `${process.env.NEXT_PUBLIC_API_SERVER_ORIGIN}/api/cloud/file/${pin.resource}`,
-  }));
-
-  const chunkSize = Math.ceil(data.length / currentColumn);
-  const distributed = chunk(data, chunkSize);
+  const chunkSize = Math.ceil(pins.length / currentColumn);
+  const distributed = chunk<Pin>(pins, chunkSize);
 
   return (
     <div className="flex justify-center w-full overflow-hidden relative">
       {distributed.map((innerArray, rowIndex) => (
         <div key={rowIndex} style={{ width: `${columnWidth}%` }}>
-          {innerArray.map((imageObj, columnIndex) => (
-            <div key={columnIndex} className="relative">
-              <img
-                className="w-full p-1.5 rounded-3xl overflow-hidden"
-                src={imageObj?.src || "/placeholder.svg"}
-                alt={`Image ${rowIndex}-${columnIndex}`}
-                loading="lazy"
-              />
-            </div>
-          ))}
+          {innerArray.map((_, columnIndex) => {
+            const pin: Pin = innerArray[columnIndex];
+            return (
+              <PinDrawer key={`pin:dtl:${pin._id}`} pinId={pin._id}>
+                <div className="relative cursor-pointer">
+                  <img
+                    className="w-full p-1.5 rounded-3xl overflow-hidden"
+                    src={getResourceUrl(pin.resource)}
+                    alt={`Image ${rowIndex}-${columnIndex}`}
+                    loading="lazy"
+                  />
+                </div>
+              </PinDrawer>
+            );
+          })}
 
           {isFetching &&
             Array.from({ length: Math.ceil(10 / currentColumn) }).map((_, i) => (

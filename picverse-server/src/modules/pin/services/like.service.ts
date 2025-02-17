@@ -1,9 +1,9 @@
 import { InjectModel } from "@nestjs/mongoose";
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { Model } from "mongoose";
 
-import { PinInteractionService } from "./pin-interaction.service";
 import { CreatePinLikeDto, EInteractionType, Like } from "../models";
+import { PinInteractionService } from "./pin-interaction.service";
 import { CacheService } from "@modules/cache";
 import { Repository } from "@common/utils";
 
@@ -12,7 +12,7 @@ export class LikeService extends Repository<Like> {
   constructor(
     @InjectModel(Like.name) commentModel: Model<Like>,
     cacheService: CacheService,
-    private readonly pinInteractionService: PinInteractionService,
+    @Inject(forwardRef(() => PinInteractionService)) private readonly pinInteractionService: PinInteractionService,
   ) {
     super(commentModel, cacheService);
   }

@@ -38,4 +38,8 @@ export class CommentService extends Repository<Comment> {
       return res;
     });
   }
+
+  async getComments() {
+    
+  }
 }

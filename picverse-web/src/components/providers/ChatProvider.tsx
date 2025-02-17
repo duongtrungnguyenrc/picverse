@@ -72,7 +72,7 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
         const sender = conversation.otherMemberProfiles[0];
         showNotification("New Conversation", {
           body: `${sender.firstName} ${sender.lastName} started a conversation`,
-          icon: sender.profilePicture,
+          icon: sender.avatar,
         });
       }
     },

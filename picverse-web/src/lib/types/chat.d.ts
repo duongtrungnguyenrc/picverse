@@ -9,7 +9,7 @@ declare type Conversation = BaseModel & {
   members: string[];
   themeColor?: string;
   lastMessage?: Message;
-  otherMemberProfiles: Array<Pick<Profile, "_id" | "firstName" | "lastName" | "profilePicture">>;
+  otherMemberProfiles: Array<Pick<Profile, "_id" | "firstName" | "lastName" | "avatar">>;
   newNotifications?: number;
 };
 

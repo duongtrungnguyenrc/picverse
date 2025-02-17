@@ -32,7 +32,7 @@ export class UpdateProfileDto {
   @ApiProperty()
   @IsUrl()
   @IsOptional()
-  profilePicture?: string;
+  avatar?: string;
 
   @ApiProperty()
   @IsString()

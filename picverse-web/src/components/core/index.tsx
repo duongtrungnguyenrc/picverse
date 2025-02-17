@@ -26,6 +26,8 @@ export { default as PinDrawer } from "./PinDrawer";
 export { default as PinDetail } from "./PinDetail";
 export { default as FloatingChat } from "./FloatingChat";
 export { default as ConversationList } from "./ConversationList";
+export { default as NotificationDropdown } from "./NotificationDropdown";
+export { default as CommentSection } from "./CommentSection";
 
 /* AUTH COMPONENTS */
 export { default as GoogleSignInButton } from "./GoogleSignInButton";

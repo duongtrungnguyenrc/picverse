@@ -148,7 +148,7 @@ export class ChatService {
                 _id: "$$profile.accountId",
                 firstName: "$$profile.firstName",
                 lastName: "$$profile.lastName",
-                avatar: "$$profile.profilePicture",
+                avatar: "$$profile.avatar",
               },
             },
           },

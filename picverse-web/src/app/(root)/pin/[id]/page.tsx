@@ -12,7 +12,7 @@ const PinPage: FC<PinPageProps> = async ({ params }) => {
 
   if (!id) notFound();
 
-  return <PinDetail className="header-spacing" />;
+  return <PinDetail pinId={id} className="header-spacing" />;
 };
 
 export default PinPage;

@@ -17,11 +17,9 @@ export const useResourceManager = (initialResources: Resource[]) => {
       const [draggedItem] = newResources.splice(dragIndex, 1);
 
       if (newResources[dropIndex].type === EResourceType.FOLDER) {
-        // Move into folder
         draggedItem.parentId = dropId;
         newResources.splice(dropIndex, 0, draggedItem);
       } else {
-        // Swap positions
         newResources.splice(dropIndex, 0, draggedItem);
       }
 

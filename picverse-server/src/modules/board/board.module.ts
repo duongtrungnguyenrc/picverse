@@ -9,5 +9,6 @@ import { BoardService } from "./services";
   imports: [MongooseModule.forFeature([{ name: Board.name, schema: BoardSchema }])],
   controllers: [BoardController],
   providers: [BoardService],
+  exports: [BoardService],
 })
 export class BoardModule {}

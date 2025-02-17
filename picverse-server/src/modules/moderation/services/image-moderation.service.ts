@@ -18,6 +18,8 @@ export class ImageModerationService implements IModerationService, OnModuleInit 
   async moderateContent(imageUrl: string): Promise<string[] | null> {
     const result: ImageClassificationOutput = (await this.classifier(imageUrl)) as ImageClassificationOutput;
 
+    console.log(result);
+
     const flaggedLabels = result
       .filter((res) => IMAGE_BANNED_LABELS.some((tag) => res.label.toLowerCase().includes(tag)) && res.score > MIN_MODERATE_SCORE)
       .map((res) => res.label);

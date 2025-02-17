@@ -24,7 +24,7 @@ export class Profile extends Document<Types.ObjectId> {
   phone: string;
 
   @Prop({ required: false })
-  profilePicture: string;
+  avatar: string;
 
   @Prop({ required: false, maxlength: 50 })
   bio: string;

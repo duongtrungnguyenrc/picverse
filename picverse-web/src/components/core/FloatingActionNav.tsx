@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import ConversationList from "./ConversationList";
 import SignedIn from "./SignedIn";
+import NotificationDropdown from "./NotificationDropdown";
 
 const FloatingActionNav = () => {
   const scrollToTop = () => {
@@ -22,9 +23,11 @@ const FloatingActionNav = () => {
         <li className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg">
           <Search className="h-4 w-4" />
         </li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg">
-          <Bell className="h-4 w-4" />
-        </li>
+        <NotificationDropdown>
+          <li className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg">
+            <Bell className="h-4 w-4" />
+          </li>
+        </NotificationDropdown>
         <ConversationList>
           <li className="p-2 hover:bg-gray-100 cursor-pointer rounded-lg">
             <MessageCircle className="h-4 w-4" />

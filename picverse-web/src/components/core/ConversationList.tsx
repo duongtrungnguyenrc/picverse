@@ -50,7 +50,6 @@ const ConversationList: FC<ConversationListProps> = ({ children }) => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-[360px] h-[600px] rounded-2xl flex flex-col">
-        {/* Header */}
         <div className="p-2 flex items-center justify-between border-b">
           <h1 className="text-2xl font-bold">Chats</h1>
           <div className="flex items-center gap-2">
@@ -100,7 +99,7 @@ const ConversationList: FC<ConversationListProps> = ({ children }) => {
                     <Avatar className="h-10 w-10">
                       <AvatarImage
                         src={
-                          conversation.otherMemberProfiles?.[0]?.profilePicture ||
+                          conversation.otherMemberProfiles?.[0]?.avatar ||
                           "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-02-07%20at%2016.42.36-NdWXa1FBTDWerl6bG5gSc5qSPS1poG.png"
                         }
                       />

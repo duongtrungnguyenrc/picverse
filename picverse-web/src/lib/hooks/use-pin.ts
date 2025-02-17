@@ -1,6 +1,6 @@
 "use client";
 
-import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 import { httpClient, showAxiosToastError } from "../utils";
 import { QueryKeys } from "../constants";
@@ -49,5 +49,17 @@ export const useSimilarPins = (pinId: string) => {
     refetchOnWindowFocus: false,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: 1,
+  });
+};
+
+export const usePinDetail = (pinId: string, enabled?: boolean) => {
+  return useQuery({
+    queryKey: [QueryKeys.PIN_DETAIL, pinId],
+    queryFn: async () => {
+      const response = await httpClient.get<PinDetail>(`/pin/${pinId}`);
+
+      return response.data;
+    },
+    enabled: !!pinId && enabled,
   });
 };

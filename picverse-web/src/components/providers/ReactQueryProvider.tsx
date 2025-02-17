@@ -12,8 +12,11 @@ const ReactQueryProvider: FC<ReactQueryProviderProps> = ({ children }) => {
     defaultOptions: {
       queries: {
         retry: false,
+        staleTime: 5000,
       },
-      mutations: {},
+      mutations: {
+        retry: false,
+      },
     },
   });
 
