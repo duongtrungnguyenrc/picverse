@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
-import { Profile } from "@modules/profile";
+import { Account } from "@modules/account";
 
 @Schema({ timestamps: true })
 export class Like extends Document<Types.ObjectId> {
-  @Prop({ type: Types.ObjectId, ref: "Profile" })
-  profile: Profile;
+  @Prop({ type: Types.ObjectId, ref: "Account" })
+  accountId: Account;
 
   @Prop({ required: true })
   pinId: string;

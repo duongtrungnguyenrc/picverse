@@ -128,10 +128,9 @@ const SkeletonPin: FC<{ width: string }> = ({ width }) => {
   const height = randomMansoryHeight[Math.floor(Math.random() * randomMansoryHeight.length)];
 
   return (
-    <div
-      className="w-full p-1.5 rounded-3xl overflow-hidden bg-gray-200 animate-pulse"
-      style={{ height: `${height}px`, width }}
-    />
+    <div className="w-full overflow-hidden p-1.5">
+      <div className="bg-gray-200 rounded-3xl animate-pulse" style={{ height: `${height}px`, width }} />
+    </div>
   );
 };
 

@@ -1,0 +1,1 @@
+export const getResourceUrl = (resourceId: string): string => `${process.env.NEXT_PUBLIC_API_SERVER_ORIGIN}/api/cloud/file/${resourceId}`

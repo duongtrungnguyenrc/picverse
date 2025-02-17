@@ -8,6 +8,10 @@ export enum QueryKeys {
   CONVERSATIONS = "conversations",
   MESSAGES = "messages",
   FEEDS = "feeds",
+  SIMILAR_PINS = "SIMILAR_PINS",
+  SEARCH_TRENDING = "SEARCH_TRENDING",
+  SEARCH_HISTORY = "SEARCH_HISTORY",
+  SEARCH = "SEARCH",
 }
 
 export enum MutationKeys {
@@ -27,4 +31,5 @@ export enum MutationKeys {
   UPDATE_PROFILE = "update-profile",
   UPLOAD_CLD_IMAGE = "upload-cld-image",
   DELETE_CLD_IMAGE = "delete-cld-image",
+  SEARCH = "SEARCH",
 }

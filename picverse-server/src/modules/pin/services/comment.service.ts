@@ -3,9 +3,10 @@ import { Injectable } from "@nestjs/common";
 import { Model } from "mongoose";
 
 import { TextModerationService } from "@modules/moderation";
-import { Comment, CreatePinCommentDto } from "../models";
+import { Comment, CreatePinCommentDto, EInteractionType } from "../models";
 import { CacheService } from "@modules/cache";
 import { Repository } from "@common/utils";
+import { PinInteractionService } from "./pin-interaction.service";
 
 @Injectable()
 export class CommentService extends Repository<Comment> {
@@ -13,6 +14,7 @@ export class CommentService extends Repository<Comment> {
     @InjectModel(Comment.name) commentModel: Model<Comment>,
     cacheService: CacheService,
     private readonly textModerationService: TextModerationService,
+    private readonly pinInteractionService: PinInteractionService,
   ) {
     super(commentModel, cacheService);
   }
@@ -24,9 +26,16 @@ export class CommentService extends Repository<Comment> {
       throw new Error(`${moderationResult.join(", ")} comment is not allowed`);
     }
 
-    return this.create({
+    return await this.create({
       accountId,
       ...payload,
+    }).then((res) => {
+      this.pinInteractionService.createInteraction({
+        accountId,
+        pinId: payload.pinId,
+        type: EInteractionType.COMMENT,
+      });
+      return res;
     });
   }
 }

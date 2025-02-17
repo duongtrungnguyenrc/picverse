@@ -14,3 +14,8 @@ export enum EGender {
   FEMALE = "female",
   OTHER = "other",
 }
+
+export enum ESearchTarget {
+  PROFILE = "profile",
+  PIN = "pin",
+}

@@ -2,7 +2,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { Module } from "@nestjs/common";
 
 import { Pin, PinSchema, PinInteraction, PinInteractionSchema, Like, LikeSchema, Comment, CommentSchema } from "./models";
-import { CommentService, PinInteractionService, PinService } from "./services";
+import { CommentService, PinInteractionService, PinService, LikeService } from "./services";
 import { ModerationModule } from "@modules/moderation";
 import { VectorModule } from "@modules/vector";
 import { PinController } from "./controllers";
@@ -26,7 +26,7 @@ import { ProfileModule } from "@modules/profile";
     ProfileModule,
   ],
   controllers: [PinController],
-  providers: [PinService, PinInteractionService, CommentService, PinInteractionGateway],
+  providers: [PinService, PinInteractionService, CommentService, LikeService, PinInteractionGateway],
   exports: [PinService, PinInteractionService],
 })
 export class PinModule {}

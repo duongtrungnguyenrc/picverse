@@ -1,8 +1,9 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 
 import { httpClient, showAxiosToastError } from "../utils";
+import { QueryKeys } from "../constants";
 
 export const useCreatePin = () => {
   return useMutation<StatusResponse, AxiosError, CreatePinRequest>({
@@ -28,5 +29,25 @@ export const useCreatePin = () => {
       return response.data;
     },
     onError: showAxiosToastError,
+  });
+};
+
+export const useSimilarPins = (pinId: string) => {
+  return useInfiniteQuery({
+    queryKey: [QueryKeys.SIMILAR_PINS],
+    queryFn: async ({ pageParam }) => {
+      const query = new URLSearchParams({
+        limit: String(50),
+        page: String(pageParam),
+      });
+
+      const response = await httpClient.get<InfiniteResponse<Pin>>(`/pin/similar/${pinId}/?${query}`);
+
+      return response.data;
+    },
+    enabled: !!pinId,
+    refetchOnWindowFocus: false,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    initialPageParam: 1,
   });
 };

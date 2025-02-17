@@ -20,7 +20,7 @@ export class SearchService extends Repository<SearchRecord> {
     super(commentModel, cacheService);
   }
 
-  async getTrendingQueries(pagination: Pagination, timeframeInDays = 7): Promise<string[]> {
+  async getTrendingQueries(pagination: Pagination, timeframeInDays = 7): Promise<InfiniteResponse<string>> {
     const { page, limit } = pagination;
 
     const timeframe = new Date();
@@ -55,11 +55,17 @@ export class SearchService extends Repository<SearchRecord> {
       },
     ]);
 
-    return trendingQueries.map((q) => q.query);
+    return {
+      data: trendingQueries.map((q) => q.query)
+    };
   }
 
   async getSearchHistory(accountId: DocumentId, pagination: Pagination): Promise<InfiniteResponse<SearchRecord>> {
-    return await this.findMultipleInfinite({ accountId }, pagination);
+    return await this.findMultipleInfinite({ accountId }, pagination, {
+      sort: {
+        createdAt: -1,
+      },
+    });
   }
 
   async search(accountId: DocumentId, payload: SearchDto, pagination: Pagination): Promise<InfiniteResponse<Pin | Profile>> {

@@ -6,3 +6,4 @@ export * from "./common";
 export * from "./timestamps";
 export * from "./notifications";
 export * from "./permissions";
+export * from "./resource";

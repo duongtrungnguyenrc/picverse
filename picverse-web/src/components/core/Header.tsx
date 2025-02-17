@@ -61,7 +61,7 @@ const Header = () => {
   return (
     <header className="lg:py-5 fixed top-0 left-0 w-screen z-50">
       <ExpandHandler setIsExpand={setIsExpand} />
-      <div className={cn("transition-all duration-700", isExpand ? "max-w-full px-10" : "lg:container")}>
+      <div className={cn("transition-all duration-700", isExpand ? "max-w-full md:px-10" : "max-w-full lg:container")}>
         <nav className="flex items-center gap-3 bg-white border-b lg:border filter-[blur(3px)] mx-auto p-3 lg:rounded-2xl">
           <div className="flex-1 flex space-x-2 lg:space-x-3 items-center">
             <Link className="cursor-pointer" href="/">

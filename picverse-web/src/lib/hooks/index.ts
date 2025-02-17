@@ -12,3 +12,4 @@ export * from "./use-auth-token";
 export * from "./use-chat";
 export * from "./use-pin";
 export * from "./use-feed";
+export * from "./use-search";

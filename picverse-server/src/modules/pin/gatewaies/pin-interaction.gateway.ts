@@ -2,10 +2,10 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { Logger, UsePipes, ValidationPipe } from "@nestjs/common";
 import { Server, Socket } from "socket.io";
 
-import { CommentService, PinInteractionService } from "../services";
 import { Auth, SocketAuthTokenPayload } from "@common/decorators";
-import { CreatePinCommentDto, EInteractionType } from "../models";
+import { CommentService, LikeService } from "../services";
 import { JWTSocketAuthGuard } from "@common/guards";
+import { CreatePinCommentDto, CreatePinLikeDto } from "../models";
 
 @WebSocketGateway({ namespace: "pin-interaction", transports: ["websocket"] })
 @UsePipes(new ValidationPipe({ exceptionFactory: (errors) => new WsException(errors) }))
@@ -15,7 +15,7 @@ export class PinInteractionGateway {
 
   constructor(
     private readonly commentService: CommentService,
-    private readonly pinInteractionService: PinInteractionService,
+    private readonly likeService: LikeService,
   ) {}
 
   handleConnection(client: Socket) {
@@ -35,12 +35,6 @@ export class PinInteractionGateway {
       .createComment(accountId, payload)
       .then((createdComment) => {
         this.server.to(payload.pinId.toString()).emit("new-comment", createdComment);
-
-        this.pinInteractionService.createInteraction({
-          accountId,
-          pinId: payload.pinId,
-          type: EInteractionType.COMMENT,
-        });
       })
       .catch((error) => {
         this.server.to(payload.pinId.toString()).emit("comment-error", error.toString());
@@ -49,19 +43,14 @@ export class PinInteractionGateway {
 
   @SubscribeMessage("like")
   @Auth(JWTSocketAuthGuard)
-  createLike(@SocketAuthTokenPayload("uid") accountId: DocumentId, @MessageBody() pinId: string) {
-    // this.commentService
-    //   .createComment(accountId, payload)
-    //   .then((createdComment) => {
-    //     this.server.to(payload.pinId.toString()).emit("new-comment", createdComment);
-    //     this.pinInteractionService.create({
-    //       accountId,
-    //       pinId: payload.pinId,
-    //       type: EInteractionType.COMMENT,
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     this.server.to(payload.pinId.toString()).emit("comment-error", error.toString());
-    //   });
+  createLike(@SocketAuthTokenPayload("uid") accountId: DocumentId, @MessageBody() payload: CreatePinLikeDto) {
+    this.likeService
+      .createLike(accountId, payload)
+      .then((createdLike) => {
+        this.server.to(payload.pinId.toString()).emit("new-like", createdLike);
+      })
+      .catch((error) => {
+        this.server.to(payload.pinId.toString()).emit("like-error", error.toString());
+      });
   }
 }
