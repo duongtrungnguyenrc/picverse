@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { requestNotificationPermission, showNotification } from "@app/lib/utils";
 import { ChatContext } from "@app/lib/contexts";
 import { QueryKeys } from "@app/lib/constants";
-import { useAuthToken } from "@app/lib/hooks";
+import { useAuth } from "@app/lib/hooks";
 
 type ChatProviderProps = { children: ReactNode };
 
@@ -17,7 +17,7 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
   const [hasNotificationPermission, setHasNotificationPermission] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
 
-  const { token, accountId, ready } = useAuthToken();
+  const { accessToken, account, ready } = useAuth();
   const queryClient = useQueryClient();
   const socketRef = useRef<Socket>();
 
@@ -26,11 +26,11 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
   }, []);
 
   const initSocket = useCallback(() => {
-    if (!token || !accountId || !ready) return;
+    if (!accessToken || !account || !ready) return;
 
     socketRef.current = io(`${process.env.NEXT_PUBLIC_API_SERVER_ORIGIN}/chat`, {
       transports: ["websocket"],
-      auth: { token: `Bearer ${token}` },
+      auth: { token: `Bearer ${accessToken}` },
     });
 
     const socket = socketRef.current;
@@ -48,7 +48,7 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
     return () => {
       socket.disconnect();
     };
-  }, [token, accountId, ready]);
+  }, [account, accessToken, ready]);
 
   useEffect(() => {
     const cleanup = initSocket();
@@ -113,7 +113,7 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
         },
       );
 
-      const isSelfMessage = message.senderId === accountId;
+      const isSelfMessage = message.senderId === account?._id;
       const isCurrentConversation = currentConversation?._id === message.conversationId;
 
       if (!isSelfMessage && !isCurrentConversation && hasNotificationPermission) {
@@ -122,7 +122,7 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
         });
       }
     },
-    [queryClient, accountId, hasNotificationPermission, currentConversation],
+    [queryClient, account, hasNotificationPermission, currentConversation],
   );
 
   const sendMessage = useCallback((payload: SendMessageDto) => {

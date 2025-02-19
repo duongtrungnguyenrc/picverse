@@ -13,4 +13,8 @@ declare type Profile = BaseModel &
     isPublic: string;
   };
 
+declare type ProfileDetail = Omit<Profile, "accountId"> & {
+  email: string;
+};
+
 declare type UpdateProfileRequest = Partial<Omit<Profile, "account">>;

@@ -5,12 +5,16 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../constants";
 import { httpClient } from "../utils";
 
-export const useFeeds = () => {
+export const useFeeds = (firstPageData?: InfiniteResponse<Pin>) => {
   return useInfiniteQuery({
     queryKey: [QueryKeys.FEEDS],
     queryFn: async ({ pageParam }) => {
+      if (pageParam === 1 && firstPageData) {
+        return firstPageData;
+      }
+
       const query = new URLSearchParams({
-        limit: String(50),
+        limit: String(30),
         page: String(pageParam),
       });
 

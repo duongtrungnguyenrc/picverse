@@ -1,12 +1,16 @@
-import { Hero, Showcase } from "@app/components";
 import { FC } from "react";
+
+import { loadFirstPageFeed } from "@app/lib/actions";
+import { HomeGallery } from "@app/components";
 
 type HomePageProps = {};
 
-const HomePage: FC<HomePageProps> = ({}: HomePageProps) => {
+const HomePage: FC<HomePageProps> = async ({}: HomePageProps) => {
+  const firstPageFeed = await loadFirstPageFeed();
+
   return (
     <>
-      <Showcase />
+      <HomeGallery firstPageData={firstPageFeed} />
     </>
   );
 };

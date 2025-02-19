@@ -27,14 +27,15 @@ import {
 
 type CloudPageContentProps = {
   parentId?: string;
+  firstPageResources: GetResourcesResponse;
 };
 
-const CloudPageContent: FC<CloudPageContentProps> = ({ parentId }) => {
-  const { data, isPending, isFetched, error, refetch } = useResources(parentId);
+const CloudPageContent: FC<CloudPageContentProps> = ({ parentId, firstPageResources }) => {
+  const { data, isPending, isFetched, error, refetch } = useResources(parentId, firstPageResources);
   const { mutateAsync: updateResource, reset } = useUpdateResource();
 
   const resources = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data]);
-  const { displayItems, onSearchChange, onFieldFilterChange, insertAfter } = useListing(resources);
+  const { displayItems, onSearchChange, onFieldFilterChange, insertAfter } = useListing<Resource>(resources);
 
   const handleDrop = useCallback(
     async (selfId: string, targetId: string, action?: string) => {

@@ -21,6 +21,11 @@ declare type RequestAgent = {
   browserInfo: string;
 };
 
+declare type CacheWrapOptions<T> = {
+  cacheKeys: string[];
+  getCacheData?: (service: CacheService, cacheKey: string, defaultCachedData: T) => T;
+};
+
 // Express global override
 
 declare namespace Express {

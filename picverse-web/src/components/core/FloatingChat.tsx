@@ -225,8 +225,6 @@ const ChatInput: FC<{
           <Picker
             set="apple"
             onEmojiSelect={(emoji: any) => {
-              console.log(emoji);
-
               setInput(input + emoji.native);
               setEmojiPickerOpen(false);
             }}

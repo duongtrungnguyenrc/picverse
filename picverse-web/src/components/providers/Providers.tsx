@@ -1,9 +1,9 @@
 import { FC, ReactNode } from "react";
 
 import ReactQueryProvider from "./ReactQueryProvider";
-import AuthProvider from "./AuthProvider";
-import ChatProvider from "./ChatProvider";
 import SocialProvider from "./NotificationProvider";
+import ChatProvider from "./ChatProvider";
+import { Authorization } from "../core";
 
 type ProviderProps = {
   children: ReactNode;
@@ -11,13 +11,13 @@ type ProviderProps = {
 
 const Provider: FC<ProviderProps> = ({ children }) => {
   return (
-    <ReactQueryProvider>
-      <AuthProvider>
+    <Authorization>
+      <ReactQueryProvider>
         <SocialProvider>
           <ChatProvider>{children}</ChatProvider>
         </SocialProvider>
-      </AuthProvider>
-    </ReactQueryProvider>
+      </ReactQueryProvider>
+    </Authorization>
   );
 };
 

@@ -2,8 +2,7 @@
 
 export { default as Header } from "./Header";
 export { default as Footer } from "./Footer";
-export { default as Hero } from "./Hero";
-export { default as Showcase } from "./Showcase";
+export { default as HomeGallery } from "./HomeGallery";
 export { default as SearchInput } from "./SearchInput";
 export { default as Profile } from "./Profile";
 export { default as SignedIn } from "./SignedIn";
@@ -28,6 +27,7 @@ export { default as FloatingChat } from "./FloatingChat";
 export { default as ConversationList } from "./ConversationList";
 export { default as NotificationDropdown } from "./NotificationDropdown";
 export { default as CommentSection } from "./CommentSection";
+export { default as Authorization } from "./Authorization";
 
 /* AUTH COMPONENTS */
 export { default as GoogleSignInButton } from "./GoogleSignInButton";
@@ -40,7 +40,6 @@ export { default as CreatePinForm } from "./CreatePinForm";
 
 /* CLOUD COMPONENTS */
 
-export { default as CloudControl } from "./CloudControl";
 export { default as CloudPageContent } from "./CloudPageContent";
 export { default as CloudUploadFileButton } from "./CloudUploadFileButton";
 export { default as CloudCreateFolderButton } from "./CloudCreateFolderButton";
@@ -55,6 +54,7 @@ export { default as SettingHeader } from "./SettingHeader";
 export { default as ChangePasswordDialog } from "./ChangePasswordDialog";
 export { default as Disable2FADialog } from "./Disable2FADialog";
 export { default as LoginHistoryDialog } from "./LoginHistoryDialog";
+export { default as SettingProfileForm } from "./SettingProfileForm";
 
 /* LISTING COMPONENTS */
 

@@ -1,26 +1,15 @@
 import { FC } from "react";
-import Link from "next/link";
 
-import { SlidersHorizontal, Plus, Pin, GalleryVerticalEnd, Clock, ArrowDownAZ } from "lucide-react";
 import {
   Profile,
-  Button,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
   BoardListing,
-  CreateBoardDialog,
   ProfileBoardListingControl,
 } from "@app/components";
+import { loadProfile } from "@app/lib/actions";
 
 type Params = Promise<{ signature: string }>;
 
@@ -31,9 +20,11 @@ type ProfilePageProps = {
 const ProfilePage: FC<ProfilePageProps> = async ({ params }) => {
   const { signature } = await params;
 
+  const profile: ProfileDetail = await loadProfile(signature != "me" ? signature : undefined);
+
   return (
     <>
-      <Profile signature={signature} />
+      <Profile profile={profile} signature={signature} />
 
       <Tabs defaultValue="created" className="mx-auto flex flex-col items-center mt-5">
         <div className="flex justify-between w-full mb-5">

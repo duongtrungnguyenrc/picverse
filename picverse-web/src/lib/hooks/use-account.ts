@@ -1,11 +1,11 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
 import { httpClient, showAxiosToastError } from "../utils";
-import { MutationKeys, QueryKeys } from "../constants";
+import { MutationKeys } from "../constants";
 
 export const useSignUp = () => {
   const router = useRouter();

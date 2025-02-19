@@ -24,8 +24,6 @@ const NotificationProvider: FC<NotificationProviderProps> = ({ children }) => {
   );
 
   const initSocket = useCallback(() => {
-    console.log(accessToken, account, ready);
-
     if (!accessToken || !account || !ready) return;
 
     socketRef.current = io(`${process.env.NEXT_PUBLIC_API_SERVER_ORIGIN}/social`, {

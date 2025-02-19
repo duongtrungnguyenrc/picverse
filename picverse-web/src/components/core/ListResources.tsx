@@ -5,8 +5,8 @@ import Image from "next/image";
 import { FC } from "react";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@app/components";
+import { cn, getResourceUrl } from "@app/lib/utils";
 import { EResourceType } from "@app/lib/enums";
-import { cn } from "@app/lib/utils";
 
 type ResourceProps = {
   resource: Resource;
@@ -47,11 +47,7 @@ const ListResource: FC<ResourceProps> = ({ resource, onDrop }) => {
           <div className="w-[60px] h-[60px] overflow-hidden rounded relative bg-gray-100">
             <Image
               className="object-contain"
-              src={
-                resource.type === EResourceType.FILE
-                  ? `${process.env.NEXT_PUBLIC_API_SERVER_ORIGIN}/api/cloud/file/${resource._id}`
-                  : "/images/folder.png"
-              }
+              src={resource.type === EResourceType.FILE ? getResourceUrl(resource._id) : "/images/folder.png"}
               alt={resource.name}
               layout="fill"
             />

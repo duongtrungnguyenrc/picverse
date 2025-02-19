@@ -9,6 +9,7 @@ import { Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 import { useMutateSearch, useSearchHistory, useTrendingKeywords } from "@app/lib/hooks";
 import { ESearchTarget } from "@app/lib/enums";
 import { getResourceUrl } from "@app/lib/utils";
+import Link from "next/link";
 
 const SearchDialog: FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -127,21 +128,24 @@ const SearchResults: FC<{ profiles: Profile[]; pins: Pin[] }> = ({ profiles, pin
     <h3 className="text-lg font-semibold mb-2">Search result</h3>
     {profiles.length > 0 && (
       <ul className="flex flex-wrap gap-2 overflow-x-auto">
-        {profiles.map((item) => (
-          <li key={item._id}>
-            <Button variant="outline">
-              <UserCircle /> {`${item.firstName} ${item.lastName}`}
-            </Button>
+        {profiles.map((profile) => (
+          <li key={profile._id}>
+            <Link
+              href={`/${profile.accountId}`}
+              className="p-2 rounded-lg border text-sm font-semibold flex-center space-x-2"
+            >
+              <UserCircle /> <span>{`${profile.firstName} ${profile.lastName}`}</span>
+            </Link>
           </li>
         ))}
       </ul>
     )}
     {pins.length > 0 && (
       <ul className="flex flex-wrap gap-2 overflow-x-auto mt-5">
-        {pins.map((item) => (
-          <li key={item._id}>
+        {pins.map((pin) => (
+          <li key={pin._id}>
             <div className="w-[150px] h-[100px] relative rounded-lg overflow-hidden">
-              <Image src={getResourceUrl(item.resource)} alt="" layout="fill" />
+              <Image src={getResourceUrl(pin.resource)} alt="" layout="fill" />
             </div>
           </li>
         ))}

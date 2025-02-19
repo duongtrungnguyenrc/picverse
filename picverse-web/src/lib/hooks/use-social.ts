@@ -36,7 +36,7 @@ export const useNotifications = () => {
         page: String(pageParam),
       });
 
-      const response = await httpClient.get<InfiniteResponse<Noti>>(`/social/notification?s${query}`);
+      const response = await httpClient.get<InfiniteResponse<Noti>>(`/social/notifications?${query}`);
 
       return response.data;
     },

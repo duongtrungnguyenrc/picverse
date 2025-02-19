@@ -1,23 +1,19 @@
 "use client";
 
+import { MessageSquareText } from "lucide-react";
 import { FC } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage, Button } from "../shadcn";
-import { useChat, useProfile } from "@app/lib/hooks";
-import { cn } from "@app/lib/utils";
-import { MessageSquareText } from "lucide-react";
+import { useChat } from "@app/lib/hooks";
 
 type ProfileProps = {
+  profile: ProfileDetail;
   signature: string;
 };
 
-const Profile: FC<ProfileProps> = ({ signature }) => {
+const Profile: FC<ProfileProps> = ({ profile, signature }) => {
   const isMyProfile = signature === "me";
-
-  const { data: profile, isPending } = useProfile(isMyProfile ? undefined : signature);
   const { changeCurrentConversation } = useChat();
-
-  const pendingClass: string = isPending ? "animate-pulse" : "";
 
   const onStartNewConversation = () => {
     if (profile) {
@@ -31,20 +27,18 @@ const Profile: FC<ProfileProps> = ({ signature }) => {
 
   return (
     <section className="flex flex-col items-center">
-      <div className={cn("w-full flex justify-center bg-gray-200 pt-[150px] rounded-3xl mb-[50px]", pendingClass)}>
+      <div className="w-full flex justify-center bg-gray-200 pt-[150px] rounded-3xl mb-[50px]">
         <div className="relative translate-y-[40%]">
-          <Avatar
-            className={cn("rounded-full border-2 w-[150px] h-[150px] border-white bg-gray-200 relative", pendingClass)}
-          >
-            {profile && (
+          <Avatar className="rounded-full border-2 w-[150px] h-[150px] border-white bg-gray-200 relative">
+            {profile ? (
               <>
                 <AvatarImage src={profile.avatar} alt={profile.firstName} />
                 <AvatarFallback className="text-6xl">{`${profile.firstName[0]}${profile.lastName[0]}`}</AvatarFallback>
               </>
-            )}
+            ) : null}
           </Avatar>
 
-          {!isMyProfile && (
+          {!isMyProfile && profile && (
             <Button
               onClick={onStartNewConversation}
               size="icon"
@@ -56,10 +50,10 @@ const Profile: FC<ProfileProps> = ({ signature }) => {
         </div>
       </div>
 
-      <h3 className={cn("text-3xl font-bold mt-5", pendingClass)}>
+      <h3 className="text-3xl font-bold mt-5">
         {profile?.firstName} {profile?.lastName}
       </h3>
-      <p className={cn("mt-1", pendingClass)}>duongtrungnguyenrc@gmail.com</p>
+      <p className="mt-1">{profile?.email}</p>
     </section>
   );
 };

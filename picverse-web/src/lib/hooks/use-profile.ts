@@ -1,21 +1,10 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
-
-import { MutationKeys, QueryKeys } from "../constants";
-import { httpClient, showAxiosToastError } from "../utils";
+import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-export const useProfile = (id?: string) => {
-  return useQuery<Profile, AxiosError>({
-    queryKey: [QueryKeys.PROFILE, id],
-    queryFn: async () => {
-      const response = await httpClient.get<Profile>(`/profile${id ? `/${id}` : ""}`);
-
-      return response.data;
-    },
-  });
-};
+import { MutationKeys } from "../constants";
+import { httpClient, showAxiosToastError } from "../utils";
 
 export const useUpdateProfile = () => {
   return useMutation<StatusResponse, AxiosError, UpdateProfileRequest>({

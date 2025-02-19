@@ -7,12 +7,19 @@ import toast from "react-hot-toast";
 import { httpClient, showAxiosToastError } from "../utils";
 import { MutationKeys, QueryKeys } from "../constants";
 
-export const useResources = (parentId?: string) => {
+export const useResources = (parentId?: string, firstPageData?: GetResourcesResponse) => {
   return useInfiniteQuery<GetResourcesResponse, AxiosError>({
     queryKey: [QueryKeys.RESOURCES, parentId],
-    queryFn: async () => {
+    queryFn: async ({ pageParam }) => {
+      if (pageParam === 1 && firstPageData) return firstPageData;
+
+      const query = new URLSearchParams({
+        page: String(pageParam),
+        limit: String(30),
+      });
+
       const response = await httpClient.get<GetResourcesResponse>(
-        `/cloud/resources${parentId ? `?parentId=${parentId}` : ""}`,
+        `/cloud/resources${parentId ? `?parentId=${parentId}` : ""}?${query}`,
       );
 
       return response.data;

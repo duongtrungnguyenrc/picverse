@@ -8,7 +8,6 @@ export * from "./use-profile";
 export * from "./use-session";
 export * from "./use-cloudinary";
 export * from "./use-element-size";
-export * from "./use-auth-token";
 export * from "./use-chat";
 export * from "./use-pin";
 export * from "./use-feed";

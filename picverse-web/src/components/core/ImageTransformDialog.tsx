@@ -18,7 +18,6 @@ type ImageTransformDialogProps = {
 
 const ImageTransformDialog: FC<ImageTransformDialogProps> = ({ children, mediaUrl, onTransformed }) => {
   const onProcessImage = useCallback((detail: PinturaDefaultImageWriterResult) => {
-    console.log(detail);
     onTransformed?.(detail.dest);
   }, []);
 
