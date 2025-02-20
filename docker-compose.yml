@@ -51,12 +51,13 @@ services:
       - mongo-secondary
       - mongo-arbiter
     volumes:
-      - ./configs:/configs 
+      - ./scripts:/scripts 
     ports:
       - "27010:27017"
     entrypoint: >
       bash -c "
-        mongosh --host mongo-primary ./configs/config-rs.js;
+        sleep 10;
+        mongosh --host mongo-primary ./scripts/config-rs.js;
       "
     networks:
       - picverse-network
@@ -79,9 +80,7 @@ services:
     networks:
       - picverse-network
     depends_on:
-      - mongo-primary
-      - mongo-secondary
-      - mongo-arbiter
+      - config-rs
       - redis-cache
       - qdrant
     environment:
