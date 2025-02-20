@@ -43,6 +43,7 @@ export class FeedService {
         recommendedPins = await this.pinService
           .getModel()
           .find({ vectorId: { $in: similarPinIds } }, ["_id", "title", "tags", "isPublic", "resource"])
+          .populate("resource")
           .limit(Math.ceil(limit / 2));
       }
     }
@@ -51,6 +52,7 @@ export class FeedService {
     const randomPins = await this.pinService
       .getModel()
       .find({ vectorId: { $nin: similarPinIds } }, ["_id", "title", "tags", "isPublic", "resource"])
+      .populate("resource")
       .skip((page - 1) * remainingLimit)
       .limit(remainingLimit)
       .exec();

@@ -5,7 +5,7 @@ declare type Pin = BaseModel &
     boardId: DocumentId;
     title: string;
     description: string;
-    resource: string;
+    resource: Resource | string;
     tags: Array<Tag>;
     isPublic: boolean;
     allowComment: boolean;

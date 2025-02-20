@@ -236,16 +236,16 @@ export class CloudService {
     return { message: `File ${fileName} uploaded success` };
   }
 
-  async getFile(fileId: DocumentId, response: Response): Promise<void> {
-    const file: Resource = await this.resourceService.find(fileId);
+  async getFile(resourceId: DocumentId, response: Response, width?: number, height?: number): Promise<void> {
+    const resource: Resource = await this.resourceService.find(resourceId);
 
-    if (!file) {
+    if (!resource) {
       throw new NotFoundException("File not found");
     }
 
-    const storage: IStorageService = this.getStorage(file.storage);
+    const storage: IStorageService = this.getStorage(resource.storage);
 
-    await storage.getFile(file, response);
+    await storage.getFile(resource, response, width, height);
   }
 
   async deleteFile(accountId: DocumentId, fileId: DocumentId) {}

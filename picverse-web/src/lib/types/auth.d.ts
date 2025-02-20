@@ -1,7 +1,10 @@
 type AuthContextType = {
   account?: Account;
   ready: boolean;
-  authorizeClient: (actions?: { onSuccess?: VoidFunction; onFailed?: VoidFunction }) => Promise<void> | void;
+  authorizeClient: (
+    tokenPair?: TokenPair,
+    actions?: { onSuccess?: VoidFunction; onFailed?: VoidFunction },
+  ) => Promise<void> | void;
   clearAuth: VoidFunction;
   accessToken?: string;
   refreshToken?: string;

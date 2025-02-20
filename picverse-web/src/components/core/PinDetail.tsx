@@ -101,7 +101,7 @@ const PinDetail: FC<PinDetailProps> = ({ pinId, stickyProfile, prefetch, classNa
             ) : (
               <Image
                 className="object-contain border w-full h-full"
-                src={data?.resource ? getResourceUrl(data?.resource) : "/placeholder.jpg"}
+                src={data?.resource ? getResourceUrl(data?.resource.toString()) : "/placeholder.jpg"}
                 alt={data?.title || ""}
                 layout="fill"
                 priority

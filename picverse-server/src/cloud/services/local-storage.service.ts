@@ -4,6 +4,7 @@ import { InjectConnection, InjectModel } from "@nestjs/mongoose";
 import { Connection, Model, Types } from "mongoose";
 import { Response } from "express";
 import { Readable } from "stream";
+import * as sharp from "sharp";
 import * as pump from "pump";
 
 import { Resource, CloudStorage, IStorageService, EResourceType } from "../models";
@@ -12,6 +13,8 @@ import { ResourceService } from "./resource.service";
 
 @Injectable()
 export class LocalStorageService implements IStorageService {
+  private bucket = new GridFSBucket(this.connection.db);
+
   constructor(
     @InjectModel(CloudStorage.name) private cloudStorageModel: Model<CloudStorage>,
     @InjectConnection("cloud") private connection: Connection,
@@ -56,6 +59,7 @@ export class LocalStorageService implements IStorageService {
 
   async uploadFile(accountId: DocumentId, file: Express.Multer.File, payload: UploadFileDto) {
     const storage = await this.getStorageInfo(accountId);
+
     const { parentId, fileName } = payload;
 
     if (storage.usedSpace + file.size > storage.totalSpace) {
@@ -71,6 +75,7 @@ export class LocalStorageService implements IStorageService {
     }
 
     const uploadResult = await this._uploadFromMulterStream(file, fileName);
+    const metadata = await sharp(file.buffer).metadata();
 
     const uploadedFile = await this.resourceService.create({
       name: fileName,
@@ -80,6 +85,8 @@ export class LocalStorageService implements IStorageService {
       accountId,
       size: file.size,
       mimeType: file.mimetype,
+      width: metadata.width,
+      height: metadata.height,
     });
 
     storage.usedSpace += file.size || 0;
@@ -88,27 +95,29 @@ export class LocalStorageService implements IStorageService {
     return uploadedFile;
   }
 
-  async getFile(file: Resource, response: Response): Promise<void> {
+  async getFile(resource: Resource, response: Response, width?: number, height?: number): Promise<void> {
     try {
-      const bucket = new GridFSBucket(this.connection.db);
+      const fileExists = await this.bucket.find({ _id: new Types.ObjectId(resource.referenceId) }).toArray();
 
-      const fileExists = await bucket.find({ _id: new Types.ObjectId(file.referenceId) }).toArray();
+      if (!fileExists.length) throw new NotFoundException("File not found in storage.");
 
-      if (!fileExists || fileExists.length === 0) {
-        throw new NotFoundException("File not found in storage.");
-      }
-
-      const downloadStream = bucket.openDownloadStream(new Types.ObjectId(file.referenceId));
+      const downloadStream = this.bucket.openDownloadStream(new Types.ObjectId(resource.referenceId));
 
       downloadStream.on("error", (err) => {
         response.status(500).send("Error downloading file." + err);
       });
 
-      response.setHeader("Content-Type", file.mimeType || "application/octet-stream");
+      response.setHeader("Content-Type", "image/webp");
 
-      downloadStream.pipe(response);
+      const transform = sharp()
+        .webp({ quality: 90 })
+        .resize(width ? parseInt(width.toString()) : undefined, height ? parseInt(height.toString()) : undefined);
+
+      downloadStream.pipe(transform).pipe(response);
     } catch (error) {
-      throw new NotFoundException("An error occurred while downloading the file.");
+      console.log(error);
+
+      response.status(500).send("An error occurred while downloading the file.");
     }
   }
 

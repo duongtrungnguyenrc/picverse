@@ -28,13 +28,13 @@ const AuthDetect: FC<AuthDetectProps> = ({ children, navigationTo, isSignedIn = 
     }
   }, [ready, account, isSignedIn, navigationTo, router]);
 
-  if (isLoading) {
-    return (
-      <div className="w-screen h-screen flex justify-center items-center">
-        <Lottie animationData={loadingAnimation} className="w-[150px] h-[150px]" loop />
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="w-screen h-screen flex justify-center items-center">
+  //       <Lottie animationData={loadingAnimation} className="w-[150px] h-[150px]" loop />
+  //     </div>
+  //   );
+  // }
 
   return <>{children}</>;
 };

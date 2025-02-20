@@ -18,7 +18,6 @@ export class ProfileService extends Repository<Profile> {
   }
 
   async getProfileDetail(accountId: DocumentId): Promise<ProfileDetailDto> {
-
     const account = await this.accountService.find(accountId, { select: ["email"], force: true });
 
     if (!account) throw new NotFoundException("Profile not found");

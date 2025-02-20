@@ -26,6 +26,8 @@ declare type Resource = BaseModel & {
   type: import("../enums").EResourceType;
   storage: ECloudStorage;
   size: number;
+  width: number;
+  height: number;
   mimeType: string;
   isPrivate: boolean;
 };

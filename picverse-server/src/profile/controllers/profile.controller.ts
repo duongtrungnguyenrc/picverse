@@ -1,12 +1,10 @@
-import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { Body, Controller, Get, Param, Put, Query } from "@nestjs/common";
-import { Types } from "mongoose";
+import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, Put, Query } from "@nestjs/common";
 
 import { ProfileDetailDto, UpdateProfileDto } from "../models";
 import { Auth, AuthUid } from "@common/decorators";
 import { StatusResponseDto } from "@common/dtos";
 import { ProfileService } from "../services";
-import { Profile } from "../models";
 
 @Controller("profile")
 @ApiTags("Profile")

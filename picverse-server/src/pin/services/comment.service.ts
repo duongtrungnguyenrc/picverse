@@ -39,7 +39,5 @@ export class CommentService extends Repository<Comment> {
     });
   }
 
-  async getComments() {
-    
-  }
+  async getComments() {}
 }

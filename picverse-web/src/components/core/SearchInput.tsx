@@ -145,7 +145,7 @@ const SearchResults: FC<{ profiles: Profile[]; pins: Pin[] }> = ({ profiles, pin
         {pins.map((pin) => (
           <li key={pin._id}>
             <div className="w-[150px] h-[100px] relative rounded-lg overflow-hidden">
-              <Image src={getResourceUrl(pin.resource)} alt="" layout="fill" />
+              <Image src={getResourceUrl(pin.resource.toString())} alt="" layout="fill" />
             </div>
           </li>
         ))}

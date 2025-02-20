@@ -1,5 +1,6 @@
 "use server";
 
+import "server-only";
 import { cookies } from "next/headers";
 import { jwtDecode } from "jwt-decode";
 
@@ -34,8 +35,9 @@ export async function setAuthCookie(tokenPair: Partial<TokenPair>) {
       cookieStore.set({
         name: key,
         value: encryptedToken,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         httpOnly: true,
+        sameSite: "lax",
         expires: new Date(jwtDecode(value).exp! * 1000),
       });
     }

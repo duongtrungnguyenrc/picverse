@@ -11,5 +11,5 @@ declare namespace Repository {
     postProcessData?: (data: Array<T>) => Array<T>;
   };
 
-  type AggregateOptions = Pick<FindOptions, "force" | "cachePostfix"> & {};
+  type AggregateOptions = Pick<FindOptions, "force" | "cachePostfix">;
 }

@@ -9,6 +9,7 @@ import { useContext } from "react";
 import { httpClient, showAxiosToastError } from "../utils";
 import { MutationKeys, QueryKeys } from "../constants";
 import { AuthContext } from "../contexts";
+import { getClientSecret, googleSignIn } from "../actions";
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -35,13 +36,14 @@ export const useSignInWith2FA = () => {
 };
 
 export const useGoogleSignIn = () => {
-  const { data: secret } = useClientSecret();
-  const router = useRouter();
+  // const { data: secret } = useClientSecret();
+  // const router = useRouter();
 
   const mutationResult = useMutation<void, AxiosError>({
     mutationKey: [MutationKeys.GOOGLE_SIGN_IN],
     mutationFn: async () => {
-      router.push(`${process.env.NEXT_PUBLIC_API_SERVER_ORIGIN}/api/auth/oauth?platform=google&secret=${secret}`);
+      const secret = await getClientSecret();
+      await googleSignIn(secret);
     },
   });
 
@@ -59,8 +61,8 @@ export const useSignOut = () => {
       const response = await httpClient.post<StatusResponse>("/auth/sign-out");
       return response.data;
     },
-    onSuccess: (data) => {
-      clearAuth();
+    onSuccess: async (data) => {
+      await clearAuth();
       toast.success(data.message);
     },
     onError: showAxiosToastError,
@@ -104,15 +106,7 @@ export const useVerify2FA = () => {
 export const useClientSecret = () =>
   useQuery<string>({
     queryKey: [QueryKeys.CLIENT_SECRET],
-    queryFn: async () => {
-      let secret = localStorage.getItem("authSecret");
-
-      if (!secret) {
-        secret = generate({ length: 32 }) + Date.now().toString();
-        localStorage.setItem("authSecret", secret);
-      }
-      return secret;
-    },
+    queryFn: async () => await getClientSecret(),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchInterval: false,

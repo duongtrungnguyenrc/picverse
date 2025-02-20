@@ -12,7 +12,7 @@ const Authorization: FC<AuthorizationProps> = async ({ children }) => {
     getCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX),
     getCookie(process.env.NEXT_PUBLIC_REFRESH_TOKEN_PREFIX),
   ]);
-  const account = await loadAuthAccount();
+  const account = await loadAuthAccount(accessToken);
 
   return (
     <AuthProvider account={account} tokenPair={{ accessToken, refreshToken }}>

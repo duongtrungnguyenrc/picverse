@@ -103,8 +103,8 @@ export class CloudStorageController {
 
   @Get("/file/:fileId")
   @ApiOperation({ summary: "Get file" })
-  async getFile(@Param("fileId") fileId: DocumentId, @Res() response: Response): Promise<void> {
-    await this.cloudService.getFile(fileId, response);
+  async getFile(@Param("fileId") fileId: DocumentId, @Res() response: Response, @Query("width") width?: number, @Query("height") height?: number): Promise<void> {
+    await this.cloudService.getFile(fileId, response, width, height);
   }
 
   @Auth()

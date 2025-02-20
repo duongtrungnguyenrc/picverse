@@ -27,6 +27,12 @@ export class Resource extends Document<DocumentId> {
   size: number;
 
   @Prop()
+  width: number;
+
+  @Prop()
+  height: number;
+
+  @Prop()
   mimeType: string;
 
   @Prop({ default: true })

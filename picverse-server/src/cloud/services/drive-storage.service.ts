@@ -115,22 +115,22 @@ export class DriveStorageService implements IExternalStorageService {
     return parseInt(about.data.storageQuota?.limit || "0", 10);
   }
 
-  async getFile(file: Resource, response: Response): Promise<void> {
+  async getFile(resource: Resource, response: Response, width?: number, height?: number): Promise<void> {
     try {
-      const drive = await this.getDriveInstance(file.accountId);
+      const drive = await this.getDriveInstance(resource.accountId);
 
       if (!drive) throw new BadRequestException(`Please link drive storage to continue`);
 
       const downloadStream = await drive.files.get(
         {
-          fileId: file.referenceId,
+          fileId: resource.referenceId.toString(),
           alt: "media",
         },
         { responseType: "stream" },
       );
 
       response.setHeader("Content-Type", downloadStream.headers["content-type"] || "application/octet-stream");
-      response.setHeader("Content-Disposition", `attachment; filename="${file.name}"`);
+      response.setHeader("Content-Disposition", `attachment; filename="${resource.name}"`);
 
       downloadStream.data
         .on("error", (error) => {

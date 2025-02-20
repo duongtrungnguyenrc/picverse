@@ -73,7 +73,7 @@ const SignInPage: FC<SignInPageProps> = () => {
 
   const onSignInSuccess = async (data: TokenPair) => {
     await setAuthCookie(data);
-    authorizeClient({
+    authorizeClient(undefined, {
       onSuccess: () => {
         toast.success("Sign in success");
       },

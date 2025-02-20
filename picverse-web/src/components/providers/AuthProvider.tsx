@@ -42,33 +42,46 @@ const AuthProvider: FC<AuthProviderProps> = ({ children, account, tokenPair }) =
     };
   }, []);
 
-  const authorizeClient = useCallback(async (actions?: { onSuccess?: VoidFunction; onFailed?: VoidFunction }) => {
-    try {
-      setState((prev) => ({ ...prev, ready: false }));
+  useEffect(() => {
+    setState((prev) => ({ ...prev, account, ...tokenPair }));
 
-      const [accessToken, refreshToken] = await Promise.all([
-        getCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX),
-        getCookie(process.env.NEXT_PUBLIC_REFRESH_TOKEN_PREFIX),
-      ]);
+    return () => {};
+  }, [account, tokenPair]);
 
-      if (!accessToken && !refreshToken) {
-        throw new Error();
+  const authorizeClient = useCallback(
+    async (tokenPair?: TokenPair, actions?: { onSuccess?: VoidFunction; onFailed?: VoidFunction }) => {
+      try {
+        setState((prev) => ({ ...prev, ready: false }));
+        let currentTokenPair: TokenPair | undefined = tokenPair;
+
+        if (!currentTokenPair) {
+          const [accessToken, refreshToken] = await Promise.all([
+            getCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX),
+            getCookie(process.env.NEXT_PUBLIC_REFRESH_TOKEN_PREFIX),
+          ]);
+
+          if (!accessToken && !refreshToken) {
+            throw new Error();
+          }
+          currentTokenPair = { accessToken: accessToken!, refreshToken: refreshToken! };
+        }
+
+        const account = await loadAuthAccount(tokenPair?.accessToken);
+
+        actions?.onSuccess?.();
+        setState({ account: account, ready: true, ...currentTokenPair });
+        lastFetchTime.current = Date.now();
+      } catch (error) {
+        actions?.onFailed?.();
+        setState({ account: undefined, ready: true });
       }
+    },
+    [],
+  );
 
-      const account = await loadAuthAccount();
-
-      actions?.onSuccess?.();
-      setState({ account: account, ready: true, accessToken, refreshToken });
-      lastFetchTime.current = Date.now();
-    } catch (error) {
-      actions?.onFailed?.();
-      setState({ account: undefined, ready: true });
-    }
-  }, []);
-
-  const clearAuth = useCallback(() => {
+  const clearAuth = useCallback(async () => {
+    await clearAuthCookie();
     setState((prevState) => ({ ...prevState, account: undefined }));
-    clearAuthCookie();
   }, []);
 
   return (

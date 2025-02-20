@@ -2,8 +2,9 @@
 
 import { type FC, useEffect, useMemo, useRef, useState } from "react";
 
-import { cn, getResourceUrl } from "@app/lib/utils";
+import { cn, getResourceUrl, skeletonPlaceholder } from "@app/lib/utils";
 import PinDrawer from "./PinDrawer";
+import Image from "next/image";
 
 type MansoryPinGalleryProps = {
   pins: Array<Pin>;
@@ -108,14 +109,21 @@ const MansoryPinGallery: FC<MansoryPinGalleryProps> = ({ pins, loadMore, isFetch
         <div key={rowIndex} style={{ width: `${columnWidth}%` }}>
           {innerArray.map((_, columnIndex) => {
             const pin: Pin = innerArray[columnIndex];
+            if (typeof pin.resource === "string") return <></>;
+
             return (
               <PinDrawer key={`pin:dtl:${pin._id}`} pinId={pin._id}>
-                <div className="relative cursor-pointer">
-                  <img
-                    className="w-full p-1.5 rounded-3xl overflow-hidden"
-                    src={getResourceUrl(pin.resource)}
+                <div className="relative cursor-pointer p-1.5">
+                  <Image
+                    className="w-full rounded-2xl overflow-hidden"
+                    src={getResourceUrl(pin.resource._id)}
                     alt={`Image ${rowIndex}-${columnIndex}`}
                     loading="lazy"
+                    layout="responsive"
+                    placeholder="blur"
+                    blurDataURL={skeletonPlaceholder}
+                    width={pin.resource.width}
+                    height={pin.resource.height}
                   />
                 </div>
               </PinDrawer>

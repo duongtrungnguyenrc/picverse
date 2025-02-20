@@ -56,7 +56,7 @@ export class SearchService extends Repository<SearchRecord> {
     ]);
 
     return {
-      data: trendingQueries.map((q) => q.query)
+      data: trendingQueries.map((q) => q.query),
     };
   }
 

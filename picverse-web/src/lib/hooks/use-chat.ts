@@ -6,6 +6,7 @@ import { useContext } from "react";
 import { ChatContext } from "../contexts";
 import { QueryKeys } from "../constants";
 import { httpClient } from "../utils";
+import { useAuth } from "./use-auth";
 
 export const useChat = () => {
   const context = useContext(ChatContext);
@@ -16,6 +17,8 @@ export const useChat = () => {
 };
 
 export const useConversations = () => {
+  const { account, ready } = useAuth();
+
   return useQuery({
     queryKey: [QueryKeys.CONVERSATIONS],
     queryFn: async () => {
@@ -23,6 +26,7 @@ export const useConversations = () => {
 
       return response.data;
     },
+    enabled: account && ready,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
@@ -42,4 +46,3 @@ export const useMessages = (conversationId: string) => {
     initialPageParam: 1,
   });
 };
-
