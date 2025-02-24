@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage, Button, Textarea } from "@app/components";
+import { Button, Textarea } from "@app/components";
 import { ArrowUp, Loader2 } from "lucide-react";
 
 interface CommentFormProps {
-  onSubmit: (content: string) => Promise<void>;
+  onComment: (content: CraeteCommentRequest) => Promise<void>;
 }
 
-export function CommentForm({ onSubmit }: CommentFormProps) {
+export function CommentForm({ onComment }: CommentFormProps) {
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -17,7 +17,7 @@ export function CommentForm({ onSubmit }: CommentFormProps) {
 
     setIsSubmitting(true);
     try {
-      await onSubmit(content);
+      await onComment({ content });
       setContent("");
     } catch (error) {
       console.error("Failed to submit comment:", error);
@@ -28,16 +28,12 @@ export function CommentForm({ onSubmit }: CommentFormProps) {
 
   return (
     <div className="flex gap-2">
-      <Avatar className="w-10 h-10 shrink-0">
-        <AvatarImage src={""} />
-        <AvatarFallback>TN</AvatarFallback>
-      </Avatar>
       <div className="flex-1 relative">
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Write a comment..."
-          className="min-h-[60px] pr-20 resize-none rounded-xl"
+          className="min-h-[60px] pr-20 resize-none rounded-xl text-sm"
         />
         <Button
           className="absolute bottom-2 right-2 rounded-full w-7 h-7"

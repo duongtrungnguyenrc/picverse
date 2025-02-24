@@ -16,13 +16,14 @@ declare type Pin = BaseModel &
 declare type PinDetail = Omit<Pin, "authorId" | "boardId"> & {
   author: Pick<Profile, "_id" | "accountId" | "firstName" | "lastName" | "avatar">;
   board?: Board;
+  resource: Resource;
   liked?: boolean;
 };
 
 declare type Cmt = BaseModel &
   Pick<TimeStampModel, "createdAt"> & {
     by: Pick<Profile, "_id" | "avatar" | "firstName" | "lastName">;
-    replyFor?: Cmt;
+    replyFor?: string;
     pinId: string;
     content: string;
   };
@@ -42,4 +43,14 @@ declare type CreatePinRequest = {
   isPublic: boolean;
   allowComment: boolean;
   allowShare: boolean;
+};
+
+declare type CraeteCommentRequest = {
+  content: string;
+  replyFor?: string;
+};
+
+declare type PinInteractionContextType = {
+  socket: Socket | null;
+  isConnected: boolean;
 };

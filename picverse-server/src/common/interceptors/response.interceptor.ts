@@ -1,16 +1,11 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from "@nestjs/common";
 import { map } from "rxjs/operators";
 import { Observable } from "rxjs";
-import { Request } from "express";
 import { Types } from "mongoose";
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const request: Request = context.switchToHttp().getRequest();
-
-    const headers = request.headers;
-
+  intercept(_: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((data) => {
         const isDateString = (value: any): boolean => {
@@ -18,9 +13,7 @@ export class ResponseInterceptor implements NestInterceptor {
         };
 
         const formatDate = (date: Date): string => {
-          const locale = headers.locale ? Intl.getCanonicalLocales(headers.locale) : undefined;
-
-          return date.toISOString().endsWith("T00:00:00.000Z") ? date.toLocaleDateString(locale) : date.toLocaleString(locale);
+          return date.toString();
         };
 
         const transformResponseObject = (obj: any): any => {

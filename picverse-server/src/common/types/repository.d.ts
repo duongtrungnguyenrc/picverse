@@ -8,7 +8,7 @@ declare namespace Repository {
 
   type FindMultipleOptions<T> = FindOptions & {
     sort?: string | { [key: string]: SortOrder | { $meta: any } } | [string, SortOrder][] | undefined | null;
-    postProcessData?: (data: Array<T>) => Array<T>;
+    postProcessData?: (data: Array<T>) => Array<T> | Promise<Array<T>>;
   };
 
   type AggregateOptions = Pick<FindOptions, "force" | "cachePostfix">;

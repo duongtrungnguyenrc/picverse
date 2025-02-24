@@ -34,13 +34,14 @@ const AuthProvider: FC<AuthProviderProps> = ({ children, account, tokenPair }) =
         authorizeClient();
       }
     };
+
     window.addEventListener("focus", handleFocus);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener("focus", handleFocus);
     };
-  }, []);
+  }, [lastFetchTime]);
 
   useEffect(() => {
     setState((prev) => ({ ...prev, account, ...tokenPair }));

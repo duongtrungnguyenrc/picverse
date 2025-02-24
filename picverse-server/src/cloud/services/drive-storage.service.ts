@@ -115,7 +115,7 @@ export class DriveStorageService implements IExternalStorageService {
     return parseInt(about.data.storageQuota?.limit || "0", 10);
   }
 
-  async getFile(resource: Resource, response: Response, width?: number, height?: number): Promise<void> {
+  async getFile(resource: Resource, response: Response): Promise<void> {
     try {
       const drive = await this.getDriveInstance(resource.accountId);
 

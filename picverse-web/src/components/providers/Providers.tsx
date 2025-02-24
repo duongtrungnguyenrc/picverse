@@ -4,6 +4,7 @@ import ReactQueryProvider from "./ReactQueryProvider";
 import SocialProvider from "./NotificationProvider";
 import ChatProvider from "./ChatProvider";
 import { Authorization } from "../core";
+import { PinInteractionProvider } from "./PinInteractionProvider";
 
 type ProviderProps = {
   children: ReactNode;
@@ -14,7 +15,9 @@ const Provider: FC<ProviderProps> = ({ children }) => {
     <Authorization>
       <ReactQueryProvider>
         <SocialProvider>
-          <ChatProvider>{children}</ChatProvider>
+          <ChatProvider>
+            <PinInteractionProvider>{children}</PinInteractionProvider>
+          </ChatProvider>
         </SocialProvider>
       </ReactQueryProvider>
     </Authorization>

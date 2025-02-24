@@ -3,13 +3,14 @@
 import { type FC, useEffect, useMemo, useRef, useState } from "react";
 
 import { cn, getResourceUrl, skeletonPlaceholder } from "@app/lib/utils";
-import PinDrawer from "./PinDrawer";
 import Image from "next/image";
+import Link from "next/link";
 
 type MansoryPinGalleryProps = {
   pins: Array<Pin>;
   loadMore?: () => void;
   isFetching: boolean;
+  keyPrefix?: string;
 };
 
 const column = {
@@ -31,7 +32,7 @@ const distributePins = (pins: Pin[], columns: number): Pin[][] => {
   return distributed;
 };
 
-const MansoryPinGallery: FC<MansoryPinGalleryProps> = ({ pins, loadMore, isFetching }) => {
+const MansoryPinGallery: FC<MansoryPinGalleryProps> = ({ pins, loadMore, isFetching, keyPrefix }) => {
   const observerRef = useRef<HTMLDivElement | null>(null);
   const [currentColumn, setCurrentColumn] = useState<number>(4);
   const [columnWidth, setColumnWidth] = useState<number>(0);
@@ -106,14 +107,14 @@ const MansoryPinGallery: FC<MansoryPinGalleryProps> = ({ pins, loadMore, isFetch
   return (
     <section className="flex justify-center w-full overflow-hidden relative">
       {distributed.map((innerArray, rowIndex) => (
-        <div key={rowIndex} style={{ width: `${columnWidth}%` }}>
+        <div key={["row", keyPrefix, rowIndex].join(":")} style={{ width: `${columnWidth}%` }}>
           {innerArray.map((_, columnIndex) => {
             const pin: Pin = innerArray[columnIndex];
-            if (typeof pin.resource === "string") return <></>;
+            if (typeof pin.resource === "string") return null;
 
             return (
-              <PinDrawer key={`pin:dtl:${pin._id}`} pinId={pin._id}>
-                <div className="relative cursor-pointer p-1.5">
+              <div key={["pin", "glr", pin._id, keyPrefix].join(":")} className="relative cursor-pointer p-1.5">
+                <Link href={`/pin/${pin._id}`}>
                   <Image
                     className="w-full rounded-2xl overflow-hidden"
                     src={getResourceUrl(pin.resource._id)}
@@ -125,19 +126,19 @@ const MansoryPinGallery: FC<MansoryPinGalleryProps> = ({ pins, loadMore, isFetch
                     width={pin.resource.width}
                     height={pin.resource.height}
                   />
-                </div>
-              </PinDrawer>
+                </Link>
+              </div>
             );
           })}
 
           {isFetching &&
             Array.from({ length: Math.ceil(10 / currentColumn) }).map((_, i) => (
-              <SkeletonPin width="100%" key={`skeleton:pin:${rowIndex}-${i}`} />
+              <SkeletonPin width="100%" key={["pin", "skeleton", i, keyPrefix].join(":")} />
             ))}
         </div>
       ))}
 
-      {loadMore && <div ref={observerRef} className="h-10 absolute bottom-[30%]" />}
+      {loadMore && <div ref={observerRef} className="h-10 absolute bottom-[200px]" />}
     </section>
   );
 };

@@ -93,11 +93,11 @@ body {
   }
 
   p {
-    @apply text-sm text-gray-500;
+    @apply text-sm;
   }
 
   .header-spacing {
-    @apply mt-[100px] mb-10;
+    @apply mt-[80px] lg:mt-[100px] mb-10;
   }
 
   .bg-gradient{

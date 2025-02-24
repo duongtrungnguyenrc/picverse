@@ -46,8 +46,8 @@ export class PinInteractionGateway {
   createLike(@SocketAuthTokenPayload("uid") accountId: DocumentId, @MessageBody() payload: CreatePinLikeDto) {
     this.likeService
       .createLike(accountId, payload)
-      .then((createdLike) => {
-        this.server.to(payload.pinId.toString()).emit("new-like", createdLike);
+      .then((isLiked) => {
+        this.server.to(payload.pinId.toString()).emit("toggle-like", isLiked);
       })
       .catch((error) => {
         this.server.to(payload.pinId.toString()).emit("like-error", error.toString());

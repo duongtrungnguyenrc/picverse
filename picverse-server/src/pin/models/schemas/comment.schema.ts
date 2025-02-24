@@ -10,7 +10,7 @@ export class Comment extends Document<Types.ObjectId> {
   pinId: DocumentId;
 
   @Prop({ type: Types.ObjectId, ref: "Comment" })
-  replyId: DocumentId;
+  replyFor: DocumentId;
 
   @Prop({ required: true })
   content: string;

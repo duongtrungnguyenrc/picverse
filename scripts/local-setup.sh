@@ -26,3 +26,5 @@ sleep 20
 ### Config Mongo DB replica set
 
 mongosh ./config-rs.js
+
+echo "Replica set config done!"

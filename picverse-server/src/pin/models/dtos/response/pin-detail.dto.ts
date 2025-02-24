@@ -4,7 +4,7 @@ import { Resource } from "@modules/cloud";
 import { Profile } from "@modules/profile";
 import { Board } from "@modules/board";
 
-export class PinDetailResponseDto {
+export class PinDetailDto {
   @ApiResponseProperty()
   author: Profile;
 
@@ -18,7 +18,7 @@ export class PinDetailResponseDto {
   description: string;
 
   @ApiResponseProperty()
-  resource: Resource | DocumentId;
+  resource: Resource;
 
   @ApiResponseProperty()
   tags: Array<string>;

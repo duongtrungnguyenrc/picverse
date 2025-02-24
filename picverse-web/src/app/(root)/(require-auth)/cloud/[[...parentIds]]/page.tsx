@@ -8,6 +8,7 @@ import {
   CloudCreateFolderButton,
   CloudLinkExternalStorageButton,
   CloudPageContent,
+  CloudStorageStatisticDialog,
   CloudUploadFileButton,
   ContentSection,
 } from "@app/components";
@@ -62,13 +63,12 @@ const CloudPage: FC<CloudPageProps> = async ({ params }) => {
           </li>
 
           <li>
-            <Link
-              className="p-3 w-[150px] flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all"
-              href=""
-            >
-              <ChartBarBig size={16} />
-              <span>Statistic</span>
-            </Link>
+            <CloudStorageStatisticDialog>
+              <div className="p-3 w-[150px] flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all">
+                <ChartBarBig size={16} />
+                <span>Statistic</span>
+              </div>
+            </CloudStorageStatisticDialog>
           </li>
 
           <li>

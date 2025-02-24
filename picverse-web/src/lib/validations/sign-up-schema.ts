@@ -13,7 +13,7 @@ export const signUpSchema = z
     phone: z.string().regex(/^0\d{9}$/, { message: "Invalid phone number" }),
   })
   .superRefine((data, ctx) => {
-    if (data.password !== data.confirmPassword) {
+    if (data.password != data.confirmPassword) {
       ctx.addIssue({
         path: ["confirmPassword"],
         message: "Passwords must match",

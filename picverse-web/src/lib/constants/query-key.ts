@@ -14,6 +14,7 @@ export enum QueryKeys {
   SEARCH = "SEARCH",
   NOTIFICATIONS = "NOTIFICATIONS",
   PIN_DETAIL = "PIN_DETAIL",
+  PIN_COMMENTS = "PIN_COMMENTS",
 }
 
 export enum MutationKeys {

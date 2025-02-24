@@ -77,11 +77,7 @@ const FloatingChat: FC<FloatingChatProps> = () => {
       <div className="fixed bottom-5 right-5 rounded-2xl z-50">
         <Popover modal={false} open={open} onOpenChange={setOpen}>
           <PopoverTrigger>
-            <ChatAvatar
-              newNotifications={0}
-              fallbackName={fallbackName}
-              avatar="https://example.com/default-avatar.png"
-            />
+            <ChatAvatar newNotifications={0} fallbackName={fallbackName} avatar="https://example.com/" />
           </PopoverTrigger>
           <PopoverContent className="w-[350px] rounded-2xl p-0" align="end">
             <div>
@@ -131,7 +127,7 @@ const ChatHeader: FC<{ conversationName: string; fallbackName: string; onClose: 
   <div className="flex items-center justify-between p-3 border-b">
     <div className="flex items-center space-x-3 w-full rounded">
       <Avatar className="h-10 w-10">
-        <AvatarImage src="https://example.com/default-avatar.png" />
+        <AvatarImage src="https://example.com/" />
         <AvatarFallback>{fallbackName}</AvatarFallback>
       </Avatar>
       <div className="flex-1 text-left">
@@ -185,7 +181,7 @@ const ChatMessage: FC<{ message: Message; fallbackName: string; isOwn: boolean }
     <div className={cn("flex", !isOwn ? "justify-end" : "justify-start")}>
       {isOwn && (
         <Avatar className="w-6 h-6 mr-2">
-          <AvatarImage src="https://example.com/default-avatar.png" alt="User" />
+          <AvatarImage src="https://example.com/" alt="User" />
           <AvatarFallback className="text-[0.5rem]">{fallbackName}</AvatarFallback>
         </Avatar>
       )}

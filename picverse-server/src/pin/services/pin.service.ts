@@ -1,18 +1,16 @@
-import { NotAcceptableException, Injectable, NotFoundException, forwardRef, Inject } from "@nestjs/common";
+import { NotAcceptableException, Injectable, NotFoundException } from "@nestjs/common";
 import { multerToBlobUrl, Repository } from "@common/utils";
 import { InjectModel } from "@nestjs/mongoose";
+import { Model, Types } from "mongoose";
 import { randomUUID } from "crypto";
-import { Model } from "mongoose";
 
+import { CreatePinDto, UpdatePinDto, PinDetailDto, Pin, CommentDetailDto } from "../models";
 import { ImageModerationService, TextModerationService } from "@modules/moderation";
-import { CreatePinDto, UpdatePinDto, PinDetailResponseDto, Pin } from "../models";
 import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { CloudService, Resource } from "@modules/cloud";
-import { ProfileService } from "@modules/profile";
+import { CommentService } from "./comment.service";
 import { VectorService } from "@modules/vector";
 import { CacheService } from "@modules/cache";
-import { BoardService } from "@modules/board";
-import { LikeService } from "./like.service";
 
 @Injectable()
 export class PinService extends Repository<Pin> {
@@ -23,9 +21,7 @@ export class PinService extends Repository<Pin> {
     private readonly vectorService: VectorService,
     private readonly imageModerationService: ImageModerationService,
     private readonly textModerationService: TextModerationService,
-    private readonly boardService: BoardService,
-    private readonly profileService: ProfileService,
-    @Inject(forwardRef(() => LikeService)) private readonly likeService: LikeService,
+    private readonly commentService: CommentService,
   ) {
     super(pinModel, cacheService, Pin.name);
   }
@@ -78,21 +74,71 @@ export class PinService extends Repository<Pin> {
     return { message: "Pin updated success" };
   }
 
-  async getPinDetail(pinId: DocumentId, accountId?: DocumentId): Promise<PinDetailResponseDto> {
-    const { authorId, boardId, ...pin } = await this.find(pinId);
+  async getPinDetail(pinId: Types.ObjectId, accountId?: Types.ObjectId): Promise<PinDetailDto> {
+    const pipeline: any[] = [
+      { $match: { _id: new Types.ObjectId(pinId) } },
+      {
+        $lookup: {
+          from: "resources",
+          localField: "resource",
+          foreignField: "_id",
+          as: "resource",
+        },
+      },
+      { $unwind: { path: "$resource", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: "profiles",
+          let: { authorId: "$authorId" },
+          pipeline: [{ $match: { $expr: { $eq: ["$accountId", "$$authorId"] } } }, { $project: { _id: 1, authorId: 1, firstName: 1, lastName: 1, avatar: 1 } }],
+          as: "author",
+        },
+      },
+      { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: "boards",
+          localField: "boardId",
+          foreignField: "_id",
+          as: "board",
+        },
+      },
+      { $unwind: { path: "$board", preserveNullAndEmptyArrays: true } },
+      ...(accountId
+        ? [
+            {
+              $lookup: {
+                from: "likes",
+                let: { pinId: "$_id", accountId: { $toObjectId: accountId } },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $and: [{ $eq: ["$pinId", "$$pinId"] }, { $eq: ["$accountId", "$$accountId"] }],
+                      },
+                    },
+                  },
+                ],
+                as: "liked",
+              },
+            },
+            { $addFields: { liked: { $gt: [{ $size: "$liked" }, 0] } } },
+          ]
+        : [{ $addFields: { liked: false } }]),
+      {
+        $project: {
+          vectorId: 0,
+          textEmbedding: 0,
+          imageEmbedding: 0,
+          "resource.__v": 0,
+          "board.__v": 0,
+          "author.__v": 0,
+        },
+      },
+    ];
 
-    const [board, author, isLiked] = await Promise.all([
-      boardId ? this.boardService.find(boardId) : null,
-      this.profileService.find({ accountId: authorId }, { select: ["_id", "authorId", "firstName", "lastName", "avatar"] }),
-      accountId ? this.likeService.exists({ pinId, accountId }) : false,
-    ]);
-
-    return {
-      ...pin,
-      board,
-      author,
-      liked: !!isLiked,
-    };
+    const result = await this.aggregate(pipeline, { force: true });
+    return result[0] || null;
   }
 
   async getAllPins(accountId: DocumentId): Promise<Array<Pin>> {
@@ -105,7 +151,10 @@ export class PinService extends Repository<Pin> {
 
     const similarPinIds = await this.vectorService.searchSimilar(PinService.name, pin.textEmbedding, pin.imageEmbedding, pagination.limit);
 
-    return this.findMultipleInfinite({ vectorId: { $in: similarPinIds.map((s) => s.id) } }, pagination);
+    return this.findMultipleInfinite({ vectorId: { $in: similarPinIds.map((s) => s.id) } }, pagination, {
+      select: ["_id", "title", "tags", "isPublic", "resource"],
+      populate: "resource",
+    });
   }
 
   async deletePin(accountId: DocumentId, pinId: DocumentId): Promise<StatusResponseDto> {
@@ -113,5 +162,9 @@ export class PinService extends Repository<Pin> {
     if (!pin) throw new NotFoundException("Pin not found for your profile");
     await this._model.deleteOne({ _id: pinId });
     return { message: "Pin deleted successfully" };
+  }
+
+  async getPinComments(pinId: DocumentId, pagination: Pagination): Promise<InfiniteResponse<CommentDetailDto>> {
+    return (await this.commentService.findMultipleInfinite(this.commentService.getPinCommentDetailPipelineStages({ pinId }), pagination)) as any;
   }
 }

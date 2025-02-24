@@ -14,20 +14,20 @@ export { default as CountDown } from "./CountDown";
 export { default as OtpDiaglog } from "./OtpDialog";
 export { default as Pagination } from "./Pagination";
 export { default as TagInput } from "./TagInput";
-export { default as ProtectedImageCanvas } from "./ProtectedImageCanvas";
 export { default as ImagePicker } from "./ImagePicker";
 export { default as ImageTransformDialog } from "./ImageTransformDialog";
 export { default as ImageAiTransformDialog } from "./ImageAiTransformDialog";
 export { default as CreateBoardDialog } from "./CreateBoardDialog";
 export { default as Board } from "./Board";
 export { default as FloatingActionNav } from "./FloatingActionNav";
-export { default as PinDrawer } from "./PinDrawer";
 export { default as PinDetail } from "./PinDetail";
 export { default as FloatingChat } from "./FloatingChat";
 export { default as ConversationList } from "./ConversationList";
 export { default as NotificationDropdown } from "./NotificationDropdown";
-export { default as CommentSection } from "./CommentSection";
+export { default as CommentSection } from "./PinCommentsSection";
 export { default as Authorization } from "./Authorization";
+export { default as Typography } from "./Typography";
+export { default as ShareResourceDialog } from "./ShareResourceDialog";
 
 /* AUTH COMPONENTS */
 export { default as GoogleSignInButton } from "./GoogleSignInButton";
@@ -37,6 +37,8 @@ export { default as ProfileBoardListingControl } from "./ProfileBoardListingCont
 
 /* PINS COMPONENTS */
 export { default as CreatePinForm } from "./CreatePinForm";
+export { default as PinCommentsSection } from "./PinCommentsSection";
+export { default as SimilarPinsSection } from "./SimilarPinsSection";
 
 /* CLOUD COMPONENTS */
 
@@ -47,6 +49,7 @@ export { default as CloudLinkExternalStorageButton } from "./CloudLinkExternalSt
 export { default as ListResources } from "./ListResources";
 export { default as GridResources } from "./GridResources";
 export { default as CloudResourceActions } from "./CloudResourceActions";
+export { default as CloudStorageStatisticDialog } from "./CloudStorageStatisticDialog";
 
 /* SETTING COMPONENTS */
 export { default as SettingSideBar } from "./SettingSideBar";

@@ -2,7 +2,7 @@ import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, 
 import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 
-import { CreatePinDto, UpdatePinDto, PinDetailResponseDto, Pin } from "../models";
+import { CreatePinDto, UpdatePinDto, PinDetailDto, Pin, CommentDetailDto } from "../models";
 import { ApiPagination, Auth, AuthUid, Pagination } from "@common/decorators";
 import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { PinService } from "../services";
@@ -48,8 +48,8 @@ export class PinController {
   @Get("/:pinId")
   @ApiOperation({ summary: "Get pin detail" })
   @ApiParam({ name: "pinId", description: "Pin id" })
-  @ApiOkResponse({ description: "Returns all pin detail", type: PinDetailResponseDto })
-  async getPinDetail(@Param("pinId") pinId: DocumentId, @AuthUid() accountId?: DocumentId): Promise<PinDetailResponseDto> {
+  @ApiOkResponse({ description: "Returns pin detail", type: PinDetailDto })
+  async getPinDetail(@Param("pinId") pinId: DocumentId, @AuthUid() accountId?: DocumentId): Promise<PinDetailDto> {
     return await this.pinService.getPinDetail(pinId, accountId);
   }
 
@@ -58,5 +58,14 @@ export class PinController {
   @ApiOkResponse({ type: InfiniteResponse<Pin> })
   async getSimilarPins(@Param("pinId") pinId: DocumentId, @Pagination() pagination: Pagination): Promise<InfiniteResponse<Pin>> {
     return this.pinService.getSimilarPins(pinId, pagination);
+  }
+
+  @Get("/:pinId/comments")
+  @ApiPagination()
+  @ApiOperation({ summary: "Get pin comments" })
+  @ApiParam({ name: "pinId", description: "Pin id" })
+  @ApiOkResponse({ description: "Returns all pin comments", type: InfiniteResponse<CommentDetailDto> })
+  async getPinComments(@Param("pinId") pinId: DocumentId, @Pagination() pagination: Pagination): Promise<InfiniteResponse<CommentDetailDto>> {
+    return await this.pinService.getPinComments(pinId, pagination);
   }
 }

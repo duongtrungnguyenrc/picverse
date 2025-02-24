@@ -48,7 +48,7 @@ const ExpandHandler = ({ setIsExpand }: { setIsExpand: (expand: boolean) => void
 
       return () => window.removeEventListener("scroll", handleScroll);
     } else {
-      setIsExpand(pathname.includes("/cloud"));
+      setIsExpand(pathname.includes("/cloud") || pathname.startsWith("/pin"));
     }
   }, [pathname, setIsExpand]);
 
@@ -56,7 +56,7 @@ const ExpandHandler = ({ setIsExpand }: { setIsExpand: (expand: boolean) => void
 };
 
 const Header = () => {
-  const [isExpand, setIsExpand] = useState(false);
+  const [isExpand, setIsExpand] = useState(true);
 
   return (
     <header className="lg:py-5 fixed top-0 left-0 w-screen z-50">
@@ -76,9 +76,13 @@ const Header = () => {
           <div className="flex items-center space-x-2">
             <SearchInput />
             <MenuDropdown />
-            <Button size="sm" className="h-10 text-sm rounded-lg">
-              <span className="hidden lg:block">Explore</span> <ArrowRight size={16} />
-            </Button>
+            <SignedIn>
+              <Link href="/cloud">
+                <Button size="sm" className="h-10 text-sm rounded-lg">
+                  <span className="hidden lg:block">Cloud</span> <ArrowRight size={16} />
+                </Button>
+              </Link>
+            </SignedIn>
           </div>
         </nav>
       </div>
