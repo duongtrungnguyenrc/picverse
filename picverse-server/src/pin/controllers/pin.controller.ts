@@ -55,6 +55,7 @@ export class PinController {
 
   @Get("/similar/:pinId")
   @ApiPagination()
+  @ApiParam({ name: "pinId", description: "Pin id" })
   @ApiOkResponse({ type: InfiniteResponse<Pin> })
   async getSimilarPins(@Param("pinId") pinId: DocumentId, @Pagination() pagination: Pagination): Promise<InfiniteResponse<Pin>> {
     return this.pinService.getSimilarPins(pinId, pagination);

@@ -42,6 +42,8 @@ services:
       - "6333:6333"
     volumes:
       - qdrant_data:/qdrant/storage 
+    networks:
+      - picverse-network
 
   config-rs:
     image: mongo:latest
