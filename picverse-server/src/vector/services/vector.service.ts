@@ -1,6 +1,7 @@
 import { FeatureExtractionPipeline, ImageFeatureExtractionPipeline } from "@xenova/transformers";
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import { QdrantClient } from "@qdrant/js-client-rest";
+
 import { multerToBlobUrl } from "@common/utils";
 
 @Injectable()
