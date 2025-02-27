@@ -1,8 +1,8 @@
 import { createContext } from "react";
 
 export const NotificationContext = createContext<NotificationContextType>({
-  hasNewNotification: false,
-  setHasNewNotification: function (): void {
+  unreadNotifications: 0,
+  setUnreadNotifications: function (): void {
     throw new Error("Function not implemented.");
   },
   notifications: [],
@@ -10,4 +10,5 @@ export const NotificationContext = createContext<NotificationContextType>({
     throw new Error("Function not implemented.");
   },
   loadingNotification: false,
+  isConnected: false,
 });

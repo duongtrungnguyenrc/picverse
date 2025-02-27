@@ -7,9 +7,9 @@ type SignedOutProps = {
 };
 
 const SignedOut: FC<SignedOutProps> = ({ children }) => {
-  const { ready, account } = useAuth();
+  const { isAuthenticated } = useAuth();
 
-  return (!ready || !account) && children;
+  return !isAuthenticated && children;
 };
 
 export default SignedOut;

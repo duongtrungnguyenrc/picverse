@@ -1,49 +1,29 @@
 "use client";
 
-import { FC, useEffect, useState, ReactNode, useCallback, useRef, useMemo } from "react";
-import { io, Socket } from "socket.io-client";
+import { FC, useEffect, useMemo, useState } from "react";
 
-import { useAuth, useNotifications, useSetNotifications } from "@app/lib/hooks";
+import { useNotifications, useSetNotifications, useSocket } from "@app/lib/hooks";
 import { NotificationContext } from "@app/lib/contexts";
 
-type NotificationProviderProps = {
-  children: ReactNode;
-};
+type NotificationProviderProps = { children: React.ReactNode };
 
 const NotificationProvider: FC<NotificationProviderProps> = ({ children }) => {
-  const [hasNewNotification, setHasNewNotification] = useState<boolean>(false);
-  const { account, ready, accessToken } = useAuth();
-  const socketRef = useRef<Socket>();
-
   const { data: notificationsData, isLoading } = useNotifications();
   const { mutate: addNotification } = useSetNotifications();
+  const [unreadNotifications, setUnreadNotifications] = useState<number>(0);
 
-  const notifications: Array<Noti> = useMemo(
-    () => notificationsData?.pages.flatMap((page) => page.data) || [],
-    [notificationsData],
-  );
+  const { socket, isConnected } = useSocket("social");
 
-  const initSocket = useCallback(() => {
-    if (!accessToken || !account || !ready) return;
+  const notifications = useMemo(() => notificationsData?.pages.flatMap((page) => page.data) || [], [notificationsData]);
 
-    socketRef.current = io(`${process.env.NEXT_PUBLIC_API_SERVER_ORIGIN}/social`, {
-      transports: ["websocket"],
-      auth: { token: `Bearer ${accessToken}` },
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("new-comment", (comment: Cmt) => {
+      addNotification({ ...comment, type: "comment" });
     });
 
-    socketRef.current.on("new-comment", (comment: Cmt) => {
-      addNotification({
-        _id: comment._id,
-        type: "comment",
-        content: comment.content,
-        pinId: comment.pinId,
-        createdAt: comment.createdAt,
-      });
-
-      setHasNewNotification(true);
-    });
-
-    socketRef.current.on("new-like", (like: Like) => {
+    socket.on("new-like", (like: Like) => {
       addNotification({
         _id: like._id,
         type: "like",
@@ -54,25 +34,20 @@ const NotificationProvider: FC<NotificationProviderProps> = ({ children }) => {
     });
 
     return () => {
-      socketRef.current?.disconnect();
+      socket.off("new-comment");
+      socket.off("new-like");
     };
-  }, [account, ready, accessToken]);
-
-  useEffect(() => {
-    const cleanup = initSocket();
-    return () => {
-      cleanup?.();
-    };
-  }, [initSocket]);
+  }, [socket]);
 
   return (
     <NotificationContext.Provider
       value={{
         notifications,
         addNotification,
-        hasNewNotification,
-        setHasNewNotification,
+        isConnected,
         loadingNotification: isLoading,
+        unreadNotifications,
+        setUnreadNotifications,
       }}
     >
       {children}

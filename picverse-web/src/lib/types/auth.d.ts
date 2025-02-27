@@ -1,13 +1,13 @@
 type AuthContextType = {
   account?: Account;
-  ready: boolean;
-  authorizeClient: (
-    tokenPair?: TokenPair,
-    actions?: { onSuccess?: VoidFunction; onFailed?: VoidFunction },
-  ) => Promise<void> | void;
-  clearAuth: VoidFunction;
+  isAuthenticated: boolean;
+  signOut: () => Promise<void>;
   accessToken?: string;
   refreshToken?: string;
+};
+
+declare type Auth = Partial<TokenPair> & {
+  account?: Account;
 };
 
 declare type Require2FAResponse = {

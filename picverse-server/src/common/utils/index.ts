@@ -1,6 +1,7 @@
 export * from "./base-repository.util";
 export * from "./jwt-handler.util";
 export * from "./base-schema.util";
+export * from "./logger.util"
 
 import { ClientSession, Model, Document } from "mongoose";
 import { Handshake } from "socket.io/dist/socket-types";

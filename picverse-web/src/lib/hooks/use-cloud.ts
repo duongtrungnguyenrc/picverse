@@ -1,11 +1,13 @@
 "use client";
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { revalidatePath } from "next/cache";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 import { httpClient, showAxiosToastError } from "../utils";
 import { MutationKeys, QueryKeys } from "../constants";
+import { createFolder, loadResources } from "../actions";
 
 export const useResources = (parentId?: string, firstPageData?: GetResourcesResponse) => {
   return useInfiniteQuery<GetResourcesResponse, AxiosError>({
@@ -13,18 +15,10 @@ export const useResources = (parentId?: string, firstPageData?: GetResourcesResp
     queryFn: async ({ pageParam }) => {
       if (pageParam === 1 && firstPageData) return firstPageData;
 
-      const query = new URLSearchParams({
-        page: String(pageParam),
-        limit: String(30),
-      });
-
-      const response = await httpClient.get<GetResourcesResponse>(
-        `/cloud/resources${parentId ? `?parentId=${parentId}` : ""}?${query}`,
-      );
-
-      return response.data;
+      return await loadResources(parentId, Number(pageParam), 20);
     },
     initialPageParam: 1,
+    initialData: { pages: [firstPageData || { data: [] }], pageParams: [1] },
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 };
@@ -54,6 +48,7 @@ export const useUploadFile = (parentId?: string) => {
         },
       });
       toast.success(response.message);
+      revalidatePath("/cloud");
 
       router.refresh();
     },
@@ -63,24 +58,18 @@ export const useUploadFile = (parentId?: string) => {
 
 export const useCreateFolder = (parentId?: string) => {
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   return useMutation<StatusResponse, AxiosError, CreateFolderRequest>({
     mutationKey: [MutationKeys.CREATE_FOLDER],
-    mutationFn: async (payload) => {
-      const response = await httpClient.post<StatusResponse>("/cloud/folder", { ...payload, parentId });
-
-      return response.data;
-    },
+    mutationFn: async (payload) => createFolder(payload, parentId),
     onSuccess: async (response) => {
-      await queryClient.resetQueries({
+      await queryClient.invalidateQueries({
         predicate: (query) => {
           return query.queryKey.includes(QueryKeys.RESOURCES);
         },
       });
 
       toast.success(response.message);
-      router.refresh();
     },
     onError: showAxiosToastError,
   });

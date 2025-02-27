@@ -13,7 +13,13 @@ type HomeGalleryProps = {
 const HomeGallery: FC<HomeGalleryProps> = ({ firstPageData }) => {
   const { data: feeds, isFetching, fetchNextPage, hasNextPage } = useFeeds(firstPageData);
 
-  const pins = useMemo(() => (feeds?.pages || []).flatMap((page) => page.data) as Array<Pin>, [feeds]);
+  const pins = useMemo(() => {
+    const allPins = (feeds?.pages || []).flatMap((page) => page.data) as Array<Pin>;
+
+    const uniquePins = Array.from(new Map(allPins.map((pin) => [pin._id, pin])).values());
+
+    return uniquePins;
+  }, [feeds]);
 
   return (
     <div id="gallery" className="lg:px-10 header-spacing">

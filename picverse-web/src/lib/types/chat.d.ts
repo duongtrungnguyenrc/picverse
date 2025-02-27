@@ -34,7 +34,6 @@ declare type CurrentConversation =
 declare type ChatContextType = {
   isConnected: boolean;
   currentConversation: CurrentConversation;
-  initSocket: VoidFunction;
   sendMessage: (payload: SendMessageDto) => void;
-  changeCurrentConversation: (conversation: CurrentConversation) => void;
+  setCurrentConversation: (conversation: CurrentConversation) => void;
 };

@@ -21,7 +21,7 @@ type ConversationListProps = {
 };
 
 const ConversationList: FC<ConversationListProps> = ({ children }) => {
-  const { changeCurrentConversation } = useChat();
+  const { setCurrentConversation } = useChat();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -34,7 +34,7 @@ const ConversationList: FC<ConversationListProps> = ({ children }) => {
   }, [conversations, search]);
 
   const onSelectConversation = (conversation: Conversation) => {
-    changeCurrentConversation(conversation);
+    setCurrentConversation(conversation);
   };
 
   return (

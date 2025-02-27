@@ -6,9 +6,10 @@ declare type Noti = BaseModel &
   };
 
 declare type NotificationContextType = {
-  hasNewNotification: boolean;
-  setHasNewNotification: (has: boolean) => void;
+  unreadNotifications: number;
+  setUnreadNotifications: (count: number) => void;
   notifications: Noti[];
   addNotification: (notification: Noti) => void;
   loadingNotification: boolean;
+  isConnected: boolean;
 };

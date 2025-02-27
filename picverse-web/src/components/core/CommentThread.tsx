@@ -2,21 +2,28 @@
 
 import { Avatar, AvatarFallback, AvatarImage, Button, Typography, Skeleton } from "@app/components";
 import { formatDistanceToNow } from "date-fns";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { CommentForm } from "./CommentForm";
 
 interface CommentThreadProps {
   comments: Cmt[];
-  onReplyComment: (content: CraeteCommentRequest) => Promise<void>;
+  onReplyComment: (content: CreateCommentRequest) => Promise<void>;
   isLoading: boolean;
 }
 
 export default function CommentThread({ comments, onReplyComment, isLoading }: CommentThreadProps) {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
+  const handleReplyComment = useCallback(async (newComment: CreateCommentRequest, replyFor: string) => {
+    return await onReplyComment({ ...newComment, replyFor }).then((result) => {
+      setReplyingTo(null);
+      return result;
+    });
+  }, []);
+
   const renderComment = (comment: Cmt, isReply = false) => {
-    const replies = comments.filter((c) => c.replyFor === comment._id);
+    const replies = comments.filter((c) => c?.replyFor === comment._id);
 
     return (
       <div key={comment._id} className={`${isReply ? "ml-12" : ""} mb-3`}>
@@ -45,7 +52,7 @@ export default function CommentThread({ comments, onReplyComment, isLoading }: C
 
             {replyingTo === comment._id && (
               <div className="mt-5">
-                <CommentForm onComment={(newComment) => onReplyComment({ ...newComment, replyFor: comment._id })} />
+                <CommentForm onComment={(newComment) => handleReplyComment(newComment, comment._id)} />
               </div>
             )}
           </div>
@@ -56,7 +63,7 @@ export default function CommentThread({ comments, onReplyComment, isLoading }: C
     );
   };
 
-  const rootComments = comments.filter((c) => !c.replyFor);
+  const rootComments = comments.filter((c) => !c?.replyFor);
 
   return (
     <div className="space-y-4">

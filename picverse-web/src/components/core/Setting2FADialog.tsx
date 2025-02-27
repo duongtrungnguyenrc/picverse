@@ -19,13 +19,14 @@ import {
   AlertDescription,
 } from "../shadcn";
 import Disable2FADialog from "./Disable2FADialog";
+import { revalidateAuth } from "@app/lib/actions";
 
 const Setting2FADialog: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
 
-  const { account, authorizeClient: refetchAccount } = useAuth();
+  const { account } = useAuth();
   const { mutate: enableTwoFactor, isPending: isEnabling } = useEnable2FA();
   const { mutate: verifyTwoFactor, isPending: isVerifying } = useVerify2FA();
 
@@ -42,7 +43,7 @@ const Setting2FADialog: React.FC<{ children: React.ReactNode }> = ({ children })
       { otpCode: verificationCode },
       {
         onSuccess: () => {
-          refetchAccount();
+          revalidateAuth();
           setQrCodeUrl(null);
           setVerificationCode("");
         },

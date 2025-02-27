@@ -6,14 +6,16 @@ import { cn, getResourceUrl, skeletonPlaceholder } from "@app/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 
+type MansoryLayoutConfigSize = "xs" | "sm" | "md" | "lg" | "xl" | "xxl";
 type MansoryPinGalleryProps = {
   pins: Array<Pin>;
   loadMore?: () => void;
   isFetching: boolean;
   keyPrefix?: string;
+  layoutConfig?: Record<MansoryLayoutConfigSize, number>;
 };
 
-const column = {
+const defaultLayoutConfig: Record<MansoryLayoutConfigSize, number> = {
   xs: 2,
   sm: 2,
   md: 4,
@@ -32,7 +34,13 @@ const distributePins = (pins: Pin[], columns: number): Pin[][] => {
   return distributed;
 };
 
-const MansoryPinGallery: FC<MansoryPinGalleryProps> = ({ pins, loadMore, isFetching, keyPrefix }) => {
+const MansoryPinGallery: FC<MansoryPinGalleryProps> = ({
+  pins,
+  loadMore,
+  isFetching,
+  keyPrefix,
+  layoutConfig = defaultLayoutConfig,
+}) => {
   const observerRef = useRef<HTMLDivElement | null>(null);
   const [currentColumn, setCurrentColumn] = useState<number>(4);
   const [columnWidth, setColumnWidth] = useState<number>(0);
@@ -61,31 +69,31 @@ const MansoryPinGallery: FC<MansoryPinGalleryProps> = ({ pins, loadMore, isFetch
 
     switch (true) {
       case windowWidth < 640:
-        currentBreakpointColumns = column.xs;
+        currentBreakpointColumns = layoutConfig.xs;
         currentBreakpointColumnWidth = 50;
         break;
       case windowWidth < 768:
-        currentBreakpointColumns = column.sm;
+        currentBreakpointColumns = layoutConfig.sm;
         currentBreakpointColumnWidth = 50;
         break;
       case windowWidth < 1024:
-        currentBreakpointColumns = column.md;
+        currentBreakpointColumns = layoutConfig.md;
         currentBreakpointColumnWidth = 40;
         break;
       case windowWidth < 1280:
-        currentBreakpointColumns = column.lg;
+        currentBreakpointColumns = layoutConfig.lg;
         currentBreakpointColumnWidth = 30;
         break;
       case windowWidth < 1536:
-        currentBreakpointColumns = column.xl;
+        currentBreakpointColumns = layoutConfig.xl;
         currentBreakpointColumnWidth = 25;
         break;
       case windowWidth > 1536:
-        currentBreakpointColumns = column.xxl;
+        currentBreakpointColumns = layoutConfig.xxl;
         currentBreakpointColumnWidth = 25;
         break;
       default:
-        currentBreakpointColumns = column.md;
+        currentBreakpointColumns = layoutConfig.md;
         currentBreakpointColumnWidth = 40;
         break;
     }

@@ -12,7 +12,7 @@ import {
   CloudUploadFileButton,
   ContentSection,
 } from "@app/components";
-import { loadFirstPageResources } from "@app/lib/actions";
+import { loadResources } from "@app/lib/actions";
 
 type CloudPageProps = {
   params: Promise<{ parentIds: Array<string> }>;
@@ -28,7 +28,7 @@ const CloudPage: FC<CloudPageProps> = async ({ params }) => {
   if (parentIds?.length > 1) notFound();
 
   const parentId = parentIds?.length > 0 ? parentIds[0] : undefined;
-  const firstPageResources = await loadFirstPageResources(parentId);
+  const firstPageResources = await loadResources(parentId, 1, 20);
 
   return (
     <div className="header-spacing p-10">

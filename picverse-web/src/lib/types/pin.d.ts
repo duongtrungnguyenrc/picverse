@@ -45,7 +45,7 @@ declare type CreatePinRequest = {
   allowShare: boolean;
 };
 
-declare type CraeteCommentRequest = {
+declare type CreateCommentRequest = {
   content: string;
   replyFor?: string;
 };

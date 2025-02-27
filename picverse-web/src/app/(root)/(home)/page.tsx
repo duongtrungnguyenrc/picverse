@@ -1,12 +1,12 @@
 import { FC } from "react";
 
-import { loadFirstPageFeed } from "@app/lib/actions";
+import { loadFeed } from "@app/lib/actions";
 import { HomeGallery } from "@app/components";
 
 type HomePageProps = {};
 
 const HomePage: FC<HomePageProps> = async ({}: HomePageProps) => {
-  const firstPageFeed = await loadFirstPageFeed();
+  const firstPageFeed = await loadFeed({ page: 1, limit: 30 });
 
   return (
     <>

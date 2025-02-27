@@ -1,6 +1,6 @@
 import { FC, ReactNode } from "react";
 
-import { getCookie, loadAuthAccount } from "@app/lib/actions";
+import { auth } from "@app/lib/actions";
 import { AuthProvider } from "../providers";
 
 type AuthorizationProps = {
@@ -8,17 +8,9 @@ type AuthorizationProps = {
 };
 
 const Authorization: FC<AuthorizationProps> = async ({ children }) => {
-  const [accessToken, refreshToken] = await Promise.all([
-    getCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX),
-    getCookie(process.env.NEXT_PUBLIC_REFRESH_TOKEN_PREFIX),
-  ]);
-  const account = await loadAuthAccount(accessToken);
+  const authState = await auth();
 
-  return (
-    <AuthProvider account={account} tokenPair={{ accessToken, refreshToken }}>
-      {children}
-    </AuthProvider>
-  );
+  return <AuthProvider authState={authState}>{children}</AuthProvider>;
 };
 
 export default Authorization;

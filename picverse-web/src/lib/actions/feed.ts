@@ -1,14 +1,19 @@
 "use server";
 
-import { httpClient } from "../utils";
+import { httpFetchClient } from "../utils";
 
-export const loadFirstPageFeed = async (): Promise<InfiniteResponse<Pin>> => {
-  const query = new URLSearchParams({
-    page: String(1),
-    limit: String(30),
+export const loadFeed = async (pagination: Pagination): Promise<InfiniteResponse<Pin>> => {
+  const paginationQuery = new Map<string, string>();
+
+  Object.entries(pagination).forEach(([key, value]) => {
+    if (value) paginationQuery.set(key, String(value));
   });
 
-  const firstPageFeed = await httpClient.get<InfiniteResponse<Pin>>(`/feed?${query}`);
+  const page = await httpFetchClient.get<InfiniteResponse<Pin>>("/feed", {
+    query: paginationQuery,
+  });
 
-  return firstPageFeed.data;
+  console.log(page);
+
+  return page;
 };

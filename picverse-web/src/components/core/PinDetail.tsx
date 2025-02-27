@@ -1,8 +1,9 @@
 "use client";
 
-import { Bookmark, Heart as RegularHeart, Share } from "lucide-react";
+import { Bookmark, Heart, Share } from "lucide-react";
 import Image from "next/image";
-import { FC } from "react";
+import Link from "next/link";
+import type { FC } from "react";
 
 import {
   Avatar,
@@ -12,138 +13,165 @@ import {
   Button,
   ContentSection,
   PinCommentsSection,
+  RequireAuthFeature,
   ShareResourceDialog,
   Skeleton,
   Typography,
 } from "@app/components";
-import { getResourceUrl, skeletonPlaceholder } from "@app/lib/utils";
 import { usePinDetail, usePinLikes } from "@app/lib/hooks";
-import Link from "next/link";
+import { getResourceUrl, skeletonPlaceholder } from "@app/lib/utils";
 
 type PinDetailProps = {
   pinId: string;
   prefetchedPin: PinDetail;
 };
 
-const PinDetail: FC<PinDetailProps> = ({ pinId, prefetchedPin }) => {
+const PinDetailComponent: FC<PinDetailProps> = ({ pinId, prefetchedPin }) => {
   const { data, isFetching } = usePinDetail(pinId, prefetchedPin);
   const isLoading = !data || isFetching;
 
   return (
-    <div className="space-y-5">
-      <section className="px-5 lg:px-10 space-y-5">
-        <div className="flex-1">
-          {isLoading ? <Skeleton className="h-10 w-3/4" /> : <h1 className="h1 text-3xl">{data.title}</h1>}
-          {isLoading ? (
-            <Skeleton className="h-5 w-1/2 mt-3" />
-          ) : (
-            <div className="flex gap-2 mt-3">
-              {data.tags.map((tag) => {
-                return <Badge key={`pin:dtl:tag:${tag}`}>{tag}</Badge>;
-              })}
+    <main className="py-6 space-y-5">
+      {/* Header Section */}
+      <section className="container mb-8 space-y-4">
+        {isLoading ? (
+          <>
+            <Skeleton className="h-10 w-3/4" />
+            <Skeleton className="h-5 w-1/2" />
+          </>
+        ) : (
+          <>
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{data.title}</h1>
+            <div className="flex flex-wrap gap-2">
+              {data.tags.map((tag) => (
+                <Badge key={`pin:dtl:tag:${tag}`} className="text-sm rounded-lg">
+                  {tag}
+                </Badge>
+              ))}
             </div>
-          )}
-        </div>
-        <Typography>{data?.description}</Typography>
+          </>
+        )}
+        {!isLoading && <Typography className="text-muted-foreground">{data.description}</Typography>}
       </section>
 
-      <div className="px-5 grid grid-cols-12 space-y-5 lg:space-y-0 lg:space-x-5 lg:px-10">
-        <section className="border rounded-xl col-span-full lg:col-span-7 flex-center">
-          {isLoading ? (
-            <Skeleton className="w-[80%] h-full" />
-          ) : (
-            <Image
-              className="object-contain max-w-[80%]"
-              src={getResourceUrl(data.resource._id)}
-              alt={data.title || ""}
-              width={data.resource.width}
-              height={data.resource.height}
-              placeholder="blur"
-              blurDataURL={skeletonPlaceholder}
-              priority
-            />
-          )}
+      {/* Main Content */}
+      <div className="container space-y-5">
+        {/* Image Section */}
+        <section>
+          <div className="relative flex-center w-full overflow-hidden rounded-lg bg-muted h-fit">
+            {isLoading ? (
+              <Skeleton className="absolute inset-0" />
+            ) : (
+              <Image
+                src={getResourceUrl(data.resource._id) || ""}
+                alt={data.title || ""}
+                width={data.resource.width}
+                height={data.resource.height}
+                className="object-contain"
+                placeholder="blur"
+                blurDataURL={skeletonPlaceholder}
+                priority
+              />
+            )}
+          </div>
         </section>
-        <div className="flex-1 col-span-full lg:col-span-5 px-0 lg:px-10 pb-10 space-y-5">
-          <ContentSection heading="Interactions">
-            <ul className="flex gap-x-2.5">
-              {isLoading ? (
-                <>
-                  <Skeleton className="w-10 h-10 rounded-full" />
-                  <Skeleton className="w-10 h-10 rounded-full" />
-                  <Skeleton className="w-10 h-10 rounded-full" />
-                </>
-              ) : (
-                <>
-                  <li>
-                    <PinLikeButton isLiked={data?.liked} pinId={pinId} />
-                  </li>
-                  <li>
-                    <Button variant="outline" className="rounded-full w-10 h-10" size="sm">
-                      <Bookmark className="w-4 h-4" />
-                    </Button>
-                  </li>
 
-                  <ShareResourceDialog
-                    url={typeof window !== "undefined" ? window.location.href : ""}
-                    imageUrl={getResourceUrl(data.resource._id)}
-                    description={data.description}
-                  >
-                    <li>
-                      <Button variant="outline" className="rounded-full w-10 h-10" size="sm">
-                        <Share className="w-4 h-4" />
-                      </Button>
-                    </li>
-                  </ShareResourceDialog>
-                </>
-              )}
-            </ul>
-          </ContentSection>
+        {/* Interactions & Comments Section */}
+        <section className="space-y-6 max-h-full">
+          <InteractionButtons isLoading={isLoading} pinId={pinId} data={data} isLiked={data?.liked} />
           <PinCommentsSection pinId={pinId} />
-        </div>
+        </section>
       </div>
 
-      {/* Footer */}
-      <section className="space-y-5 py-10">
-        <div className="px-5 lg:px-10 flex-center space-x-5">
-          <span className="flex-1 h-[3px] bg-gray-300" />
-          <Avatar className="w-16 h-16">
-            {isLoading ? (
-              <Skeleton className="h-full w-full rounded-full" />
-            ) : (
-              <>
-                <AvatarImage src={data.author.avatar || ""} alt={data.author.firstName} />
-                <AvatarFallback>{data.author.firstName[0]}</AvatarFallback>
-              </>
-            )}
-          </Avatar>
-          <span className="flex-1 h-[3px] bg-gray-300" />
-        </div>
+      {/* Author Section */}
+      <AuthorSection isLoading={isLoading} data={data} />
+    </main>
+  );
+};
 
-        <div className="flex-center flex-col space-y-3">
+type InteractionButtonsProps = {
+  isLoading: boolean;
+  pinId: string;
+  data?: PinDetail;
+  isLiked?: boolean;
+};
+
+const InteractionButtons: FC<InteractionButtonsProps> = ({ isLoading, pinId, data, isLiked }) => {
+  if (isLoading) {
+    return (
+      <div className="flex gap-3">
+        <Skeleton className="h-10 w-10 rounded-full" />
+        <Skeleton className="h-10 w-10 rounded-full" />
+        <Skeleton className="h-10 w-10 rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex gap-3">
+      <PinLikeButton isLiked={isLiked} pinId={pinId} />
+      <Button variant="outline" size="icon" className="rounded-full">
+        <Bookmark className="h-4 w-4" />
+        <span className="sr-only">Bookmark</span>
+      </Button>
+      <ShareResourceDialog
+        url={typeof window !== "undefined" ? window.location.href : ""}
+        imageUrl={data ? getResourceUrl(data.resource._id) : ""}
+        description={data?.description || ""}
+      >
+        <Button variant="outline" size="icon" className="rounded-full">
+          <Share className="h-4 w-4" />
+          <span className="sr-only">Share</span>
+        </Button>
+      </ShareResourceDialog>
+    </div>
+  );
+};
+
+type AuthorSectionProps = {
+  isLoading: boolean;
+  data?: PinDetail;
+};
+
+const AuthorSection: FC<AuthorSectionProps> = ({ isLoading, data }) => {
+  return (
+    <section className="mt-16 border-t pt-8">
+      <div className="flex flex-col items-center space-y-3">
+        <Avatar className="h-20 w-20">
+          {isLoading ? (
+            <Skeleton className="h-full w-full rounded-full" />
+          ) : (
+            <>
+              <AvatarImage src={data?.author.avatar || ""} alt={data?.author.firstName || ""} />
+              <AvatarFallback className="text-2xl font-semibold">{data?.author.firstName?.[0]}</AvatarFallback>
+            </>
+          )}
+        </Avatar>
+
+        <div className="text-center">
           {isLoading ? (
             <>
-              <Skeleton className="h-6 w-40" />
-              <Skeleton className="h-4 w-48" />
+              <Skeleton className="mx-auto h-6 w-40" />
+              <Skeleton className="mx-auto mt-2 h-4 w-48" />
             </>
           ) : (
             <>
-              <Typography variant="h2">
-                {data.author.firstName} {data.author.lastName}
+              <Typography variant="h2" className="font-semibold">
+                {data?.author.firstName} {data?.author.lastName}
               </Typography>
-              <Typography variant="body1" className="text-center">
-                {data.description}
+              <Typography variant="body1" className="mt-2 text-muted-foreground">
+                {data?.description}
               </Typography>
-              <Link href={`/${data.author.accountId}`}>
-                <Button className="rounded-full h-10 px-5" size="sm">
+              <Link href={`/${data?.author.accountId}`} className="mt-4 inline-block">
+                <Button className="rounded-full" size="sm">
                   Get in touch
                 </Button>
               </Link>
             </>
           )}
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 };
 
@@ -162,10 +190,13 @@ const PinLikeButton: FC<PinLikeButtonProps> = ({ pinId, isLiked }) => {
   };
 
   return (
-    <Button variant="outline" className="rounded-full" size="icon" onClick={handleLike} disabled={isLikeLoading}>
-      {<RegularHeart className={`w-5 h-5 ${isLiked ? "text-red-500 fill-red-500" : ""}`} />}
-    </Button>
+    <RequireAuthFeature>
+      <Button variant="outline" size="icon" className="rounded-full" onClick={handleLike} disabled={isLikeLoading}>
+        <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+        <span className="sr-only">Like</span>
+      </Button>
+    </RequireAuthFeature>
   );
 };
 
-export default PinDetail;
+export default PinDetailComponent;

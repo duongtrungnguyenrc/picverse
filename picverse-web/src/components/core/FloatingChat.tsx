@@ -21,7 +21,7 @@ import {
 type FloatingChatProps = {};
 
 const FloatingChat: FC<FloatingChatProps> = () => {
-  const { sendMessage, currentConversation, changeCurrentConversation } = useChat();
+  const { sendMessage, currentConversation, setCurrentConversation } = useChat();
   const [open, setOpen] = useState(true);
   const [input, setInput] = useState("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -54,9 +54,9 @@ const FloatingChat: FC<FloatingChatProps> = () => {
   }, [input, currentConversation, sendMessage]);
 
   const onClose = useCallback(() => {
-    changeCurrentConversation(null);
+    setCurrentConversation(null);
     setOpen(false);
-  }, [changeCurrentConversation]);
+  }, [setCurrentConversation]);
 
   useEffect(() => {
     if (currentConversation) {

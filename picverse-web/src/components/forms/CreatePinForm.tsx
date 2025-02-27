@@ -5,7 +5,7 @@ import { Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import { FC } from "react";
 
-import { ContentSection, ImagePicker, TagInput } from ".";
+import { ContentSection, ImagePicker, TagInput } from "../core";
 import { useCreatePin } from "@app/lib/hooks";
 import {
   Form,

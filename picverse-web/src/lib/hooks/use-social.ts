@@ -26,7 +26,7 @@ export const useSetNotifications = () => {
 };
 
 export const useNotifications = () => {
-  const { account, ready } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   return useInfiniteQuery({
     queryKey: [QueryKeys.NOTIFICATIONS],
@@ -40,7 +40,7 @@ export const useNotifications = () => {
 
       return response.data;
     },
-    enabled: account && ready,
+    enabled: isAuthenticated,
     refetchOnWindowFocus: false,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: 1,

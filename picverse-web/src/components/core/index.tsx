@@ -28,6 +28,7 @@ export { default as CommentSection } from "./PinCommentsSection";
 export { default as Authorization } from "./Authorization";
 export { default as Typography } from "./Typography";
 export { default as ShareResourceDialog } from "./ShareResourceDialog";
+export { default as RequireAuthFeature } from "./RequireAuthFeature";
 
 /* AUTH COMPONENTS */
 export { default as GoogleSignInButton } from "./GoogleSignInButton";
@@ -36,7 +37,6 @@ export { default as GoogleSignInButton } from "./GoogleSignInButton";
 export { default as ProfileBoardListingControl } from "./ProfileBoardListingControl";
 
 /* PINS COMPONENTS */
-export { default as CreatePinForm } from "./CreatePinForm";
 export { default as PinCommentsSection } from "./PinCommentsSection";
 export { default as SimilarPinsSection } from "./SimilarPinsSection";
 
@@ -57,7 +57,6 @@ export { default as SettingHeader } from "./SettingHeader";
 export { default as ChangePasswordDialog } from "./ChangePasswordDialog";
 export { default as Disable2FADialog } from "./Disable2FADialog";
 export { default as LoginHistoryDialog } from "./LoginHistoryDialog";
-export { default as SettingProfileForm } from "./SettingProfileForm";
 
 /* LISTING COMPONENTS */
 

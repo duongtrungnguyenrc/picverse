@@ -1,8 +1,9 @@
 "use client";
 
 import { Lock, KeyRound, Loader2, ShieldOff } from "lucide-react";
+import { useForm } from "react-hook-form";
 
-import { useAuth, useDisable2FA } from "@app/lib/hooks";
+import { useDisable2FA } from "@app/lib/hooks";
 import {
   Button,
   Dialog,
@@ -19,7 +20,7 @@ import {
   FormMessage,
   Input,
 } from "../shadcn";
-import { useForm } from "react-hook-form";
+import { revalidateAuth } from "@app/lib/actions";
 
 const Disable2FADialog: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const form = useForm<Disable2FARequest>({
@@ -30,14 +31,11 @@ const Disable2FADialog: React.FC<{ children: React.ReactNode }> = ({ children })
   });
   const { errors: formErrors } = form.formState;
 
-  const { authorizeClient: refetchAccount } = useAuth();
   const { mutate: disableTwoFactor, isPending: isDisabling } = useDisable2FA();
 
   const handleDisable = form.handleSubmit((data: Disable2FARequest) => {
     disableTwoFactor(data, {
-      onSuccess: () => {
-        refetchAccount();
-      },
+      onSuccess: revalidateAuth,
     });
   });
 

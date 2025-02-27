@@ -100,8 +100,13 @@ export function usePinComments(pinId: string) {
 
   const commentsQuery = useInfiniteQuery({
     queryKey: [QueryKeys.PIN_COMMENTS, pinId],
-    queryFn: async () => {
-      const response = await httpClient.get<InfiniteResponse<Cmt>>(`/pin/${pinId}/comments`);
+    queryFn: async ({ pageParam }) => {
+      const query = new URLSearchParams({
+        page: String(pageParam),
+        limit: String(8),
+      });
+
+      const response = await httpClient.get<InfiniteResponse<Cmt>>(`/pin/${pinId}/comments?${query}`);
       return response.data;
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor || null,
@@ -110,7 +115,7 @@ export function usePinComments(pinId: string) {
   });
 
   const createCommentMutation = useMutation({
-    mutationFn: async (content: CraeteCommentRequest) => {
+    mutationFn: async (content: CreateCommentRequest) => {
       if (!socket) throw new Error("Socket not connected");
 
       socket.emit("comment", {
@@ -122,7 +127,8 @@ export function usePinComments(pinId: string) {
 
   return {
     comments: commentsQuery.data?.pages.flatMap((page) => page.data) || [],
-    fetchNextPage: commentsQuery.hasNextPage ? commentsQuery.fetchNextPage : undefined,
+    fetchNextPage: commentsQuery.fetchNextPage,
+    hasNextPage: commentsQuery.hasNextPage,
     isLoading: commentsQuery.isLoading,
     createComment: createCommentMutation.mutate,
   };

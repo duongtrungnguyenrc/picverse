@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 import { getUserLocale } from "get-user-locale";
 
-import { clearAuthCookie, getCookie, setAuthCookie } from "../actions";
+import { clearAuthCookie, getAuthCookie, setAuthCookie } from "../actions";
 
 const baseURL: string = `${process.env.NEXT_PUBLIC_API_SERVER_ORIGIN}/api`;
 const axiosInstance: AxiosInstance = axios.create({
@@ -9,7 +9,7 @@ const axiosInstance: AxiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(async (config) => {
-  const accessToken: string | undefined = await getCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX);
+  const accessToken: string | undefined = await getAuthCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX);
 
   config.headers.Authorization = `Bearer ${accessToken}`;
   config.headers.locale = getUserLocale();
@@ -23,7 +23,7 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     if (!originalRequest?.url.includes("sign-in") && error.response?.status === 401) {
-      const token: string | undefined = await getCookie(process.env.NEXT_PUBLIC_REFRESH_TOKEN_PREFIX);
+      const token: string | undefined = await getAuthCookie(process.env.NEXT_PUBLIC_REFRESH_TOKEN_PREFIX);
 
       if (token) {
         try {

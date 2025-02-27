@@ -17,7 +17,7 @@ export const useChat = () => {
 };
 
 export const useConversations = () => {
-  const { account, ready } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   return useQuery({
     queryKey: [QueryKeys.CONVERSATIONS],
@@ -26,7 +26,7 @@ export const useConversations = () => {
 
       return response.data;
     },
-    enabled: account && ready,
+    enabled: isAuthenticated,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });

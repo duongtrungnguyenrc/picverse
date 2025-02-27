@@ -20,12 +20,12 @@ type NotificationDropdownProps = {
 };
 
 const NotificationDropdown: FC<NotificationDropdownProps> = ({ children }) => {
-  const { loadingNotification, notifications, hasNewNotification, setHasNewNotification } = useNotification();
+  const { loadingNotification, notifications, unreadNotifications, setUnreadNotifications } = useNotification();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (open) {
-      setHasNewNotification(false);
+      setUnreadNotifications(0);
     }
   }, [open]);
 
@@ -33,7 +33,9 @@ const NotificationDropdown: FC<NotificationDropdownProps> = ({ children }) => {
     <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger className="focus-visible:outline-none">
         <div className="relative">
-          {hasNewNotification && <span className="absolute top-0 right-0 rounded-full w-2 aspect-square bg-red-500" />}
+          {unreadNotifications > 0 && (
+            <span className="absolute top-0 right-0 rounded-full w-2 aspect-square bg-red-500" />
+          )}
 
           {children}
         </div>

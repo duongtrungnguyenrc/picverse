@@ -7,38 +7,29 @@ import { toast } from "react-hot-toast";
 import { useContext } from "react";
 
 import { httpClient, showAxiosToastError } from "../utils";
-import { MutationKeys, QueryKeys } from "../constants";
+import { AuthTags, MutationKeys, QueryKeys } from "../constants";
 import { AuthContext } from "../contexts";
-import { getClientSecret, googleSignIn } from "../actions";
+import { getClientSecret, googleSignIn, signOut } from "../actions";
 
 export const useAuth = () => useContext(AuthContext);
 
-export const useSignIn = () => {
-  return useMutation<TokenPair | Require2FAResponse, AxiosError, SignInRequest>({
-    mutationKey: [MutationKeys.SIGN_IN],
-    mutationFn: async (data) => {
-      const response = await httpClient.post<TokenPair | Require2FAResponse>("/auth/sign-in", data);
+export const useSession = () => {
+  return useQuery({
+    queryKey: [],
+    queryFn: async () => {
+      const response = await fetch("/api/sessions", {
+        next: {
+          tags: [AuthTags.TOKENS],
+          revalidate: 60 * 60, // 1 hours in minutes
+        },
+      });
 
-      return response.data;
+      return response.json();
     },
-    onError: showAxiosToastError,
-  });
-};
-
-export const useSignInWith2FA = () => {
-  return useMutation<TokenPair, AxiosError, SignInWithTwoFactorRequest>({
-    mutationFn: async (data) => {
-      const response = await httpClient.post<TokenPair>("/auth/sign-in/2fa", data);
-      return response.data;
-    },
-    onError: showAxiosToastError,
   });
 };
 
 export const useGoogleSignIn = () => {
-  // const { data: secret } = useClientSecret();
-  // const router = useRouter();
-
   const mutationResult = useMutation<void, AxiosError>({
     mutationKey: [MutationKeys.GOOGLE_SIGN_IN],
     mutationFn: async () => {
@@ -53,17 +44,11 @@ export const useGoogleSignIn = () => {
 };
 
 export const useSignOut = () => {
-  const { clearAuth } = useAuth();
-
-  return useMutation<StatusResponse, AxiosError>({
+  return useMutation<void, AxiosError>({
     mutationKey: [MutationKeys.SIGN_OUT],
-    mutationFn: async () => {
-      const response = await httpClient.post<StatusResponse>("/auth/sign-out");
-      return response.data;
-    },
-    onSuccess: async (data) => {
-      await clearAuth();
-      toast.success(data.message);
+    mutationFn: signOut,
+    onSuccess: async () => {
+      toast.success("Sign out success");
     },
     onError: showAxiosToastError,
   });

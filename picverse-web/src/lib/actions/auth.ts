@@ -1,25 +1,81 @@
 "use server";
 
 import "server-only";
-import { cookies } from "next/headers";
-import { httpClient } from "../utils";
+
+import { revalidateTag } from "next/cache";
+import { redirect, RedirectType } from "next/navigation";
 import { generate } from "randomstring";
-import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import { setAuthCookie } from "./cookies";
 
-export const loadAuthAccount = async (accessToken?: string): Promise<Account | undefined> => {
+import { clearAuthCookie, getAuthCookie, setAuthCookie } from "./cookies";
+import { httpFetchClient } from "../utils";
+import { AuthTags } from "../constants";
+
+export const auth = async (): Promise<Auth> => {
   try {
-    const response = await httpClient.get<Account>("/account", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const [account, tokenPair] = await Promise.all([
+      httpFetchClient.get<Account>("/account", {
+        next: {
+          tags: [AuthTags.AUTH],
+          revalidate: 60 * 60, // 1 hours in minutes
+        },
+      }),
+      getTokens(),
+    ]);
 
-    return response.data;
+    return {
+      account,
+      ...tokenPair,
+    };
   } catch (error) {
-    return undefined;
+    return {};
   }
+};
+
+export const getTokens = async (): Promise<Partial<TokenPair>> => {
+  const [accessToken, refreshToken] = await Promise.all([
+    getAuthCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX),
+    getAuthCookie(process.env.NEXT_PUBLIC_REFRESH_TOKEN_PREFIX),
+  ]);
+
+  return { accessToken, refreshToken };
+};
+
+export const revalidateAuth = async () => {
+  revalidateTag(AuthTags.TOKENS);
+  revalidateTag(AuthTags.AUTH);
+};
+
+export const signIn = async (payload: SignInRequest) => {
+  const response = await httpFetchClient.post<TokenPair | Require2FAResponse>(
+    "/auth/sign-in",
+    JSON.stringify(payload),
+    { retry: false },
+  );
+
+  if (!("require2FA" in response)) {
+    await setAuthCookie(response);
+    revalidateAuth();
+    redirect("/", RedirectType.replace);
+  }
+
+  return response;
+};
+
+export const twoFactorSignIn = async (payload: SignInWithTwoFactorRequest) => {
+  const response = await httpFetchClient.post<TokenPair>("/auth/sign-in/2fa", JSON.stringify(payload));
+
+  await setAuthCookie(response);
+  revalidateAuth();
+  redirect("/", RedirectType.replace);
+};
+
+export const signOut = async () => {
+  await httpFetchClient.post("/auth/sign-out");
+
+  await clearAuthCookie();
+  revalidateTag(AuthTags.AUTH);
 };
 
 export const googleSignIn = async (secret: string) => {
@@ -29,12 +85,12 @@ export const googleSignIn = async (secret: string) => {
 export const getClientSecret = async () => {
   const cookieStore = await cookies();
 
-  let secret = cookieStore.get("authSecret")?.value;
+  let secret = cookieStore.get("ast")?.value;
 
   if (!secret) {
     secret = generate({ length: 32 }) + Date.now().toString();
     cookieStore.set({
-      name: "authSecret",
+      name: "ast",
       value: secret,
     });
   }
@@ -48,8 +104,6 @@ export async function handleAuthCallback(token: string) {
   const { secret: decodedSecret, ...tokenPair } = decodedToken;
 
   await setAuthCookie(tokenPair);
-
-  console.debug("valid secret");
-
+  revalidateTag("auth");
   redirect("/");
 }

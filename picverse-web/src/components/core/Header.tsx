@@ -48,7 +48,7 @@ const ExpandHandler = ({ setIsExpand }: { setIsExpand: (expand: boolean) => void
 
       return () => window.removeEventListener("scroll", handleScroll);
     } else {
-      setIsExpand(pathname.includes("/cloud") || pathname.startsWith("/pin"));
+      setIsExpand(pathname.startsWith("/cloud"));
     }
   }, [pathname, setIsExpand]);
 

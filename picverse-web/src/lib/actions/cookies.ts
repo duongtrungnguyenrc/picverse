@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 
 import { decrypt, encrypt } from "@app/lib/utils";
 
-export async function getCookie(key?: string): Promise<string | undefined> {
+export async function getAuthCookie(key?: string): Promise<string | undefined> {
   const cookieStore = await cookies();
 
   if (key) {

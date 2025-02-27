@@ -4,14 +4,16 @@ import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 
 import { HttpExceptionFilter, MongoExceptionFilter } from "@common/filters";
-import { ResponseInterceptor } from "@common/interceptors";
+import { LoggingInterceptor, ResponseInterceptor } from "@common/interceptors";
 import { AppModule } from "@modules/app";
+import { AppLogger } from "./common/utils";
 
 async function bootstrap() {
   const app: INestApplication = await NestFactory.create(AppModule);
 
   const configService: ConfigService = app.get(ConfigService);
 
+  // app.useLogger(new AppLogger());
   app.enableCors({
     origin: [configService.get<string>("CLIENT_ORIGIN")],
   });
@@ -24,7 +26,7 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-  app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalInterceptors(new ResponseInterceptor(), new LoggingInterceptor());
   app.setGlobalPrefix("/api");
 
   const config = new DocumentBuilder()
