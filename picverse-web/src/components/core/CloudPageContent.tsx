@@ -1,12 +1,12 @@
 "use client";
 
-import { CloudUpload, PackageOpen, Lock, FolderPlus } from "lucide-react";
+import { CloudUpload, PackageOpen, FolderPlus } from "lucide-react";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { FC, useCallback, useMemo } from "react";
 import { DndProvider } from "react-dnd";
 
-import { useListing, useResources, useUpdateResource } from "@app/lib/hooks";
-import { getAxiosErrorMessage } from "@app/lib/utils";
+import { useListing, useUpdateResource } from "@app/lib/hooks";
+import { revalidateCloudResources } from "@app/lib/actions";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -15,7 +15,6 @@ import {
   ContextMenuTrigger,
   Tabs,
   TabsContent,
-  Skeleton,
   ContentSection,
   Button,
   CloudUploadFileButton,
@@ -30,11 +29,10 @@ type CloudPageContentProps = {
   firstPageResources: GetResourcesResponse;
 };
 
-const CloudPageContent: FC<CloudPageContentProps> = ({ parentId, firstPageResources }) => {
-  const { data, isPending, isFetched, error, refetch } = useResources(parentId, firstPageResources);
+const CloudPageContent: FC<CloudPageContentProps> = ({ firstPageResources }) => {
   const { mutateAsync: updateResource, reset } = useUpdateResource();
 
-  const resources = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data]);
+  const resources = useMemo(() => firstPageResources?.data || [], [firstPageResources]);
   const { displayItems, onSearchChange, onFieldFilterChange, insertAfter } = useListing<Resource>(resources);
 
   const handleDrop = useCallback(
@@ -54,15 +52,7 @@ const CloudPageContent: FC<CloudPageContentProps> = ({ parentId, firstPageResour
 
   const onContextMenuItemSelect = (event: Event) => event.preventDefault();
 
-  if (error) {
-    return <ErrorState error={error} />;
-  }
-
-  if (isPending) {
-    return <LoadingState />;
-  }
-
-  if (resources.length === 0 && isFetched) {
+  if (resources.length === 0) {
     return <EmptyState />;
   }
   return (
@@ -103,7 +93,7 @@ const CloudPageContent: FC<CloudPageContentProps> = ({ parentId, firstPageResour
             </ContextMenuShortcut>
           </ContextMenuItem>
         </CloudCreateFolderButton>
-        <ContextMenuItem onClick={() => refetch()}>
+        <ContextMenuItem onClick={revalidateCloudResources}>
           Reload
           <ContextMenuShortcut>⌘R</ContextMenuShortcut>
         </ContextMenuItem>
@@ -111,16 +101,6 @@ const CloudPageContent: FC<CloudPageContentProps> = ({ parentId, firstPageResour
     </ContextMenu>
   );
 };
-
-const ErrorState: FC<{ error: AxiosError }> = ({ error }) => (
-  <div className="flex h-[450px] shrink-0 items-center justify-center rounded-md border border-dashed transition-all">
-    <div className="mx-auto flex max-w-[420px] flex-col items-center justify-center text-center">
-      <Lock className="text-muted-foreground" size={36} />
-      <h3 className="mt-4 text-lg font-semibold">Access error</h3>
-      <p className="mb-4 mt-2 text-sm text-muted-foreground">{getAxiosErrorMessage(error)}</p>
-    </div>
-  </div>
-);
 
 const EmptyState: FC = () => (
   <div className="flex h-[450px] shrink-0 items-center justify-center rounded-md border border-dashed transition-all">
@@ -132,14 +112,6 @@ const EmptyState: FC = () => (
         Add Resource
       </Button>
     </div>
-  </div>
-);
-
-const LoadingState: FC = () => (
-  <div className="h-[450px] grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-5">
-    {Array.from({ length: 9 }).map((_, index) => (
-      <Skeleton key={`skeleton-${index}`} className="w-full aspect-square" />
-    ))}
   </div>
 );
 

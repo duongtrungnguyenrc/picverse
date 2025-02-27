@@ -44,7 +44,7 @@ const SignInForm: FC<SignInFormProps> = () => {
     setLoading(true);
     signIn(data)
       .then((require2FAResponse) => {
-        set2FACredential(require2FAResponse);
+        if (require2FAResponse) set2FACredential(require2FAResponse);
       })
       .catch((error) => {
         toast.error(error.toString());

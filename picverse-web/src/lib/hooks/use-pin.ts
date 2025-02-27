@@ -2,52 +2,23 @@
 
 import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { httpClient, showAxiosToastError } from "../utils";
 import { QueryKeys } from "../constants";
 import { useContext, useEffect } from "react";
 import { PinInteractionContext } from "../contexts";
-import { getPinDetail } from "../actions";
+import { getPinDetail, createPin, getSimilarPins, getPinComments } from "../actions";
+
+export const usePinInteraction = () => useContext(PinInteractionContext);
 
 export const useCreatePin = () => {
-  return useMutation<StatusResponse, AxiosError, CreatePinRequest>({
-    mutationFn: async (payload) => {
-      const data: FormData = new FormData();
-
-      Object.entries(payload).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          if (typeof value === "boolean") {
-            data.append(key, value.toString());
-          } else if (Array.isArray(value)) {
-            value.forEach((tag) => data.append(key, tag));
-          } else {
-            data.append(key, value);
-          }
-        }
-      });
-
-      const response = await httpClient.post<StatusResponse>("/pin", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      return response.data;
-    },
-    onError: showAxiosToastError,
+  return useMutation({
+    mutationFn: createPin,
   });
 };
 
 export const useSimilarPins = (pinId: string) => {
   return useInfiniteQuery({
-    queryKey: [QueryKeys.SIMILAR_PINS],
-    queryFn: async ({ pageParam }) => {
-      const query = new URLSearchParams({
-        limit: String(20),
-        page: String(pageParam),
-      });
-
-      const response = await httpClient.get<InfiniteResponse<Pin>>(`/pin/similar/${pinId}/?${query}`);
-
-      return response.data;
-    },
+    queryKey: [QueryKeys.SIMILAR_PINS, pinId],
+    queryFn: async ({ pageParam }) => await getSimilarPins(pinId, pageParam),
     enabled: !!pinId,
     refetchOnWindowFocus: false,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? null,
@@ -58,15 +29,9 @@ export const useSimilarPins = (pinId: string) => {
 export const usePinDetail = (pinId: string, prefetchedPin?: PinDetail) => {
   return useQuery({
     queryKey: [QueryKeys.PIN_DETAIL, pinId],
-    queryFn: async () => {
-      if (prefetchedPin) return prefetchedPin;
-
-      return await getPinDetail(pinId);
-    },
+    queryFn: async () => (prefetchedPin ? prefetchedPin : await getPinDetail(pinId)),
   });
 };
-
-export const usePinInteraction = () => useContext(PinInteractionContext);
 
 export function usePinComments(pinId: string) {
   const { socket } = usePinInteraction();
@@ -78,12 +43,13 @@ export function usePinComments(pinId: string) {
     socket.emit("listen", pinId);
 
     socket.on("new-comment", (comment: Cmt) => {
-      queryClient.setQueryData([QueryKeys.PIN_COMMENTS, pinId], (oldData: InfiniteData<InfiniteResponse<Cmt>>) => {
+      queryClient.setQueryData<InfiniteData<InfiniteResponse<Cmt>>>([QueryKeys.PIN_COMMENTS, pinId], (oldData) => {
+        if (!oldData) return;
+
         return {
           ...oldData,
           pages: oldData.pages.map((page, index) => {
-            const isFirstPage = index + 1 === oldData.pageParams[0];
-
+            const isFirstPage = index === 0;
             return {
               ...page,
               data: isFirstPage ? [comment, ...page.data] : page.data,
@@ -100,15 +66,7 @@ export function usePinComments(pinId: string) {
 
   const commentsQuery = useInfiniteQuery({
     queryKey: [QueryKeys.PIN_COMMENTS, pinId],
-    queryFn: async ({ pageParam }) => {
-      const query = new URLSearchParams({
-        page: String(pageParam),
-        limit: String(8),
-      });
-
-      const response = await httpClient.get<InfiniteResponse<Cmt>>(`/pin/${pinId}/comments?${query}`);
-      return response.data;
-    },
+    queryFn: async ({ pageParam }) => await getPinComments(pinId, pageParam),
     getNextPageParam: (lastPage) => lastPage.nextCursor || null,
     initialPageParam: 1,
     enabled: !!pinId,

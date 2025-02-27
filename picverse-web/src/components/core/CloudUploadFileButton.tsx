@@ -37,7 +37,7 @@ type CloudUploadFileButtonProps = {
 
 const CloudUploadFileButton: FC<CloudUploadFileButtonProps> = ({ parentId, children }) => {
   const [file, setFile] = useState<{ file?: File; previewUrl?: string }>({});
-  const { mutateAsync: uploadFile, isPending } = useUploadFile(parentId);
+  const { mutateAsync: uploadFile, isPending } = useUploadFile();
   const { data: linkStatus } = useExternalStorageLinkStatus();
   const form = useForm<UploadFileRequest>();
 
@@ -55,6 +55,7 @@ const CloudUploadFileButton: FC<CloudUploadFileButtonProps> = ({ parentId, child
       await uploadFile({
         ...data,
         file: file.file,
+        parentId,
       });
       form.reset();
       setFile({ file: undefined, previewUrl: undefined });

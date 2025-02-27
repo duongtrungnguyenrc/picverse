@@ -1,10 +1,10 @@
-import { ApiBody, ApiOkResponse, ApiTags } from "@nestjs/swagger";
-import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from "@nestjs/common";
 
-import { AuthTokenPayload } from "@common/decorators";
-import { StatusResponseDto } from "@common/dtos";
+import { AuthUid, Pagination } from "@common/decorators";
+import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
 import { BoardService } from "../services";
-import { CreateBoardDto, UpdateBoardDto } from "../models";
+import { CreateBoardDto, UpdateBoardDto, UserBoardDto } from "../models";
 
 @Controller("board")
 @ApiTags("Board")
@@ -14,26 +14,27 @@ export class BoardController {
   @Post("/")
   @ApiBody({ type: CreateBoardDto })
   @ApiOkResponse({ type: CreateBoardDto })
-  async createBoard(@AuthTokenPayload("pid") profileId: DocumentId, @Body() payload: CreateBoardDto): Promise<StatusResponseDto> {
+  async createBoard(@AuthUid() profileId: DocumentId, @Body() payload: CreateBoardDto): Promise<StatusResponseDto> {
     return await this.boardService.createBoard(profileId, payload);
   }
 
-  @Get("/")
-  @ApiOkResponse({ type: CreateBoardDto })
-  async getAllBoards(): Promise<CreateBoardDto[]> {
-    return await this.boardService.getAllBoards();
+  @Get("/user")
+  @ApiOperation({ summary: "Get user boards" })
+  @ApiOkResponse({ type: InfiniteResponse<UserBoardDto> })
+  async getUserBoards(@Pagination() pagination: Pagination, @AuthUid() accountId?: DocumentId, @Query("id") userId?: DocumentId) {
+    return await this.boardService.getUserBoards(pagination, accountId ?? userId);
   }
 
   @Delete("/:id")
   @ApiOkResponse({ type: StatusResponseDto })
-  async deleteBoard(@Param("id") id: string): Promise<StatusResponseDto> {
+  async deleteBoard(@Param("id") id: DocumentId): Promise<StatusResponseDto> {
     return await this.boardService.deleteBoard(id);
   }
 
   @Put("/:id")
   @ApiBody({ type: UpdateBoardDto })
   @ApiOkResponse({ type: StatusResponseDto })
-  async updateBoard(@Param("id") id: string, @Body() payload: UpdateBoardDto): Promise<StatusResponseDto> {
+  async updateBoard(@Param("id") id: DocumentId, @Body() payload: UpdateBoardDto): Promise<StatusResponseDto> {
     return await this.boardService.updateBoard(id, payload);
   }
 }

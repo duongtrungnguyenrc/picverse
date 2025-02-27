@@ -23,11 +23,14 @@ type CloudCreateFolderButtonProps = {
 
 const CloudCreateFolderButton: FC<CloudCreateFolderButtonProps> = ({ parentId, children }) => {
   const { register, handleSubmit, reset } = useForm<CreateFolderRequest>();
-  const { mutateAsync: createFolder, isPending } = useCreateFolder(parentId);
+  const { mutateAsync: createFolder, isPending } = useCreateFolder();
 
   const onSubmit = async (data: CreateFolderRequest) => {
     try {
-      await createFolder(data);
+      await createFolder({
+        ...data,
+        parentId
+      });
       reset();
     } catch (error) {
       toast.error("Upload failed: " + error);

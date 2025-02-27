@@ -4,6 +4,7 @@ import { type FC, type ReactNode, useEffect, useRef } from "react";
 
 import { revalidateAuth, signOut } from "@app/lib/actions";
 import { AuthContext } from "@app/lib/contexts";
+import { useAuthCheck } from "@app/lib/hooks";
 
 type AuthProviderProps = {
   children: ReactNode;
@@ -14,6 +15,7 @@ const SLATE_TIME = 60 * 60 * 1000;
 
 const AuthProvider: FC<AuthProviderProps> = ({ children, authState }) => {
   const lastFetchTime = useRef<number>(Date.now());
+  useAuthCheck();
 
   useEffect(() => {
     const handleFocus = () => {

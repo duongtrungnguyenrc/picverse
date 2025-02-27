@@ -1,17 +1,47 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { generate } from "randomstring";
 import { toast } from "react-hot-toast";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 
 import { httpClient, showAxiosToastError } from "../utils";
-import { AuthTags, MutationKeys, QueryKeys } from "../constants";
+import { ACCESS_TOKEN_PREFIX, AuthTags, MutationKeys, QueryKeys } from "../constants";
 import { AuthContext } from "../contexts";
-import { getClientSecret, googleSignIn, signOut } from "../actions";
+import { getAuthCookie, getClientSecret, googleSignIn, refreshToken, signOut } from "../actions";
+import { jwtDecode } from "jwt-decode";
 
 export const useAuth = () => useContext(AuthContext);
+
+const TOKEN_CHECK_INTERVAL = 5 * 60 * 1000;
+const TOKEN_THRESHOLD = 5 * 60 * 1000;
+
+export const useAuthCheck = () => {
+  useEffect(() => {
+    const checkToken = async () => {
+      const accessToken = await getAuthCookie(ACCESS_TOKEN_PREFIX);
+
+      if (!accessToken) {
+        refreshToken();
+        return;
+      }
+
+      const decoded: { exp: number } = jwtDecode(accessToken);
+      const expiresAt = new Date(decoded.exp * 1000).getTime();
+      const now = Date.now();
+
+      if (expiresAt - now < TOKEN_THRESHOLD) {
+        refreshToken();
+      }
+    };
+    checkToken();
+
+    const interval = setInterval(checkToken, TOKEN_CHECK_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, []);
+};
+
+export default useAuthCheck;
 
 export const useSession = () => {
   return useQuery({

@@ -77,10 +77,12 @@ const GridResourceItem: FC<GridResourceItemProps> = ({ resource, onDrop }) => {
 
   const renderImage = () => (
     <Image
-      className="object-contain"
+      className="object-contain w-full h-full"
       src={isFile ? getResourceUrl(_id) : "/images/folder.png"}
       alt={name}
-      layout="fill"
+      width={resource.width || 100}
+      height={resource.height || 100}
+      objectFit="contain"
     />
   );
 

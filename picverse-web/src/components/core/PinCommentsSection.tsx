@@ -47,9 +47,13 @@ const PinCommentsSection: FC<CommentSectionProps> = ({ pinId }) => {
 
           {hasNextPage && (
             <div className="flex-center">
-              <Button onClick={() => fetchNextPage()} className="text-xs rounded-full" size="sm">
+              <button
+                disabled={isLoading}
+                onClick={() => fetchNextPage()}
+                className="text-xs transition-all bg-transparent hover:bg-muted px-2 py-1 text-gray-600 rounded"
+              >
                 Load more
-              </Button>
+              </button>
             </div>
           )}
         </>

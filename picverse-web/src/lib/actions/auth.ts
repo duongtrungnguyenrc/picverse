@@ -10,7 +10,7 @@ import jwt from "jsonwebtoken";
 
 import { clearAuthCookie, getAuthCookie, setAuthCookie } from "./cookies";
 import { httpFetchClient } from "../utils";
-import { AuthTags } from "../constants";
+import { AuthTags, BASE_URL, REFRESH_TOKEN_PREFIX } from "../constants";
 
 export const auth = async (): Promise<Auth> => {
   try {
@@ -47,6 +47,32 @@ export const revalidateAuth = async () => {
   revalidateTag(AuthTags.AUTH);
 };
 
+export const refreshToken = async (): Promise<string> => {
+  const refreshToken: string | undefined = await getAuthCookie(REFRESH_TOKEN_PREFIX);
+
+  if (!refreshToken) throw new Error("No refresh token available");
+
+  const response = await fetch(`${BASE_URL}/auth/refresh-token`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${refreshToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    await clearAuthCookie();
+    throw new Error("Failed to refresh token");
+  }
+
+  const data = await response.json();
+
+  await setAuthCookie(data).catch((e) => {
+    console.log(e);
+  });
+
+  return data;
+};
+
 export const signIn = async (payload: SignInRequest) => {
   const response = await httpFetchClient.post<TokenPair | Require2FAResponse>(
     "/auth/sign-in",
@@ -57,7 +83,7 @@ export const signIn = async (payload: SignInRequest) => {
   if (!("require2FA" in response)) {
     await setAuthCookie(response);
     revalidateAuth();
-    redirect("/", RedirectType.replace);
+    return;
   }
 
   return response;

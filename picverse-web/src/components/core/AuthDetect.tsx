@@ -16,7 +16,7 @@ const AuthDetect: FC<AuthDetectProps> = ({ children, navigationTo, isSignedIn = 
   const router = useRouter();
 
   useEffect(() => {
-    if (isAuthenticated === isSignedIn) {
+    if (isAuthenticated !== isSignedIn) {
       router.replace(navigationTo);
     }
   }, [isAuthenticated, isSignedIn, navigationTo, router]);

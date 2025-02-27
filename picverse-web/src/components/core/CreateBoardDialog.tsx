@@ -25,6 +25,7 @@ import {
 } from "../shadcn";
 import { createBoardSchema } from "@app/lib/validations";
 import { useCreateBoard } from "@app/lib/hooks";
+import toast from "react-hot-toast";
 
 type CreateBoardDialogProps = {
   children: ReactNode;
@@ -46,7 +47,14 @@ const CreateBoardDialog: FC<CreateBoardDialogProps> = ({ children }) => {
   const formErrors = form.formState.errors;
 
   const onCreateBoard = form.handleSubmit((data) => {
-    mutate(data);
+    console.log("submit");
+
+    mutate(data, {
+      onSuccess: () => {
+        toast.success("Board created")
+        setoOenDialog(false)
+      }
+    });
   });
 
   return (
@@ -83,7 +91,7 @@ const CreateBoardDialog: FC<CreateBoardDialogProps> = ({ children }) => {
                   <FormControl>
                     <Textarea
                       value={field.value}
-                      onChange={(e) => field.onChange({ name: field.name, value: e.target.value })}
+                      onChange={(e) => field.onChange(e.target.value)}
                       placeholder="Enter board description"
                     />
                   </FormControl>

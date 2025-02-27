@@ -3,20 +3,15 @@
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-import { MutationKeys } from "../constants";
-import { httpClient, showAxiosToastError } from "../utils";
+import { showToastError } from "../utils";
+import { updateProfile } from "../actions";
 
 export const useUpdateProfile = () => {
-  return useMutation<StatusResponse, AxiosError, UpdateProfileRequest>({
-    mutationKey: [MutationKeys.UPDATE_PROFILE],
-    mutationFn: async (profile) => {
-      const response = await httpClient.put<StatusResponse>("/profile", profile);
-
-      return response.data;
-    },
+  return useMutation<StatusResponse, Error, UpdateProfileRequest>({
+    mutationFn: updateProfile,
     onSuccess: (data) => {
       toast.success(data.message);
     },
-    onError: showAxiosToastError,
+    onError: showToastError,
   });
 };

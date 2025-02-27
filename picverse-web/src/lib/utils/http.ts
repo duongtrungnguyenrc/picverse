@@ -1,43 +1,19 @@
-import { getAuthCookie, setAuthCookie } from "../actions";
+import { clearAuthCookie, getAuthCookie, refreshToken, setAuthCookie } from "../actions";
+import { BASE_URL } from "../constants";
 
 type BaseRequestConfigs = Omit<RequestInit, "body"> & {
-  query?: Map<string, string> | Record<string, string>;
+  query?: Record<string, string | number | undefined>;
 };
 
 type RequestConfigs = BaseRequestConfigs & { retry?: boolean };
 
-const baseUrl: string = `${process.env.NEXT_PUBLIC_API_SERVER_ORIGIN}/api`;
+function getQueryString(queryObject: Record<string, string | number | undefined>): string {
+  const searchParams = new URLSearchParams();
 
-function convertMapToObject(map: Map<string, string> | Record<string, string>): Record<string, string> {
-  if (map instanceof Map) {
-    const newObject: Record<string, string> = {};
-    for (const [key, value] of map) {
-      newObject[key] = value;
-    }
-    return newObject;
-  }
-  return map;
+  Object.entries(queryObject).forEach(([key, value]) => value && searchParams.set(key, String(value)));
+
+  return `?${searchParams}`;
 }
-
-const refreshToken = async (): Promise<string> => {
-  const refreshToken: string | undefined = await getAuthCookie(process.env.NEXT_PUBLIC_REFRESH_TOKEN_PREFIX);
-
-  if (!refreshToken) throw new Error("No refresh token available");
-
-  const response = await fetch(`${baseUrl}/auth/refresh-token`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${refreshToken}`,
-    },
-  });
-
-  if (!response.ok) throw new Error("Failed to refresh token");
-
-  const data = await response.json();
-  await setAuthCookie(data);
-
-  return data;
-};
 
 const baseRequest = async <T>(
   endpoints: string,
@@ -46,7 +22,7 @@ const baseRequest = async <T>(
   retry: boolean = true,
 ): Promise<T> => {
   const { query, ...restConfig } = config;
-  const url = `${baseUrl}${endpoints}${query ? `?${new URLSearchParams(convertMapToObject(query))}` : ""}`;
+  const url = `${BASE_URL}${endpoints}${query ? getQueryString(query) : ""}`;
 
   const accessToken = await getAuthCookie(process.env.NEXT_PUBLIC_ACCESS_TOKEN_PREFIX);
 

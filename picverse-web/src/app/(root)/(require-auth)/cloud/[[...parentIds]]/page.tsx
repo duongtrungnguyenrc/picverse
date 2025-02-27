@@ -28,15 +28,15 @@ const CloudPage: FC<CloudPageProps> = async ({ params }) => {
   if (parentIds?.length > 1) notFound();
 
   const parentId = parentIds?.length > 0 ? parentIds[0] : undefined;
-  const firstPageResources = await loadResources(parentId, 1, 20);
+  const firstPageResources = await loadResources(parentId, { page: 1, limit: 20 });
 
   return (
-    <div className="header-spacing p-10">
+    <div className="header-spacing p-5 md:p-10">
       <ContentSection heading="Cloud control" className="sticky top-0 h-fit">
-        <ul className="flex flex-wrap gap-3 max-w-full">
+        <ul className="grid grid-cols-2 md:gid-cols-3 lg:grid-cols-8 gap-3 max-w-full">
           <li>
             <CloudUploadFileButton parentId={parentId}>
-              <div className="cursor-pointer p-3 w-[150px] flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all">
+              <div className="cursor-pointer p-3 w-full flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all">
                 <CloudUpload size={16} />
                 <span>Upload file</span>
               </div>
@@ -45,7 +45,7 @@ const CloudPage: FC<CloudPageProps> = async ({ params }) => {
 
           <li>
             <CloudCreateFolderButton parentId={parentId}>
-              <div className="cursor-pointer p-3 w-[150px] flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all">
+              <div className="cursor-pointer p-3 w-full flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all">
                 <FolderPlus size={16} />
                 <span>Create folder</span>
               </div>
@@ -54,7 +54,7 @@ const CloudPage: FC<CloudPageProps> = async ({ params }) => {
 
           <li>
             <Link
-              className="p-3 w-[150px] flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all"
+              className="p-3 w-full flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all"
               href=""
             >
               <Share size={16} />
@@ -64,7 +64,7 @@ const CloudPage: FC<CloudPageProps> = async ({ params }) => {
 
           <li>
             <CloudStorageStatisticDialog>
-              <div className="p-3 w-[150px] flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all">
+              <div className="p-3 w-full flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all">
                 <ChartBarBig size={16} />
                 <span>Statistic</span>
               </div>
@@ -73,7 +73,7 @@ const CloudPage: FC<CloudPageProps> = async ({ params }) => {
 
           <li>
             <CloudLinkExternalStorageButton>
-              <div className="cursor-pointer p-3 w-[150px] flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all">
+              <div className="cursor-pointer p-3 w-full flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all">
                 <Cloudy size={16} />
                 <span>Link storage</span>
               </div>

@@ -4,3 +4,4 @@ export * from "./profile";
 export * from "./auth";
 export * from "./cloud";
 export * from "./pin";
+export * from "./board";
