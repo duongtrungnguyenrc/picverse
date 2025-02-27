@@ -51,7 +51,7 @@ const CloudResourceActions: FC<{
         </Select>
       </div>
       <DropdownMenu>
-        <DropdownMenuTrigger className="block md:hidden">
+        <DropdownMenuTrigger asChild className="block md:hidden">
           <Button variant="outline">
             <Menu />
           </Button>

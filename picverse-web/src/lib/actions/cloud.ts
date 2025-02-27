@@ -3,7 +3,7 @@
 import { revalidateTag } from "next/cache";
 import "server-only";
 
-import { httpFetchClient } from "../utils";
+import { httpFetchClient, objectToFormData } from "../utils";
 import { CloudTags } from "../constants";
 
 export const loadResources = async (parentId?: string, pagination?: Pagination): Promise<GetResourcesResponse> => {
@@ -21,10 +21,7 @@ export const revalidateCloudResources = async () => revalidateTag(CloudTags.RESO
 export const uploadFile = async (payload: UploadFileRequest) => {
   const { parentId, ...restPayload } = payload;
 
-  const data = new FormData();
-  Object.entries(restPayload).forEach(([key, value]) => value && data.append(key, value));
-
-  const response = await httpFetchClient.post<StatusResponse>("/cloud/file", data, {
+  const response = await httpFetchClient.post<StatusResponse>("/cloud/file", objectToFormData(restPayload), {
     query: {
       parentId,
     },

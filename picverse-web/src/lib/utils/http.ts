@@ -29,7 +29,6 @@ const baseRequest = async <T>(
   const response = await fetch(url, {
     ...restConfig,
     headers: {
-      "Content-Type": "application/json",
       Authorization: accessToken ? `Bearer ${accessToken}` : "",
       ...restConfig.headers,
     },
