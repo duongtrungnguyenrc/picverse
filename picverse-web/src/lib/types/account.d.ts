@@ -9,7 +9,6 @@ declare type Account = BaseModel &
     createdAt: Date;
   };
 
-
 declare type MutatePassword<T> = T & {
   confirmPassword: string;
 };

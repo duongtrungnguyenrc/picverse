@@ -77,7 +77,12 @@ export const signIn = async (payload: SignInRequest) => {
   const response = await httpFetchClient.post<TokenPair | Require2FAResponse>(
     "/auth/sign-in",
     JSON.stringify(payload),
-    { retry: false },
+    {
+      retry: false,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
   );
 
   if (!("require2FA" in response)) {

@@ -20,14 +20,14 @@ import {
   Checkbox,
   OtpDiaglog,
 } from "@app/components";
-import { signIn, twoFactorSignIn } from "@app/lib/actions";
+import { twoFactorSignIn } from "@app/lib/actions";
 import { signInSchema } from "@app/lib/validations";
+import { useSignIn } from "@app/lib/hooks";
 
 type SignInFormProps = {};
 
 const SignInForm: FC<SignInFormProps> = () => {
-  const [credential, set2FACredential] = useState<Require2FAResponse>();
-  const [loading, setLoading] = useState(false);
+  const { isPending, handleSignIn, credential, set2FACredential } = useSignIn();
 
   const form = useForm<SignInRequest>({
     resolver: zodResolver(signInSchema),
@@ -38,21 +38,7 @@ const SignInForm: FC<SignInFormProps> = () => {
     },
   });
 
-  const { errors: formErrors } = form.formState;
-
-  const onSignIn = (data: SignInRequest) => {
-    setLoading(true);
-    signIn(data)
-      .then((require2FAResponse) => {
-        if (require2FAResponse) set2FACredential(require2FAResponse);
-      })
-      .catch((error) => {
-        toast.error(error.toString());
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+  const onSignIn = form.handleSubmit(handleSignIn);
 
   const onVerify2FA = useCallback(
     (otpCode: string) => {
@@ -66,6 +52,10 @@ const SignInForm: FC<SignInFormProps> = () => {
     [credential],
   );
 
+  const onCancel2FA = useCallback(() => {
+    set2FACredential(undefined);
+  }, [set2FACredential]);
+
   return (
     <div className="p-8 space-y-8 bg-white/80 animate-opacity-fade-in ">
       <div className="space-y-2 text-center">
@@ -74,7 +64,7 @@ const SignInForm: FC<SignInFormProps> = () => {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSignIn)} className="space-y-5">
+        <form onSubmit={onSignIn} className="space-y-5">
           <FormField
             control={form.control}
             name="emailOrUserName"
@@ -87,7 +77,7 @@ const SignInForm: FC<SignInFormProps> = () => {
                     <Input className="pl-10" placeholder="Enter your email or username" {...field} />
                   </div>
                 </FormControl>
-                {formErrors.emailOrUserName && <FormMessage>{formErrors.emailOrUserName.message}</FormMessage>}
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -104,7 +94,7 @@ const SignInForm: FC<SignInFormProps> = () => {
                     <Input className="pl-10" type="password" placeholder="Enter your password" {...field} />
                   </div>
                 </FormControl>
-                {formErrors.password && <FormMessage>{formErrors.password.message}</FormMessage>}
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -125,11 +115,11 @@ const SignInForm: FC<SignInFormProps> = () => {
           </div>
 
           <Button
-            disabled={loading}
+            disabled={isPending}
             type="submit"
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
           >
-            {loading ? (
+            {isPending ? (
               <>
                 Signing in
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -164,7 +154,7 @@ const SignInForm: FC<SignInFormProps> = () => {
         </form>
       </Form>
 
-      <OtpDiaglog open={!!credential} onSubmit={onVerify2FA} title="Enter OTP code" />
+      <OtpDiaglog open={!!credential} onCancel={onCancel2FA} onSubmit={onVerify2FA} title="Enter OTP code" />
     </div>
   );
 };

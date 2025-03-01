@@ -2,12 +2,12 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState, useTransition } from "react";
 
 import { httpClient, showAxiosToastError } from "../utils";
 import { ACCESS_TOKEN_PREFIX, AuthTags, MutationKeys, QueryKeys } from "../constants";
 import { AuthContext } from "../contexts";
-import { getAuthCookie, getClientSecret, googleSignIn, refreshToken, signOut } from "../actions";
+import { getAuthCookie, getClientSecret, googleSignIn, refreshToken, signIn, signOut } from "../actions";
 import { jwtDecode } from "jwt-decode";
 
 export const useAuth = () => useContext(AuthContext);
@@ -21,7 +21,7 @@ export const useAuthCheck = () => {
       const accessToken = await getAuthCookie(ACCESS_TOKEN_PREFIX);
 
       if (!accessToken) {
-        refreshToken();
+        await refreshToken();
         return;
       }
 
@@ -33,6 +33,7 @@ export const useAuthCheck = () => {
         refreshToken();
       }
     };
+
     checkToken();
 
     const interval = setInterval(checkToken, TOKEN_CHECK_INTERVAL);
@@ -40,8 +41,6 @@ export const useAuthCheck = () => {
     return () => clearInterval(interval);
   }, []);
 };
-
-export default useAuthCheck;
 
 export const useSession = () => {
   return useQuery({
@@ -57,6 +56,29 @@ export const useSession = () => {
       return response.json();
     },
   });
+};
+
+export const useSignIn = () => {
+  const [credential, set2FACredential] = useState<Require2FAResponse>();
+  const [isPending, startTransition] = useTransition();
+
+  const handleSignIn = (data: SignInRequest) => {
+    startTransition(async () => {
+      try {
+        const response = await signIn(data);
+        if (response) {
+          set2FACredential(response);
+          return;
+        }
+
+        toast.success("Sign in success");
+      } catch (error) {
+        toast.error("Sign in failed" + error);
+      }
+    });
+  };
+
+  return { handleSignIn, isPending, credential, set2FACredential };
 };
 
 export const useGoogleSignIn = () => {

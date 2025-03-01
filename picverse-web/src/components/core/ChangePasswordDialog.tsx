@@ -28,12 +28,12 @@ type ChangePasswordDialogProps = {
 
 const ChangePasswordDialog: FC<ChangePasswordDialogProps> = ({ children }) => {
   const form = useForm<MutatePassword<ChangePasswordRequest>>();
-  const { mutateAsync: changePassword, isPending } = useChangePassword();
+  const { handleChangePassword, isPending } = useChangePassword();
 
   const { errors: formErrors } = form.formState;
 
   const onSubmit = async (data: MutatePassword<ChangePasswordRequest>) => {
-    await changePassword(data);
+    await handleChangePassword(data);
 
     form.reset();
   };

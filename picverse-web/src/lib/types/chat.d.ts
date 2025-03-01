@@ -24,16 +24,19 @@ declare type NewConversation = {
   receiverProfile: Profile;
 };
 
-declare type CurrentConversation =
-  | (Omit<Conversation, "_id"> &
-      Partial<BaseModel> & {
-        receiverId?: string;
-      })
-  | null;
+declare type Current = {
+  isOpen: boolean;
+  conversation:
+    | (Omit<Conversation, "_id"> &
+        Partial<BaseModel> & {
+          receiverId?: string;
+        })
+    | null;
+};
 
 declare type ChatContextType = {
   isConnected: boolean;
-  currentConversation: CurrentConversation;
+  current: Current;
   sendMessage: (payload: SendMessageDto) => void;
-  setCurrentConversation: (conversation: CurrentConversation) => void;
+  setCurrent: import("react").Dispatch<import("react").SetStateAction<Current>>;
 };

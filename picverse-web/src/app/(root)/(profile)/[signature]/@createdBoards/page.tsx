@@ -6,7 +6,7 @@ type CreatedBoardsParallelPageProps = {};
 
 const CreatedBoardsParallelPage: FC<CreatedBoardsParallelPageProps> = async ({}) => {
   const firstPageBoards = await loadUserBoards(undefined, { page: 1, limit: 20 });
-  
+
   return <BoardListing firstPageBoards={firstPageBoards} />;
 };
 

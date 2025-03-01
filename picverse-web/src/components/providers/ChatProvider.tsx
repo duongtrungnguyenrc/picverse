@@ -11,7 +11,7 @@ import { useSocket } from "@app/lib/hooks";
 type ChatProviderProps = { children: React.ReactNode };
 
 const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
-  const [currentConversation, setCurrentConversation] = useState<CurrentConversation | null>(null);
+  const [current, setCurrent] = useState<Current>({ isOpen: false, conversation: null });
   const queryClient = useQueryClient();
   const { socket, isConnected } = useSocket("chat");
 
@@ -20,7 +20,11 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
 
     socket.on("new-conversation", (conversation: Conversation) => {
       queryClient.setQueryData<Conversation[]>([QueryKeys.CONVERSATIONS], (oldData = []) => [conversation, ...oldData]);
-      setCurrentConversation((prev) => prev ?? conversation);
+      setCurrent((prev) => prev ?? conversation);
+    });
+
+    socket.on("new-current-conversation", (conversation: Conversation) => {
+      setCurrent((prev) => (prev ? { ...prev, ...conversation } : prev));
     });
 
     socket.on("message", (message: Message) => {
@@ -46,7 +50,14 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
   );
 
   return (
-    <ChatContext.Provider value={{ isConnected, currentConversation, setCurrentConversation, sendMessage }}>
+    <ChatContext.Provider
+      value={{
+        isConnected,
+        current,
+        setCurrent,
+        sendMessage,
+      }}
+    >
       {children}
     </ChatContext.Provider>
   );

@@ -1,14 +1,7 @@
+import { notFound } from "next/navigation";
 import { FC, ReactNode } from "react";
 
-import {
-  Profile,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  BoardListing,
-  ProfileBoardListingControl,
-} from "@app/components";
+import { Profile, Tabs, TabsContent, TabsList, TabsTrigger, ProfileBoardListingControl } from "@app/components";
 import { loadProfile } from "@app/lib/actions";
 
 type ProfileLayoutProps = {
@@ -20,7 +13,9 @@ type ProfileLayoutProps = {
 const ProfileLayout: FC<ProfileLayoutProps> = async ({ children, params, createdBoards }) => {
   const { signature } = await params;
 
-  const profile: ProfileDetail = await loadProfile(signature != "me" ? signature : undefined);
+  const profile: ProfileDetail | null = await loadProfile(signature != "me" ? signature : undefined);
+
+  if (!profile) notFound();
 
   return (
     <div className="header-spacing">

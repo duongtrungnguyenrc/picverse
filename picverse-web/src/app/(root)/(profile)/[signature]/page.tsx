@@ -3,7 +3,7 @@ import { FC } from "react";
 type ProfilePageProps = {};
 
 const ProfilePage: FC<ProfilePageProps> = async ({}) => {
-  return <></>;
+  return null;
 };
 
 export default ProfilePage;

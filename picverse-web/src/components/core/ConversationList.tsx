@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, MoreHorizontal, PenSquare, Loader2 } from "lucide-react";
-import { FC, ReactNode, useMemo, useState } from "react";
+import { FC, ReactNode, useCallback, useMemo, useState } from "react";
 
 import { useChat, useConversations } from "@app/lib/hooks";
 import { formatTimestamp } from "@app/lib/utils";
@@ -21,7 +21,7 @@ type ConversationListProps = {
 };
 
 const ConversationList: FC<ConversationListProps> = ({ children }) => {
-  const { setCurrentConversation } = useChat();
+  const { setCurrent } = useChat();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -33,9 +33,9 @@ const ConversationList: FC<ConversationListProps> = ({ children }) => {
     return conversations.filter((conv) => conv._id?.toLowerCase().includes(search.toLowerCase()));
   }, [conversations, search]);
 
-  const onSelectConversation = (conversation: Conversation) => {
-    setCurrentConversation(conversation);
-  };
+  const onSelectConversation = useCallback((conversation: Conversation) => {
+    setCurrent({ isOpen: true, conversation });
+  }, []);
 
   return (
     <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>

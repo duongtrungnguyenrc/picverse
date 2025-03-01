@@ -29,7 +29,7 @@ const CloudCreateFolderButton: FC<CloudCreateFolderButtonProps> = ({ parentId, c
     try {
       await createFolder({
         ...data,
-        parentId
+        parentId,
       });
       reset();
     } catch (error) {

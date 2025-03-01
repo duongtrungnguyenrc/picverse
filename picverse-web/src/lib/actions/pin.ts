@@ -3,10 +3,16 @@
 import { httpFetchClient, objectToFormData } from "../utils";
 import { revalidateCloudResources } from "./cloud";
 
-export const getPinDetail = async (pinId: string): Promise<PinDetail> => {
-  const response = await httpFetchClient.get<PinDetail>(`/pin/${pinId}`);
+export const getPinDetail = async (pinId: string, raw: boolean = true): Promise<PinDetail | null> => {
+  try {
+    const response = await httpFetchClient.get<PinDetail>(`/pin/${pinId}`);
 
-  return response;
+    return response;
+  } catch (error) {
+    if (raw) return null;
+
+    throw error;
+  }
 };
 
 export async function createPin(payload: CreatePinRequest) {

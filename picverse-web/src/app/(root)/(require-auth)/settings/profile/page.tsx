@@ -7,6 +7,9 @@ type SettingProfilePageProps = {};
 
 const SettingProfilePage: FC<SettingProfilePageProps> = async ({}) => {
   const profile = await loadProfile();
+
+  if (!profile) return null;
+
   return <SettingProfileForm profile={profile} />;
 };
 

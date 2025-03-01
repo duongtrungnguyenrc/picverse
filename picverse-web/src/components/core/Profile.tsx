@@ -13,14 +13,17 @@ type ProfileProps = {
 
 const Profile: FC<ProfileProps> = ({ profile, signature }) => {
   const isMyProfile = signature === "me";
-  const { setCurrentConversation } = useChat();
+  const { setCurrent } = useChat();
 
   const onStartNewConversation = () => {
     if (profile) {
-      setCurrentConversation({
-        receiverId: signature,
-        members: [],
-        otherMemberProfiles: [profile],
+      setCurrent({
+        isOpen: true,
+        conversation: {
+          receiverId: signature,
+          members: [],
+          otherMemberProfiles: [profile],
+        },
       });
     }
   };

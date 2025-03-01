@@ -2,7 +2,7 @@ import { Inter } from "next/font/google";
 import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
 
-import { Providers } from "@app/components";
+import { NetworkStatus, Providers } from "@app/components";
 import "@app/styles/globals.scss";
 import { cn } from "@app/lib/utils";
 
@@ -28,6 +28,7 @@ export default function RootLayout({
         <body className={cn(inter.className, "font-inter antialiased")}>
           {children}
           <Toaster position="bottom-center" />
+          <NetworkStatus />
         </body>
       </html>
     </Providers>

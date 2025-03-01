@@ -51,9 +51,9 @@ const CreateBoardDialog: FC<CreateBoardDialogProps> = ({ children }) => {
 
     mutate(data, {
       onSuccess: () => {
-        toast.success("Board created")
-        setoOenDialog(false)
-      }
+        toast.success("Board created");
+        setoOenDialog(false);
+      },
     });
   });
 

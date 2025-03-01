@@ -32,7 +32,6 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
   const { mutate: updateProfile } = useUpdateProfile();
 
   const form = useForm<UpdateProfileRequest>({});
-  const { errors: formErrors } = form.formState;
 
   const onUpdateProfile = form.handleSubmit(async (data) => {
     updateProfile(data);
@@ -64,7 +63,7 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
                     </Button>
                   </div>
                 </FormControl>
-                {formErrors.avatar && <FormMessage>{formErrors.avatar.message}</FormMessage>}
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -79,7 +78,7 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
                   <FormControl>
                     <Input className="text-sm placeholder:text-sm h-[50px] rounded-lg" placeholder="John" {...field} />
                   </FormControl>
-                  {formErrors.firstName && <FormMessage>{formErrors.firstName.message}</FormMessage>}
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -92,7 +91,7 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
                   <FormControl>
                     <Input className="text-sm placeholder:text-sm h-[50px] rounded-lg" placeholder="Doe" {...field} />
                   </FormControl>
-                  {formErrors.lastName && <FormMessage>{formErrors.lastName.message}</FormMessage>}
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -121,7 +120,7 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
                     })}
                   </RadioGroup>
                 </FormControl>
-                {formErrors.gender && <FormMessage>{formErrors.gender.message}</FormMessage>}
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -140,7 +139,7 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
                     {...field}
                   />
                 </FormControl>
-                {formErrors.phone && <FormMessage>{formErrors.phone.message}</FormMessage>}
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -158,7 +157,7 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
                     {...field}
                   />
                 </FormControl>
-                {formErrors.bio && <FormMessage>{formErrors.bio.message}</FormMessage>}
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -172,7 +171,7 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
                 <FormControl>
                   <Input type="date" className="text-sm placeholder:text-sm h-[50px] rounded-lg" {...field} />
                 </FormControl>
-                {formErrors.birth && <FormMessage>{formErrors.birth.message}</FormMessage>}
+                <FormMessage />
               </FormItem>
             )}
           />

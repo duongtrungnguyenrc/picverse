@@ -1,9 +1,9 @@
 "use client";
 
 import { Loader2, User, Mail, Phone, Calendar, Users, Lock } from "lucide-react";
+import { FC, MouseEvent, useCallback, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { FC, useState } from "react";
 import Link from "next/link";
 
 import {
@@ -38,6 +38,7 @@ const steps = [
 
 const SignUpForm: FC = () => {
   const [step, setStep] = useState(0);
+  const { handleSignUp, isPending } = useSignUp();
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -55,8 +56,12 @@ const SignUpForm: FC = () => {
     },
   });
 
-  const { errors: formErrors } = form.formState;
-  const { mutate: signUp, isPending } = useSignUp();
+  const handleSubmit = form.handleSubmit((data) => handleSignUp(data));
+
+  const onNextStep = useCallback((e: MouseEvent) => {
+    e.preventDefault();
+    setStep((prev) => prev + 1);
+  }, []);
 
   return (
     <div className="animate-opacity-fade-in w-full overflow-hidden rounded-2xl backdrop-blur-sm dark:bg-gray-800/90 shadow-lg dark:shadow-purple-900/30">
@@ -72,7 +77,7 @@ const SignUpForm: FC = () => {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => signUp(data))} className="space-y-6 overflow-x-hidden">
+          <form onSubmit={handleSubmit} className="space-y-6 overflow-x-hidden">
             <Progress value={(step + 1) * (100 / steps.length)} className="h-1" />
 
             <div
@@ -93,7 +98,7 @@ const SignUpForm: FC = () => {
                             <Input className="pl-10" placeholder="John" {...field} />
                           </div>
                         </FormControl>
-                        {formErrors.firstName && <FormMessage>{formErrors.firstName.message}</FormMessage>}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -109,7 +114,7 @@ const SignUpForm: FC = () => {
                             <Input className="pl-10" placeholder="Doe" {...field} />
                           </div>
                         </FormControl>
-                        {formErrors.lastName && <FormMessage>{formErrors.lastName.message}</FormMessage>}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -126,7 +131,7 @@ const SignUpForm: FC = () => {
                           <Input className="pl-10" type="email" placeholder="you@example.com" {...field} />
                         </div>
                       </FormControl>
-                      {formErrors.email && <FormMessage>{formErrors.email.message}</FormMessage>}
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -146,7 +151,7 @@ const SignUpForm: FC = () => {
                             <Input className="pl-10" type="date" {...field} />
                           </div>
                         </FormControl>
-                        {formErrors.birth && <FormMessage>{formErrors.birth.message}</FormMessage>}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -181,7 +186,7 @@ const SignUpForm: FC = () => {
                             </Select>
                           </div>
                         </FormControl>
-                        {formErrors.gender && <FormMessage>{formErrors.gender.message}</FormMessage>}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -198,7 +203,7 @@ const SignUpForm: FC = () => {
                           <Input className="pl-10" type="tel" placeholder="(123) 456-7890" {...field} />
                         </div>
                       </FormControl>
-                      {formErrors.phone && <FormMessage>{formErrors.phone.message}</FormMessage>}
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -217,7 +222,7 @@ const SignUpForm: FC = () => {
                           <Input className="pl-10" type="password" placeholder="Create a password" {...field} />
                         </div>
                       </FormControl>
-                      {formErrors.password && <FormMessage>{formErrors.password.message}</FormMessage>}
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -233,7 +238,7 @@ const SignUpForm: FC = () => {
                           <Input className="pl-10" type="password" placeholder="Confirm your password" {...field} />
                         </div>
                       </FormControl>
-                      {formErrors.confirmPassword && <FormMessage>{formErrors.confirmPassword.message}</FormMessage>}
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -252,7 +257,7 @@ const SignUpForm: FC = () => {
               </Button>
               {step < steps.length - 1 ? (
                 <Button
-                  onClick={() => setStep((prev) => prev + 1)}
+                  onClick={onNextStep}
                   type="button"
                   className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                 >
@@ -261,7 +266,6 @@ const SignUpForm: FC = () => {
               ) : (
                 <Button
                   disabled={isPending}
-                  type="submit"
                   className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                 >
                   {isPending ? (

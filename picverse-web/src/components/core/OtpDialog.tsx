@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, ReactElement, useState, useEffect } from "react";
+import { FC, ReactElement, useState, useEffect, memo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, KeyRound } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -133,4 +133,4 @@ const OtpDialog: FC<OtpDialogProps> = ({ trigger, title, open, isPending, onSubm
   );
 };
 
-export default OtpDialog;
+export default memo(OtpDialog);

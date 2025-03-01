@@ -1,4 +1,4 @@
-import { MessageBody, OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException } from "@nestjs/websockets";
+import { ConnectedSocket, MessageBody, OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException } from "@nestjs/websockets";
 import { UsePipes, ValidationPipe } from "@nestjs/common";
 import { Socket, Server } from "socket.io";
 
@@ -36,7 +36,7 @@ export class ChatGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage("send")
-  async sendMessage(@SocketAuthTokenPayload("uid") senderId: DocumentId, @MessageBody() payload: SendMessageDto) {
+  async sendMessage(@SocketAuthTokenPayload("uid") senderId: DocumentId, @MessageBody() payload: SendMessageDto, @ConnectedSocket() client: Socket) {
     if (!payload.receiverId && !payload.conversationId) throw new WsException("Invalid conversation");
 
     const { message, conversation, isNewConversation } = await this.chatService.sendMessage(senderId, payload);
@@ -53,6 +53,10 @@ export class ChatGateway implements OnGatewayConnection {
         }
 
         this.server.to(receiverClientId).emit("message", message);
+      }
+
+      if (isNewConversation) {
+        client.emit("new-current-conversation", conversation);
       }
     });
   }

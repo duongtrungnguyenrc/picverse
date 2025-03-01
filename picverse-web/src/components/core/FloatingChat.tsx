@@ -21,12 +21,11 @@ import {
 type FloatingChatProps = {};
 
 const FloatingChat: FC<FloatingChatProps> = () => {
-  const { sendMessage, currentConversation, setCurrentConversation } = useChat();
-  const [open, setOpen] = useState(true);
+  const { sendMessage, current, setCurrent } = useChat();
   const [input, setInput] = useState("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  const { data: messagesData, isLoading } = useMessages(currentConversation?._id || "");
+  const { data: messagesData, isLoading } = useMessages(current.conversation?._id || "");
 
   const messages = (messagesData?.pages || []).reduce((prev, page) => [...page.data, ...prev], [] as Array<Message>);
 
@@ -45,37 +44,34 @@ const FloatingChat: FC<FloatingChatProps> = () => {
     if (!input.trim()) return;
 
     sendMessage({
-      conversationId: currentConversation?._id,
-      receiverId: currentConversation?.receiverId,
+      conversationId: current.conversation?._id,
+      receiverId: current.conversation?.receiverId,
       content: input.trim(),
     });
 
     setInput("");
-  }, [input, currentConversation, sendMessage]);
+  }, [input, current.conversation, sendMessage]);
 
   const onClose = useCallback(() => {
-    setCurrentConversation(null);
-    setOpen(false);
-  }, [setCurrentConversation]);
-
-  useEffect(() => {
-    if (currentConversation) {
-      setOpen(true);
-    }
-  }, [currentConversation]);
+    setCurrent({ isOpen: false, conversation: null });
+  }, [setCurrent]);
 
   const conversationName: string =
-    `${currentConversation?.otherMemberProfiles?.[0]?.firstName} ${currentConversation?.otherMemberProfiles?.[0]?.lastName}` ||
+    `${current.conversation?.otherMemberProfiles?.[0]?.firstName} ${current.conversation?.otherMemberProfiles?.[0]?.lastName}` ||
     "Unknow conversation";
 
   const splitedName: Array<string> = conversationName.split(" ");
 
   const fallbackName: string = splitedName[0]?.[0] + splitedName[splitedName.length - 1]?.[0];
 
+  const onOpenChange = (isOpen: boolean) => {
+    setCurrent({ ...current, isOpen });
+  };
+
   return (
-    currentConversation && (
+    !!current.conversation && (
       <div className="fixed bottom-5 right-5 rounded-2xl z-50">
-        <Popover modal={false} open={open} onOpenChange={setOpen}>
+        <Popover modal={false} open={current.isOpen} onOpenChange={onOpenChange}>
           <PopoverTrigger>
             <ChatAvatar newNotifications={0} fallbackName={fallbackName} avatar="https://example.com/" />
           </PopoverTrigger>
@@ -84,7 +80,7 @@ const FloatingChat: FC<FloatingChatProps> = () => {
               <ChatHeader conversationName={conversationName} fallbackName={fallbackName} onClose={onClose} />
               <ChatMessages
                 fallbackName={fallbackName}
-                currentConversation={currentConversation}
+                current={current}
                 messages={messages}
                 messagesContainerRef={messagesContainerRef}
                 isLoading={isLoading}
@@ -149,12 +145,12 @@ const ChatHeader: FC<{ conversationName: string; fallbackName: string; onClose: 
 );
 
 const ChatMessages: FC<{
-  currentConversation: CurrentConversation;
+  current: Current;
   messages: Message[];
   fallbackName: string;
   isLoading: boolean;
   messagesContainerRef: React.RefObject<HTMLDivElement>;
-}> = ({ currentConversation, isLoading, fallbackName, messages, messagesContainerRef }) => (
+}> = ({ current, isLoading, fallbackName, messages, messagesContainerRef }) => (
   <div ref={messagesContainerRef} className="h-[400px] overflow-y-auto p-4 space-y-4">
     {isLoading ? (
       <div className="w-full flex-center flex-col text-xs text-gray-500 animate-pulse">
@@ -164,7 +160,7 @@ const ChatMessages: FC<{
     ) : (
       messages.map((message) => {
         const isOwn =
-          currentConversation?.otherMemberProfiles.some((profile) => profile._id == message.senderId) || false;
+          current.conversation?.otherMemberProfiles.some((profile) => profile._id == message.senderId) || false;
 
         return <ChatMessage key={message._id} fallbackName={fallbackName} message={message} isOwn={isOwn} />;
       })
@@ -210,7 +206,6 @@ const ChatInput: FC<{
         <Image className="h-5 w-5" />
       </Button>
 
-      {/* Emoji Picker */}
       <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" className="rounded-full">

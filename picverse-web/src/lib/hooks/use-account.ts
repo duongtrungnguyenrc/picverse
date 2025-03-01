@@ -1,70 +1,81 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-import { httpClient, showAxiosToastError } from "../utils";
-import { MutationKeys } from "../constants";
+import { signUp, forgotPassword, resetPassword, changePassword } from "../actions";
 
 export const useSignUp = () => {
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  return useMutation<StatusResponse, AxiosError, SignUpRequest>({
-    mutationKey: [MutationKeys.SIGN_UP],
-    mutationFn: async (data) => {
-      const response = await httpClient.post<StatusResponse>("/account/sign-up", data);
-      return response.data;
-    },
-    onSuccess: () => {
-      toast.success("Sign up success");
-      router.replace("/sign-in");
-    },
-    onError: showAxiosToastError,
-  });
+  const handleSignUp = (data: SignUpRequest) => {
+    startTransition(async () => {
+      try {
+        await signUp(data);
+        toast.success("Sign up success");
+        router.replace("/sign-in");
+      } catch (error) {
+        toast.error("Sign up failed" + error);
+      }
+    });
+  };
+
+  return { handleSignUp, isPending };
 };
 
 export const useForgotPassword = () => {
-  return useMutation<string, AxiosError, ForgotPasswordRequest>({
-    mutationKey: [MutationKeys.FORGOT_PASSWORD],
-    mutationFn: async (data) => {
-      const response = await httpClient.post<string>("/account/forgot-password", data);
+  const [isPending, startTransition] = useTransition();
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
-      return response.data;
-    },
-    onError: showAxiosToastError,
-  });
+  const handleForgotPassword = (data: ForgotPasswordRequest) => {
+    startTransition(async () => {
+      try {
+        const sessionId = await forgotPassword(data);
+        toast.success("Check your email for reset instructions.");
+        setSessionId(sessionId);
+      } catch (error) {
+        toast.error("Failed to send reset email");
+      }
+    });
+  };
+
+  return { handleForgotPassword, isPending, sessionId, setSessionId };
 };
 
 export const useResetPassword = () => {
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  return useMutation<StatusResponse, AxiosError, ResetPasswordRequest>({
-    mutationKey: [MutationKeys.RESET_PASSWORD],
-    mutationFn: async (data) => {
-      const response = await httpClient.post<StatusResponse>("/account/reset-password", data);
+  const handleResetPassword = (data: ResetPasswordRequest) => {
+    startTransition(async () => {
+      try {
+        const response = await resetPassword(data);
+        toast.success(response.message);
+        router.replace("/sign-in");
+      } catch (error) {
+        toast.error("Reset password failed");
+      }
+    });
+  };
 
-      return response.data;
-    },
-    onSuccess: (data) => {
-      toast.success(data.message);
-      router.replace("/sign-in");
-    },
-    onError: showAxiosToastError,
-  });
+  return { handleResetPassword, isPending };
 };
 
 export const useChangePassword = () => {
-  return useMutation<StatusResponse, AxiosError, ChangePasswordRequest>({
-    mutationKey: [MutationKeys.CHANGE_PASSWORD],
-    mutationFn: async (data) => {
-      const response = await httpClient.put<StatusResponse>("/account/password", data);
+  const [isPending, startTransition] = useTransition();
 
-      return response.data;
-    },
-    onSuccess: (data) => {
-      toast.success(data.message);
-    },
-    onError: showAxiosToastError,
-  });
+  const handleChangePassword = (data: ChangePasswordRequest) => {
+    startTransition(async () => {
+      try {
+        const response = await changePassword(data);
+        toast.success(response.message);
+      } catch (error) {
+        toast.error("Failed to change password");
+      }
+    });
+  };
+
+  return { handleChangePassword, isPending };
 };

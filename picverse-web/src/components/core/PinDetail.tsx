@@ -11,7 +11,6 @@ import {
   AvatarImage,
   Badge,
   Button,
-  ContentSection,
   PinCommentsSection,
   RequireAuthFeature,
   ShareResourceDialog,

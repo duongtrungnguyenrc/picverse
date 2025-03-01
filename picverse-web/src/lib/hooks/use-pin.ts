@@ -1,11 +1,11 @@
 "use client";
 
 import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-import { QueryKeys } from "../constants";
 import { useContext, useEffect } from "react";
-import { PinInteractionContext } from "../contexts";
+
 import { getPinDetail, createPin, getSimilarPins, getPinComments } from "../actions";
+import { PinInteractionContext } from "../contexts";
+import { QueryKeys } from "../constants";
 
 export const usePinInteraction = () => useContext(PinInteractionContext);
 
@@ -29,7 +29,8 @@ export const useSimilarPins = (pinId: string) => {
 export const usePinDetail = (pinId: string, prefetchedPin?: PinDetail) => {
   return useQuery({
     queryKey: [QueryKeys.PIN_DETAIL, pinId],
-    queryFn: async () => (prefetchedPin ? prefetchedPin : await getPinDetail(pinId)),
+    queryFn: async () => (await getPinDetail(pinId, false))!,
+    initialData: prefetchedPin,
   });
 };
 

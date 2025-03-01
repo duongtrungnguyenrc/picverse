@@ -15,6 +15,8 @@ const PinPage: FC<PinPageProps> = async ({ params }) => {
 
   const pin = await getPinDetail(id);
 
+  if (!pin) notFound();
+
   return (
     <div className="space-y-4 header-spacing">
       <PinDetail pinId={id} prefetchedPin={pin} />
