@@ -10,16 +10,16 @@ type PinPageProps = {
   params: Promise<{ id: string }>;
 };
 
-export const revalidate = 60;
-export const dynamicParams = true;
+// export const revalidate = 60;
+// export const dynamicParams = true;
 
-export async function generateStaticParams() {
-  const staticFeed = await loadStaticFeed();
+// export async function generateStaticParams() {
+//   const staticFeed = await loadStaticFeed();
 
-  return staticFeed.data?.map((pin) => ({
-    id: String(pin._id),
-  }));
-}
+//   return staticFeed.data?.map((pin) => ({
+//     id: String(pin._id),
+//   }));
+// }
 
 export async function generateMetadata({ params }: PinPageProps): Promise<Metadata> {
   const { id } = await params;
