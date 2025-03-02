@@ -1,7 +1,6 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import { FC } from "react";
 
@@ -23,24 +22,27 @@ import {
   SelectValue,
   Switch,
   Button,
+  FormMessage,
 } from "../shadcn";
 
-type CreatePinFormProps = {};
+type CreatePinFormProps = {
+  boards: UserBoard[];
+};
 
-const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
+type CreatePinFormType = CreatePinRequest & { choosenImage: Partial<ChoosenImage> };
+
+const CreatePinForm: FC<CreatePinFormProps> = ({ boards }) => {
   const { mutate } = useCreatePin();
-  const form = useForm<CreatePinRequest>({
+  const form = useForm<CreatePinFormType>({
     defaultValues: {
       title: "",
       description: "",
       tags: [],
-      isPublic: false,
-      allowComment: false,
-      allowShare: false,
+      allowComment: true,
+      allowShare: true,
+      choosenImage: {},
     },
   });
-
-  const formErrors = form.formState.errors;
 
   const onCreatePin = form.handleSubmit((data) => {
     mutate(data, {
@@ -51,25 +53,14 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
     });
   });
 
+  const onSetChoosenImage = (image?: Partial<ChoosenImage>) => {
+    form.setValue("choosenImage", image ?? {});
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={onCreatePin}>
-        {/* <MediaEditor /> */}
-        <ContentSection
-          heading="Create pin"
-          className="container py-10"
-          actions={
-            <Button
-              disabled={!form.formState.isValid}
-              className="rounded-full px-5"
-              size="sm"
-              type="submit"
-              variant="outline"
-            >
-              Upload <Upload />
-            </Button>
-          }
-        >
+        <ContentSection heading="Create pin" className="container py-10">
           <div className="grid grid-cols-12 md:gap-x-5 lg:gap-x-10 gap-y-7">
             <hr className="col-span-full" />
 
@@ -81,15 +72,19 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
                   <FormItem className="h-full flex flex-col space-y-4">
                     <FormLabel>Media</FormLabel>
                     <FormControl>
-                      <ImagePicker onChange={field.onChange} />
+                      <ImagePicker
+                        onChange={field.onChange}
+                        chosenImage={form.getValues("choosenImage")}
+                        setChosenImage={onSetChoosenImage}
+                      />
                     </FormControl>
-                    {/* {formErrors.firstName && <FormMessage>{formErrors.firstName.message}</FormMessage>} */}
+                    <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            <div className="col-span-full md:col-span-6 lg:col-span-7 space-y-4">
+            <div className="col-span-full md:col-span-6 lg:col-span-7 space-y-5">
               <FormField
                 control={form.control}
                 name="title"
@@ -99,7 +94,7 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
                     <FormControl>
                       <Input placeholder="Add title" {...field} />
                     </FormControl>
-                    {/* {formErrors.firstName && <FormMessage>{formErrors.firstName.message}</FormMessage>} */}
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -113,7 +108,7 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
                     <FormControl>
                       <Input placeholder="Add description" {...field} />
                     </FormControl>
-                    {/* {formErrors.firstName && <FormMessage>{formErrors.firstName.message}</FormMessage>} */}
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -132,13 +127,17 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectItem value="male">Male</SelectItem>
+                              {boards.map((board) => (
+                                <SelectItem key={["create-pin", "board", board._id].join(":")} value={board._id}>
+                                  {board.name}
+                                </SelectItem>
+                              ))}
                             </SelectGroup>
                           </SelectContent>
                         </Select>
                       </div>
                     </FormControl>
-                    {/* {formErrors.gender && <FormMessage>{formErrors.gender.message}</FormMessage>} */}
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -152,32 +151,12 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
                     <FormControl>
                       <TagInput tags={field.value} setTags={() => {}} />
                     </FormControl>
-                    {/* {formErrors.firstName && <FormMessage>{formErrors.firstName.message}</FormMessage>} */}
+                    <FormMessage />
                   </FormItem>
                 )}
               />
 
               <ContentSection heading="Other options" className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="isPublic"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-1">
-                            <Label htmlFor="is-public-pin">Public pin</Label>
-                            <p className="text-sm text-muted-foreground">
-                              make this pin public so other users can view it
-                            </p>
-                          </div>
-                          <Switch checked={field.value} onCheckedChange={field.onChange} id="is-public-pin" />
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
                 <FormField
                   control={form.control}
                   name="allowComment"
@@ -214,6 +193,14 @@ const CreatePinForm: FC<CreatePinFormProps> = ({}) => {
                   )}
                 />
               </ContentSection>
+
+              <Button
+                className="w-full"
+                disabled={!form.formState.isValid || form.formState.isSubmitting}
+                type="submit"
+              >
+                Create pin
+              </Button>
             </div>
           </div>
         </ContentSection>

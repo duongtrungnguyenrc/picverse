@@ -5,11 +5,10 @@ import { revalidateTag } from "next/cache";
 import { httpFetchClient } from "../utils";
 import { BoardTags } from "../constants";
 
-export const loadUserBoards = async (id?: string, pagination?: Pagination) => {
-  return await httpFetchClient.get<InfiniteResponse<UserBoard>>(`/board/user`, {
+export const loadUserBoards = async (id?: string) => {
+  return await httpFetchClient.get<Array<UserBoard>>(`/board/user`, {
     query: {
       id: id,
-      ...pagination,
     },
     next: {
       revalidate: 5,

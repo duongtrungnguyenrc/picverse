@@ -57,11 +57,39 @@ export class PinService extends Repository<Pin> {
     ]);
 
     await Promise.all([
-      this.create({ ...payload, authorId: accountId, resource: uploadedResource._id, vectorId, textEmbedding, imageEmbedding }),
+      this.create({
+        ...payload,
+        authorId: accountId,
+        resource: uploadedResource._id,
+        vectorId,
+        textEmbedding,
+        imageEmbedding,
+        boardId: payload.boardId ? new Types.ObjectId(payload.boardId) : undefined,
+      }),
       this.vectorService.insertEmbedding(PinService.name, vectorId, textEmbedding, imageEmbedding),
     ]);
 
     return { message: "Pin created success" };
+  }
+
+  async createPinByResource(accountId: DocumentId, resourceId: DocumentId, payload: CreatePinDto): Promise<StatusResponseDto> {
+    const resource = await this.cloudService.getFile(resourceId);
+    if (!resource) throw new NotFoundException("Resource not found");
+
+    const [textEmbedding, imageEmbedding] = await Promise.all([
+      this.vectorService.generateTextEmbedding(payload.title, payload.description, payload.tags),
+      this.vectorService.generateImageEmbedding(URL.createObjectURL(await this.cloudService.getFile(resourceId))),
+    ]);
+
+    const vectorId: string = randomUUID();
+    const [pin] = await Promise.all([
+      this.create({ ...payload, authorId: accountId, resource: resourceId, vectorId, textEmbedding, imageEmbedding }),
+      this.vectorService.insertEmbedding(PinService.name, vectorId, textEmbedding, imageEmbedding),
+    ]);
+
+    console.log(pin);
+
+    return { message: "Pin created" };
   }
 
   async updatePin(accountId: DocumentId, pinId: DocumentId, payload: UpdatePinDto): Promise<StatusResponseDto> {

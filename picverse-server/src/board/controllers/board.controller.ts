@@ -20,9 +20,9 @@ export class BoardController {
 
   @Get("/user")
   @ApiOperation({ summary: "Get user boards" })
-  @ApiOkResponse({ type: InfiniteResponse<UserBoardDto> })
-  async getUserBoards(@Pagination() pagination: Pagination, @AuthUid() accountId?: DocumentId, @Query("id") userId?: DocumentId) {
-    return await this.boardService.getUserBoards(pagination, accountId ?? userId);
+  @ApiOkResponse({ type: [UserBoardDto] })
+  async getUserBoards(@AuthUid() accountId?: DocumentId, @Query("id") userId?: DocumentId) {
+    return await this.boardService.getUserBoards(accountId ?? userId);
   }
 
   @Delete("/:id")

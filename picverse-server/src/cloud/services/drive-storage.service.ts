@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Auth, drive_v3, google } from "googleapis";
 import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
 import { Response } from "express";
 import { Readable } from "stream";
 import { Model } from "mongoose";
+import * as sharp from "sharp";
 
 import { UploadFileDto, IExternalStorageService, ECloudStorage, EResourceType, CloudCredentials, Resource } from "../models";
 import { ResourceService } from "./resource.service";
@@ -115,7 +116,45 @@ export class DriveStorageService implements IExternalStorageService {
     return parseInt(about.data.storageQuota?.limit || "0", 10);
   }
 
-  async getFile(resource: Resource, response: Response): Promise<void> {
+  async getFile(resource: Resource, width?: number, height?: number): Promise<Blob> {
+    const drive = await this.getDriveInstance(resource.accountId);
+
+    if (!drive) {
+      throw new BadRequestException("Please link Google Drive storage to continue.");
+    }
+
+    try {
+      const response = await drive.files.get(
+        {
+          fileId: resource.referenceId.toString(),
+          alt: "media",
+        },
+        { responseType: "stream" },
+      );
+
+      const chunks: Buffer[] = [];
+      for await (const chunk of response.data) {
+        chunks.push(chunk);
+      }
+
+      let buffer: Buffer = Buffer.concat(chunks);
+      const contentType = response.headers["content-type"] || "application/octet-stream";
+
+      if (width || height) {
+        buffer = await sharp(buffer)
+          .resize(width || undefined, height || undefined)
+          .webp({ quality: 90 })
+          .toBuffer();
+      }
+
+      return new Blob([buffer], { type: contentType });
+    } catch (error) {
+      console.error(error);
+      throw new NotFoundException("File not found in Google Drive.");
+    }
+  }
+
+  async getFileStream(resource: Resource, response: Response): Promise<void> {
     try {
       const drive = await this.getDriveInstance(resource.accountId);
 

@@ -95,7 +95,38 @@ export class LocalStorageService implements IStorageService {
     return uploadedFile;
   }
 
-  async getFile(resource: Resource, response: Response, width?: number, height?: number): Promise<void> {
+  async getFile(resource: Resource, width?: number, height?: number): Promise<Blob> {
+    const fileExists = await this.bucket.find({ _id: new Types.ObjectId(resource.referenceId) }).toArray();
+
+    if (!fileExists.length) throw new NotFoundException("File not found in storage.");
+
+    const downloadStream = this.bucket.openDownloadStream(new Types.ObjectId(resource.referenceId));
+
+    const chunks: Buffer[] = [];
+
+    return new Promise((resolve, reject) => {
+      downloadStream.on("data", (chunk) => chunks.push(chunk));
+      downloadStream.on("end", async () => {
+        try {
+          let buffer: Buffer = Buffer.concat(chunks as Uint8Array[]);
+
+          if (width || height) {
+            buffer = await sharp(buffer)
+              .webp({ quality: 90 })
+              .resize(width || undefined, height || undefined)
+              .toBuffer();
+          }
+
+          resolve(new Blob([buffer], { type: "image/webp" }));
+        } catch (err) {
+          reject(err);
+        }
+      });
+      downloadStream.on("error", reject);
+    });
+  }
+
+  async getFileStream(resource: Resource, response: Response, width?: number, height?: number): Promise<void> {
     try {
       const fileExists = await this.bucket.find({ _id: new Types.ObjectId(resource.referenceId) }).toArray();
 

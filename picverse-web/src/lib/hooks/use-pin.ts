@@ -6,12 +6,14 @@ import { useContext, useEffect } from "react";
 import { getPinDetail, createPin, getSimilarPins, getPinComments } from "../actions";
 import { PinInteractionContext } from "../contexts";
 import { QueryKeys } from "../constants";
+import { showToastError } from "../utils";
 
 export const usePinInteraction = () => useContext(PinInteractionContext);
 
 export const useCreatePin = () => {
   return useMutation({
     mutationFn: createPin,
+    onError: showToastError,
   });
 };
 

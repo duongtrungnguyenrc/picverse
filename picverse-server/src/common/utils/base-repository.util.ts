@@ -71,7 +71,7 @@ export class Repository<T extends Document> {
   }
 
   public async findMultiple(filter: FilterQuery<T>, options?: Repository.FindMultipleOptions<T>): Promise<Array<T>>;
-  public async findMultiple(pipeline: PipelineStage[], options?: Repository.FindMultipleOptions<T>): Promise<Array<T>>;
+  public async findMultiple<K>(pipeline: PipelineStage[], options?: Repository.FindMultipleOptions<T>): Promise<Array<K>>;
   public async findMultiple(
     filterOrPipeline: FilterQuery<T> | PipelineStage[],
     options: Repository.FindMultipleOptions<T> = { postProcessData: (data) => data },

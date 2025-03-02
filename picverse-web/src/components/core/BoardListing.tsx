@@ -3,19 +3,13 @@
 import { FC, useMemo } from "react";
 
 import Board from "./Board";
-import { useUserBoards } from "@app/lib/hooks";
 import Typography from "./Typography";
 
 type BoardListingProps = {
-  firstPageBoards: InfiniteResponse<UserBoard>;
-  accountId?: string;
+  boards: Array<UserBoard>;
 };
 
-const BoardListing: FC<BoardListingProps> = ({ accountId, firstPageBoards }) => {
-  const { data } = useUserBoards(accountId, firstPageBoards);
-
-  const boards = useMemo(() => firstPageBoards.data || [], [data]);
-
+const BoardListing: FC<BoardListingProps> = ({ boards }) => {
   if (boards.length === 0) return <Typography>No board to present</Typography>;
 
   return (

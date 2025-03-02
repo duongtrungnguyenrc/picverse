@@ -24,7 +24,9 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
     });
 
     socket.on("new-current-conversation", (conversation: Conversation) => {
-      setCurrent((prev) => (prev ? { ...prev, ...conversation } : prev));
+      setCurrent((prev) => {
+        return prev ? { ...prev, conversation: { ...(prev.conversation || {}), ...conversation } } : prev;
+      });
     });
 
     socket.on("message", (message: Message) => {
@@ -37,6 +39,7 @@ const ChatProvider: FC<ChatProviderProps> = ({ children }) => {
 
     return () => {
       socket.off("new-conversation");
+      socket.off("new-current-conversation");
       socket.off("message");
       socket.off("error");
     };

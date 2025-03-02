@@ -15,7 +15,7 @@ const Board: FC<BoardProps> = ({ board }) => {
   return (
     <div className="w-full">
       <ul className="relative flex w-full space-x-[-30px] h-[150px] lg:h-[180px] bg-muted rounded-lg">
-        {board.lastestPins?.map((pin) => {
+        {board.latestPins?.map((pin) => {
           if (typeof pin.resource === "string") return null;
 
           return (

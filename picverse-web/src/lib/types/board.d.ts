@@ -11,5 +11,5 @@ declare type CreateBoardRequest = Pick<Board, "name" | "description" | "isPrivat
 
 declare type UserBoard = Board & {
   totalPins: number;
-  lastestPins: Array<Pick<Pin, "_id" | "title" | "resource">>;
+  latestPins: Array<Pick<Pin, "_id" | "title" | "resource">>;
 };

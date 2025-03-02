@@ -34,6 +34,11 @@ declare type Like = BaseModel &
     pinId: string;
   };
 
+declare type ChoosenImage = {
+  image: File;
+  transformedImage?: File;
+};
+
 declare type CreatePinRequest = {
   file: File;
   title: string;

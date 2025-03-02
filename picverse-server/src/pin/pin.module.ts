@@ -26,6 +26,7 @@ import { BoardModule } from "@modules/board";
     SocialModule,
     ProfileModule,
     BoardModule,
+    
   ],
   controllers: [PinController],
   providers: [PinService, CommentService, LikeService, PinInteractionService, PinInteractionGateway],

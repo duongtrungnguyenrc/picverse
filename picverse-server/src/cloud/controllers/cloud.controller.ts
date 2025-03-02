@@ -85,6 +85,8 @@ export class CloudStorageController {
     return await this.cloudService.updateResource(accountId, resourceId, payload);
   }
 
+  async createPin() {}
+
   @Auth()
   @Post("/file")
   @UseInterceptors(FileInterceptor("file"))
@@ -103,8 +105,8 @@ export class CloudStorageController {
 
   @Get("/file/:fileId")
   @ApiOperation({ summary: "Get file" })
-  async getFile(@Param("fileId") fileId: DocumentId, @Res() response: Response, @Query("width") width?: number, @Query("height") height?: number): Promise<void> {
-    await this.cloudService.getFile(fileId, response, width, height);
+  async getFileStream(@Param("fileId") fileId: DocumentId, @Res() response: Response, @Query("width") width?: number, @Query("height") height?: number): Promise<void> {
+    await this.cloudService.getFileStream(fileId, response, width, height);
   }
 
   @Auth()

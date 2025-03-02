@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreatePinDto {
   @ApiProperty()
@@ -11,6 +11,11 @@ export class CreatePinDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @ApiProperty()
+  @IsMongoId()
+  @IsOptional()
+  boardId?: string;
 
   @ApiProperty()
   @IsArray()

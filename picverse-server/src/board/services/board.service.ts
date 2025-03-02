@@ -6,7 +6,7 @@ import { UpdateBoardDto } from "../models/dtos/request/update-board.dto";
 import { StatusResponseDto } from "@common/dtos";
 import { CacheService } from "@modules/cache";
 import { Repository } from "@common/utils";
-import { CreateBoardDto } from "../models";
+import { CreateBoardDto, UserBoardDto } from "../models";
 import { Board } from "../models/schemas";
 
 @Injectable()
@@ -23,10 +23,11 @@ export class BoardService extends Repository<Board> {
 
     return { message: "Board created success" };
   }
-  async getUserBoards(pagination: Pagination, accountId?: DocumentId) {
+
+  async getUserBoards(accountId?: DocumentId): Promise<Array<UserBoardDto>> {
     if (!accountId) throw new BadRequestException("User not found");
 
-    return await this.findMultipleInfinite(
+    return await this.findMultiple<UserBoardDto>(
       [
         { $match: { accountId } },
         {
@@ -48,8 +49,8 @@ export class BoardService extends Repository<Board> {
             from: "pins",
             let: { boardId: "$_id" },
             pipeline: [
-              { $match: { $expr: { $eq: ["$boardId", "$$boardId"] } } },
-              { $sort: { createdAt: -1 } },
+              { $match: { $expr: { $eq: [{ $toObjectId: "$boardId" }, "$$boardId"] } } },
+              { $sort: { createdAt: +1 } },
               { $limit: 3 },
               {
                 $lookup: {
@@ -81,7 +82,6 @@ export class BoardService extends Repository<Board> {
           },
         },
       ],
-      pagination,
       { force: true },
     );
   }

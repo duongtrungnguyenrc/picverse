@@ -1,12 +1,16 @@
-import { CreatePinForm } from "@app/components";
 import { FC } from "react";
+
+import { CreatePinForm } from "@app/components";
+import { loadUserBoards } from "@app/lib/actions";
 
 type CreatePinPageProps = {};
 
-const CreatePinPage: FC<CreatePinPageProps> = ({}) => {
+const CreatePinPage: FC<CreatePinPageProps> = async ({}) => {
+  const boards = await loadUserBoards();
+
   return (
     <div className="header-spacing">
-      <CreatePinForm />
+      <CreatePinForm boards={boards} />
     </div>
   );
 };

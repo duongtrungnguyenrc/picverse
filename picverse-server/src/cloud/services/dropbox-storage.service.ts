@@ -1,9 +1,10 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Dropbox, DropboxAuth, DropboxResponse } from "dropbox";
 import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
 import { Response } from "express";
 import { Model } from "mongoose";
+import * as sharp from "sharp";
 
 import { UploadFileDto, IExternalStorageService, ECloudStorage, EResourceType, CloudCredentials, Resource } from "../models";
 import { ResourceService } from "./resource.service";
@@ -122,7 +123,45 @@ export class DropboxStorageService implements IExternalStorageService {
     throw new Error("Unable to determine total space.");
   }
 
-  async getFile(file: Resource, response: Response): Promise<void> {
+  async getFile(resource: Resource, width?: number, height?: number): Promise<Blob> {
+    const dropbox = await this.getDropboxInstance(resource.accountId);
+
+    if (!dropbox) {
+      throw new BadRequestException("Please link Dropbox storage to continue.");
+    }
+
+    try {
+      const fileResponse = (await dropbox.filesDownload({ path: resource.referenceId.toString() })) as any;
+
+      if (!fileResponse.result.fileBinary) {
+        throw new Error("No file data found.");
+      }
+
+      let buffer: Buffer;
+
+      if (fileResponse.result.fileBinary instanceof ArrayBuffer) {
+        buffer = Buffer.from(new Uint8Array(fileResponse.result.fileBinary));
+      } else if (fileResponse.result.fileBinary instanceof Uint8Array) {
+        buffer = Buffer.from(fileResponse.result.fileBinary);
+      } else {
+        throw new Error("Unsupported file format.");
+      }
+
+      if (width || height) {
+        buffer = await sharp(buffer)
+          .resize(width || undefined, height || undefined)
+          .webp({ quality: 90 })
+          .toBuffer();
+      }
+
+      return new Blob([buffer], { type: "image/webp" });
+    } catch (error) {
+      console.error("Error in getFile:", error.message);
+      throw new NotFoundException("File not found in Dropbox.");
+    }
+  }
+
+  async getFileStream(file: Resource, response: Response): Promise<void> {
     try {
       const dropbox: Dropbox = await this.getDropboxInstance(file.accountId);
 
@@ -142,7 +181,7 @@ export class DropboxStorageService implements IExternalStorageService {
 
       response.send(fileResponse.result.fileBinary);
     } catch (error) {
-      console.error("Error in getFile:", error.message);
+      console.error("Error in getFileStream:", error.message);
       response.status(404).send("File not found.");
     }
   }

@@ -165,12 +165,7 @@ const GridResourceItem: FC<GridResourceItemProps> = ({ resource, onDrop }) => {
                 <DialogHeader>
                   <DialogTitle>{name}</DialogTitle>
                 </DialogHeader>
-                <Image
-                  layout="fill"
-                  src={`${process.env.NEXT_PUBLIC_API_SERVER_ORIGIN}/api/cloud/file/${_id}`}
-                  alt=""
-                  className="object-contain pt-20"
-                />
+                <Image layout="fill" src={getResourceUrl(_id)} alt="" className="object-contain pt-20" />
               </DialogContent>
             </Dialog>
           ) : (
@@ -199,10 +194,10 @@ const GridResourceItem: FC<GridResourceItemProps> = ({ resource, onDrop }) => {
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent className="w-48">
-        <ContextMenuItem onSelect={handlePrivacyChange}>
+        {/* <ContextMenuItem onSelect={handlePrivacyChange}>
           Make {isPrivate ? "public" : "private"}
           <ContextMenuShortcut>{isPrivate ? <Earth size={16} /> : <Lock size={16} />}</ContextMenuShortcut>
-        </ContextMenuItem>
+        </ContextMenuItem> */}
         <ContextMenuItem>
           Create pin
           <ContextMenuShortcut>

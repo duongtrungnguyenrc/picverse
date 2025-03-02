@@ -21,17 +21,19 @@ export class PinInteractionService extends Repository<PinInteraction> {
     super(commentModel, cacheService);
   }
 
-  async createInteraction(payload: Partial<Omit<PinInteraction, "createdAt">>) {
-    return await this.create(payload).finally(async () => {
-      const { authorId } = await this.pinService.find(payload.pinId, { select: "authorId" });
-      const profile = await this.profileService.find({ accountId: authorId }, { select: ["firstName", "lastName"] });
+  async createInteraction(payload: Partial<PinInteraction>) {
+    const createdInteraction = await this.create(payload);
 
-      this.notificationService.sendNotification({
-        to: authorId,
-        from: payload.accountId,
-        type: ENotificationType.INTERACTION,
-        message: `${profile?.firstName} ${profile?.lastName} ${payload.type.toLowerCase()}ed your pin`,
-      });
+    const { authorId } = await this.pinService.find(payload.pinId, { select: "authorId" });
+    const profile = await this.profileService.find({ accountId: authorId }, { select: ["firstName", "lastName"] });
+
+    this.notificationService.sendNotification({
+      to: authorId,
+      from: payload.accountId,
+      type: ENotificationType.INTERACTION,
+      message: `${profile?.firstName} ${profile?.lastName} ${payload.type.toLowerCase()}ed your pin`,
     });
+
+    return createdInteraction;
   }
 }

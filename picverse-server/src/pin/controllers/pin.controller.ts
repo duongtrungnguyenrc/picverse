@@ -23,11 +23,21 @@ export class PinController {
     return await this.pinService.createPin(accountId, file, payload);
   }
 
+  @Auth()
+  @Post("/:resourceId")
+  @ApiParam({ name: "resourceId", description: "Resource id" })
+  @ApiOperation({ summary: "Create a new pin by resource" })
+  @UseInterceptors(FileInterceptor("file"))
+  @ApiCreatedResponse({ description: "Pin created, return status", type: StatusResponseDto })
+  async createPinByResource(@AuthUid() accountId: DocumentId, @Param("resourceId") resourceId: DocumentId, @Body() payload: CreatePinDto): Promise<StatusResponseDto> {
+    return await this.pinService.createPinByResource(accountId, resourceId, payload);
+  }
+
   @Put("/:pinId")
   @ApiOperation({ summary: "Update pin" })
   @ApiBody({ type: UpdatePinDto })
   @ApiOkResponse({ description: "Pin updated, return status", type: StatusResponseDto })
-  async updatePin(@AuthUid() accountId: DocumentId, @Param("pinId") pinId: DocumentId, @Body() payload: CreatePinDto): Promise<StatusResponseDto> {
+  async updatePin(@AuthUid() accountId: DocumentId, @Param("pinId") pinId: DocumentId, @Body() payload: UpdatePinDto): Promise<StatusResponseDto> {
     return await this.pinService.updatePin(accountId, pinId, payload);
   }
 
