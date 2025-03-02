@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: PinPageProps): Promise<Metada
       title: pin.title,
       description: pin.description,
       images: [getResourceUrl(pin.resource._id)],
+      type: "website",
     },
     twitter: {
       card: "summary_large_image",
