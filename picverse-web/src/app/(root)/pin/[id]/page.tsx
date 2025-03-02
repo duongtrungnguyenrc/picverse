@@ -3,10 +3,37 @@ import { FC } from "react";
 
 import { PinDetail, SimilarPinsSection } from "@app/components";
 import { getPinDetail } from "@app/lib/actions";
+import { Metadata } from "next";
+import { getResourceUrl } from "@app/lib/utils";
 
 type PinPageProps = {
   params: Promise<{ id: string }>;
 };
+
+export async function generateMetadata({ params }: PinPageProps): Promise<Metadata> {
+  const { id } = await params;
+
+  if (!id) notFound();
+
+  const pin = await getPinDetail(id);
+  if (!pin) notFound();
+
+  return {
+    title: pin.title,
+    description: pin.description,
+    openGraph: {
+      title: pin.title,
+      description: pin.description,
+      images: [getResourceUrl(pin.resource._id)],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: pin.title,
+      description: pin.description,
+      images: [getResourceUrl(pin.resource._id)],
+    },
+  };
+}
 
 const PinPage: FC<PinPageProps> = async ({ params }) => {
   const { id } = await params;
