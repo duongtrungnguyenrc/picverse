@@ -1,19 +1,23 @@
 "use client";
 
-import { FC, ReactNode } from "react";
+import { FC, ReactElement, ReactNode } from "react";
 
 import { useAuth } from "@app/lib/hooks";
 
 type RequireAuthFeatureProps = {
-  children: ReactNode;
-} & React.ComponentPropsWithoutRef<"div">;
+  children: ReactNode | ((canDisplay: boolean) => ReactNode | ReactElement);
+  className?: string;
+};
 
 const RequireAuthFeature: FC<RequireAuthFeatureProps> = ({ children, ...props }) => {
   const { isAuthenticated } = useAuth();
 
+  if (typeof children === "function") {
+    return <>{children(isAuthenticated)}</>;
+  }
+
   return (
     <div
-      {...props}
       className={`${props.className ?? ""} ${isAuthenticated ? "" : "cursor-none pointer-events-none opacity-70"}`}
     >
       {children}

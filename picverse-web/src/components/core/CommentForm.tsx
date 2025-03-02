@@ -4,7 +4,7 @@ import { ChangeEvent, useRef, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { ArrowUp, Loader2 } from "lucide-react";
 
-import { Button, RequireAuthFeature, Textarea } from "@app/components";
+import { Button, Textarea } from "@app/components";
 
 interface CommentFormProps {
   onComment: (content: CreateCommentRequest) => Promise<void>;
@@ -37,7 +37,7 @@ export function CommentForm({ onComment }: CommentFormProps) {
   }, 300);
 
   return (
-    <RequireAuthFeature className="flex gap-2">
+    <div className="flex gap-2">
       <div className="flex-1 relative">
         <Textarea
           ref={textAreaRef}
@@ -54,6 +54,6 @@ export function CommentForm({ onComment }: CommentFormProps) {
           {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : <ArrowUp className="w-3 h-3" />}
         </Button>
       </div>
-    </RequireAuthFeature>
+    </div>
   );
 }

@@ -16,6 +16,7 @@ import {
   uploadFile,
 } from "../actions";
 import { MutationKeys, QueryKeys } from "../constants";
+import { showToastError } from "../utils";
 
 export const useResources = (parentId?: string, firstPageData?: GetResourcesResponse) => {
   return useInfiniteQuery<GetResourcesResponse, AxiosError>({
@@ -56,14 +57,13 @@ export const useCreateFolder = () => {
 };
 
 export const useUpdateResource = () => {
-  return useMutation<StatusResponse, AxiosError, UpdateResourceRequest>({
-    mutationKey: [MutationKeys.UPDATE_RESOURCE],
+  return useMutation<StatusResponse, Error, UpdateResourceRequest>({
     mutationFn: updateResource,
     onSuccess: async (response) => {
       await revalidateCloudResources();
       toast.success(response.message);
     },
-    onError: (error) => toast.error(error.message),
+    onError: showToastError,
   });
 };
 

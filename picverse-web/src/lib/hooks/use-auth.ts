@@ -9,6 +9,7 @@ import { ACCESS_TOKEN_PREFIX, AuthTags, MutationKeys, QueryKeys } from "../const
 import { AuthContext } from "../contexts";
 import { getAuthCookie, getClientSecret, googleSignIn, refreshToken, signIn, signOut } from "../actions";
 import { jwtDecode } from "jwt-decode";
+import { useRouter } from "next/navigation";
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -58,9 +59,10 @@ export const useSession = () => {
   });
 };
 
-export const useSignIn = () => {
+export const useSignIn = (redirect?: boolean) => {
   const [credential, set2FACredential] = useState<Require2FAResponse>();
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleSignIn = (data: SignInRequest) => {
     startTransition(async () => {
@@ -69,6 +71,10 @@ export const useSignIn = () => {
         if (response) {
           set2FACredential(response);
           return;
+        }
+
+        if (redirect) {
+          router.back();
         }
 
         toast.success("Sign in success");

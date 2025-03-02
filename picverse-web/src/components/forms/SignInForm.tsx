@@ -24,10 +24,12 @@ import { twoFactorSignIn } from "@app/lib/actions";
 import { signInSchema } from "@app/lib/validations";
 import { useSignIn } from "@app/lib/hooks";
 
-type SignInFormProps = {};
+type SignInFormProps = {
+  redirect?: boolean;
+};
 
-const SignInForm: FC<SignInFormProps> = () => {
-  const { isPending, handleSignIn, credential, set2FACredential } = useSignIn();
+const SignInForm: FC<SignInFormProps> = ({ redirect }) => {
+  const { isPending, handleSignIn, credential, set2FACredential } = useSignIn(redirect);
 
   const form = useForm<SignInRequest>({
     resolver: zodResolver(signInSchema),

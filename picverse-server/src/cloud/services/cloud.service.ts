@@ -236,11 +236,19 @@ export class CloudService {
     return { message: `File ${fileName} uploaded success` };
   }
 
-  async getFileStream(resourceId: DocumentId, response: Response, width?: number, height?: number): Promise<void> {
-    const resource: Resource = await this.resourceService.find(resourceId);
+  async getFileStream(resourceId: DocumentId, response: Response, accountId?: DocumentId, width?: number, height?: number): Promise<void> {
+    const resource: Resource = await this.resourceService.find({
+      _id: resourceId,
+    });
 
     if (!resource) {
       throw new NotFoundException("File not found");
+    }
+
+    console.log(resource);
+
+    if (resource.accountId.toString() !== accountId?.toString() && resource.isPrivate) {
+      throw new ForbiddenException("Unable to access private resources, please contact the author and request viewing permission");
     }
 
     const storage: IStorageService = this.getStorage(resource.storage);

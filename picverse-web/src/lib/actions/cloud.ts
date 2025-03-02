@@ -44,6 +44,7 @@ export const updateResource = async (payload: UpdateResourceRequest) => {
   const response = await httpFetchClient.put<StatusResponse>(`/cloud/resource/${id}`, JSON.stringify(restPayload));
 
   await revalidateCloudResources();
+
   return response;
 };
 

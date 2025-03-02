@@ -30,6 +30,7 @@ export { default as Typography } from "./Typography";
 export { default as ShareResourceDialog } from "./ShareResourceDialog";
 export { default as RequireAuthFeature } from "./RequireAuthFeature";
 export { default as NetworkStatus } from "./NetworkStatus";
+export { default as PicverseImage } from "./PicverseImage";
 
 /* AUTH COMPONENTS */
 export { default as GoogleSignInButton } from "./GoogleSignInButton";

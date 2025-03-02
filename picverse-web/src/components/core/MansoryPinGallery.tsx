@@ -1,10 +1,10 @@
 "use client";
 
 import { type FC, useEffect, useMemo, useRef, useState } from "react";
-
-import { cn, getResourceUrl, skeletonPlaceholder } from "@app/lib/utils";
-import Image from "next/image";
 import Link from "next/link";
+
+import { cn, skeletonPlaceholder } from "@app/lib/utils";
+import PicverseImage from "./PicverseImage";
 
 type MansoryLayoutConfigSize = "xs" | "sm" | "md" | "lg" | "xl" | "xxl";
 type MansoryPinGalleryProps = {
@@ -123,9 +123,9 @@ const MansoryPinGallery: FC<MansoryPinGalleryProps> = ({
             return (
               <div key={["pin", "glr", pin._id, keyPrefix].join(":")} className="relative cursor-pointer p-1.5">
                 <Link href={`/pin/${pin._id}`}>
-                  <Image
+                  <PicverseImage
                     className="w-full rounded-2xl overflow-hidden"
-                    src={getResourceUrl(pin.resource._id)}
+                    id={pin.resource._id}
                     alt={`Image ${rowIndex}-${columnIndex}`}
                     loading="lazy"
                     layout="responsive"

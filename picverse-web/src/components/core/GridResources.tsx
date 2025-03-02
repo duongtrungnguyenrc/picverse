@@ -32,6 +32,7 @@ import { EResourceType } from "@app/lib/enums";
 import { cn, getResourceUrl } from "@app/lib/utils";
 import { useDeleteFile, useDeleteFolder, useUpdateResource } from "@app/lib/hooks";
 import toast from "react-hot-toast";
+import PicverseImage from "./PicverseImage";
 
 type GridResourceItemProps = {
   resource: Resource;
@@ -75,16 +76,26 @@ const GridResourceItem: FC<GridResourceItemProps> = ({ resource, onDrop }) => {
     isSwapOver && canSwapDrop && "border-r-2 border-primary",
   );
 
-  const renderImage = () => (
-    <Image
-      className="object-contain w-full h-full"
-      src={isFile ? getResourceUrl(_id) : "/images/folder.png"}
-      alt={name}
-      width={resource.width || 100}
-      height={resource.height || 100}
-      objectFit="contain"
-    />
-  );
+  const renderImage = () =>
+    type === EResourceType.FOLDER ? (
+      <Image
+        className="object-contain w-full h-full"
+        src="/images/folder.png"
+        alt={name}
+        width={100}
+        height={100}
+        objectFit="contain"
+      />
+    ) : (
+      <PicverseImage
+        className="object-contain w-full h-full"
+        id={_id}
+        alt={name}
+        width={resource.width || 100}
+        height={resource.height || 100}
+        objectFit="contain"
+      />
+    );
 
   const handleRename = (newName: string) => {
     if (newName !== name) {
@@ -194,10 +205,10 @@ const GridResourceItem: FC<GridResourceItemProps> = ({ resource, onDrop }) => {
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent className="w-48">
-        {/* <ContextMenuItem onSelect={handlePrivacyChange}>
+        <ContextMenuItem onSelect={handlePrivacyChange}>
           Make {isPrivate ? "public" : "private"}
           <ContextMenuShortcut>{isPrivate ? <Earth size={16} /> : <Lock size={16} />}</ContextMenuShortcut>
-        </ContextMenuItem> */}
+        </ContextMenuItem>
         <ContextMenuItem>
           Create pin
           <ContextMenuShortcut>
