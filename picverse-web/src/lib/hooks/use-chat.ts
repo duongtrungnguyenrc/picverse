@@ -23,7 +23,6 @@ export const useConversations = () => {
     queryKey: [QueryKeys.CONVERSATIONS],
     queryFn: async () => {
       return await httpFetchClient.get<Array<Conversation>>("/chat/conversations");
-
     },
     enabled: isAuthenticated,
     refetchOnMount: false,
@@ -35,8 +34,7 @@ export const useMessages = (conversationId: string) => {
   return useInfiniteQuery({
     queryKey: [QueryKeys.MESSAGES, conversationId],
     queryFn: async () => {
-      return  await httpFetchClient.get<InfiniteResponse<Message>>(`/chat/messages/${conversationId}`);
-
+      return await httpFetchClient.get<InfiniteResponse<Message>>(`/chat/messages/${conversationId}`);
     },
     enabled: !!conversationId,
     refetchOnWindowFocus: false,
