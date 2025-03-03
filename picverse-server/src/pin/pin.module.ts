@@ -1,5 +1,5 @@
 import { MongooseModule } from "@nestjs/mongoose";
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 
 import { Pin, PinSchema, PinInteraction, PinInteractionSchema, Like, LikeSchema, Comment, CommentSchema } from "./models";
 import { CommentService, PinInteractionService, PinService, LikeService } from "./services";
@@ -26,7 +26,7 @@ import { AccountModule } from "@modules/account";
     ModerationModule,
     SocialModule,
     ProfileModule,
-    BoardModule,
+    forwardRef(() => BoardModule),
     AccountModule,
   ],
   controllers: [PinController],

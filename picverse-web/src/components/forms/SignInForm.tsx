@@ -76,7 +76,12 @@ const SignInForm: FC<SignInFormProps> = ({ redirect }) => {
                 <FormControl>
                   <div className="relative">
                     <Mail className="absolute left-3 top-4 h-4 w-4 text-gray-400" />
-                    <Input className="pl-10" placeholder="Enter your email or username" {...field} />
+                    <Input
+                      className="pl-10"
+                      placeholder="Enter your email or username"
+                      autoComplete="username email"
+                      {...field}
+                    />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -93,7 +98,13 @@ const SignInForm: FC<SignInFormProps> = ({ redirect }) => {
                 <FormControl>
                   <div className="relative">
                     <Lock className="absolute left-3 top-4 h-4 w-4 text-gray-400" />
-                    <Input className="pl-10" type="password" placeholder="Enter your password" {...field} />
+                    <Input
+                      className="pl-10"
+                      type="password"
+                      placeholder="Enter your password"
+                      autoComplete="new-password"
+                      {...field}
+                    />
                   </div>
                 </FormControl>
                 <FormMessage />

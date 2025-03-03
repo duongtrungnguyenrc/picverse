@@ -21,10 +21,10 @@ export class ProfileController {
   }
 
   @Get("/")
-  @ApiQuery({ name: "id", description: "Profile id", required: false })
+  @ApiQuery({ name: "signature", description: "Profile account signature", required: false })
   @ApiOperation({ summary: "Get profile detail" })
   @ApiResponse({ status: 200, description: "Get profile success. Return profile", type: ProfileDetailDto })
-  async getProfile(@Query("id") targetAccountId?: DocumentId, @AuthUid() accountId?: DocumentId): Promise<ProfileDetailDto> {
-    return await this.profileService.getProfileDetail(targetAccountId ? "other" : "own", accountId, targetAccountId);
+  async getProfile(@Query("signature") targetSignature?: DocumentId, @AuthUid() accountId?: DocumentId): Promise<ProfileDetailDto> {
+    return await this.profileService.getProfileDetail(targetSignature ? "other" : "own", accountId, targetSignature);
   }
 }

@@ -144,7 +144,7 @@ const GridResourceItem: FC<GridResourceItemProps> = ({ resource, onDrop }) => {
 
     const url: string = isFile
       ? `${window.location.origin}/public/image?id=${_id}`
-      : `${window.location.origin}/cloud/${_id}`;
+      : `${window.location.origin}/cloud?parentId=${_id}`;
 
     navigator.clipboard.writeText(url).then(() => {
       toast.success("The resource URL has been copied to your clipboard.");
@@ -180,7 +180,7 @@ const GridResourceItem: FC<GridResourceItemProps> = ({ resource, onDrop }) => {
               </DialogContent>
             </Dialog>
           ) : (
-            <Link href={`/cloud/${_id}`}>
+            <Link href={`/cloud?parentId=${_id}`}>
               <div
                 ref={(element) => {
                   move(element);

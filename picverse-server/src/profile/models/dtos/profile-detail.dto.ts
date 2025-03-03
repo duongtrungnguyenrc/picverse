@@ -33,6 +33,9 @@ export class ProfileDetailDto {
   isFollowed: boolean;
 
   @ApiResponseProperty()
+  isOwnProfile: boolean;
+
+  @ApiResponseProperty()
   inboxConfig: EInboxConfig;
 
   @ApiResponseProperty()

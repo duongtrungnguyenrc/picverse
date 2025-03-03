@@ -50,6 +50,10 @@ declare type CreatePinRequest = {
   allowShare: boolean;
 };
 
+declare type CreatePinByResourceRequest = Omit<CreateCommentRequest, "file"> & {
+  resourceId: string;
+};
+
 declare type CreateCommentRequest = {
   content: string;
   replyFor?: string;

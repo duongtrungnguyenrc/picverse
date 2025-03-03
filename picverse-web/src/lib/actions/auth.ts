@@ -48,29 +48,33 @@ export const revalidateAuth = async () => {
 };
 
 export const refreshToken = async (): Promise<string> => {
-  const refreshToken: string | undefined = await getAuthCookie(REFRESH_TOKEN_PREFIX);
+  try {
+    const refreshToken: string | undefined = await getAuthCookie(REFRESH_TOKEN_PREFIX);
 
-  if (!refreshToken) throw new Error("No refresh token available");
+    if (!refreshToken) throw new Error("No refresh token available");
 
-  const response = await fetch(`${BASE_URL}/auth/refresh-token`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${refreshToken}`,
-    },
-  });
+    const response = await fetch(`${BASE_URL}/auth/refresh-token`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${refreshToken}`,
+      },
+    });
 
-  if (!response.ok) {
-    await clearAuthCookie();
-    throw new Error("Failed to refresh token");
+    if (!response.ok) {
+      await clearAuthCookie();
+      throw new Error("Failed to refresh token");
+    }
+
+    const data = await response.json();
+
+    await setAuthCookie(data)
+
+    return data;
+  } catch (error) {
+    throw error;
+  } finally {
+    revalidateAuth();
   }
-
-  const data = await response.json();
-
-  await setAuthCookie(data).catch((e) => {
-    console.log(e);
-  });
-
-  return data;
 };
 
 export const signIn = async (payload: SignInRequest) => {

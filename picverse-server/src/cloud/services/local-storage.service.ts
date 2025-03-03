@@ -74,8 +74,11 @@ export class LocalStorageService implements IStorageService {
       }
     }
 
-    const uploadResult = await this._uploadFromMulterStream(file, fileName);
-    const metadata = await sharp(file.buffer).metadata();
+    const webpBuffer = await sharp(file.buffer).webp({ quality: 90 }).toBuffer();
+
+    const metadata = await sharp(webpBuffer).metadata();
+
+    const uploadResult = await this._uploadFromMulterStream({ ...file, buffer: webpBuffer, mimetype: "image/webp", size: webpBuffer.length }, fileName);
 
     const uploadedFile = await this.resourceService.create({
       name: fileName,
@@ -84,7 +87,7 @@ export class LocalStorageService implements IStorageService {
       type: EResourceType.FILE,
       accountId,
       size: file.size,
-      mimeType: file.mimetype,
+      mimeType: "image/webp",
       width: metadata.width,
       height: metadata.height,
     });
@@ -140,15 +143,15 @@ export class LocalStorageService implements IStorageService {
 
       response.setHeader("Content-Type", "image/webp");
 
-      const transform = sharp()
-        .webp({ quality: 90 })
-        .resize(width ? parseInt(width.toString()) : undefined, height ? parseInt(height.toString()) : undefined);
+      if (width || height) {
+        const transform = sharp().resize(width ? parseInt(width.toString()) : undefined, height ? parseInt(height.toString()) : undefined);
 
-      downloadStream.pipe(transform).pipe(response);
+        downloadStream.pipe(transform).pipe(response);
+      } else {
+        downloadStream.pipe(response);
+      }
     } catch (error) {
-      console.log(error);
-
-      response.status(500).send("An error occurred while downloading the file.");
+      response.status(500).send("An error occurred while downloading the file." + error);
     }
   }
 

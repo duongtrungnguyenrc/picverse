@@ -131,7 +131,7 @@ const MenuDropdown = () => {
           </DropdownMenuSub>
 
           <DropdownMenuItem asChild>
-            <Link href="/me" className="w-full flex items-center">
+            <Link href="/profile/me" className="w-full flex items-center">
               <span>Profile</span>
               <DropdownMenuShortcut>
                 <User className="h-4 w-4" />

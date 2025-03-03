@@ -3,10 +3,10 @@
 import { ProfileTags } from "../constants";
 import { httpFetchClient } from "../utils";
 
-export const loadProfile = async (id?: string): Promise<ProfileDetail | null> => {
+export const loadProfile = async (signature?: string): Promise<ProfileDetail | null> => {
   try {
     const response = await httpFetchClient.get<ProfileDetail>("/profile", {
-      query: { id },
+      query: { signature },
       next: {
         tags: [ProfileTags.PROFILE],
       },

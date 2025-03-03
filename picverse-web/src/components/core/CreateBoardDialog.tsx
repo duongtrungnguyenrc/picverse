@@ -47,7 +47,6 @@ const CreateBoardDialog: FC<CreateBoardDialogProps> = ({ children }) => {
   const formErrors = form.formState.errors;
 
   const onCreateBoard = form.handleSubmit((data) => {
-    console.log("submit");
 
     mutate(data, {
       onSuccess: () => {

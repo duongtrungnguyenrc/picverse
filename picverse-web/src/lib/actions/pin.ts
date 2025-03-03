@@ -1,5 +1,6 @@
 "use server";
 
+import { Pagination } from "@app/components";
 import { httpFetchClient, objectToFormData } from "../utils";
 import { revalidateCloudResources } from "./cloud";
 
@@ -17,6 +18,15 @@ export const getPinDetail = async (pinId: string, raw: boolean = true): Promise<
 
 export async function createPin(payload: CreatePinRequest) {
   const response = await httpFetchClient.post<StatusResponse>("/pin", objectToFormData(payload));
+  revalidateCloudResources();
+
+  return response;
+}
+
+export async function createPinByResource(payload: CreatePinByResourceRequest) {
+  const { resourceId, ...restPayload } = payload;
+
+  const response = await httpFetchClient.post<StatusResponse>(`/pin/${resourceId}`, objectToFormData(restPayload));
   revalidateCloudResources();
 
   return response;
@@ -42,4 +52,10 @@ export async function getPinComments(pinId: string, page: number = 1) {
   });
 
   return response;
+}
+
+export async function loadPinByBoard(boardSignature: string, pagination?: Pagination) {
+  return await httpFetchClient.get<PaginationResponse<Pin>>(`/pin/${boardSignature}/all`, {
+    query: pagination,
+  });
 }

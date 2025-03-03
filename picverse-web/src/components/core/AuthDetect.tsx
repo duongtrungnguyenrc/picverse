@@ -21,6 +21,8 @@ const AuthDetect: FC<AuthDetectProps> = ({ children, navigationTo, isSignedIn = 
     }
   }, [isAuthenticated, isSignedIn, navigationTo, router]);
 
+  if (isAuthenticated !== isSignedIn) return null;
+
   return <>{children}</>;
 };
 

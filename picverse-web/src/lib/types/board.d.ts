@@ -2,6 +2,7 @@ declare type Board = BaseModel &
   TimeStampModel & {
     profile: string;
     name: string;
+    seoName: string;
     description: string;
     isPrivate: boolean;
     createdAt: string;

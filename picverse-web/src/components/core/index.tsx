@@ -31,6 +31,7 @@ export { default as ShareResourceDialog } from "./ShareResourceDialog";
 export { default as RequireAuthFeature } from "./RequireAuthFeature";
 export { default as NetworkStatus } from "./NetworkStatus";
 export { default as PicverseImage } from "./PicverseImage";
+export { default as PinListing } from "./PinListing";
 
 /* AUTH COMPONENTS */
 export { default as GoogleSignInButton } from "./GoogleSignInButton";

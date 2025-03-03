@@ -1,6 +1,6 @@
+import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { Model, Types } from "mongoose";
+import { isValidObjectId, Model, Types } from "mongoose";
 
 import { UpdateBoardDto } from "../models/dtos/request/update-board.dto";
 import { StatusResponseDto } from "@common/dtos";
@@ -8,10 +8,15 @@ import { CacheService } from "@modules/cache";
 import { Repository } from "@common/utils";
 import { CreateBoardDto, UserBoardDto } from "../models";
 import { Board } from "../models/schemas";
+import { AccountService } from "@modules/account";
 
 @Injectable()
 export class BoardService extends Repository<Board> {
-  constructor(@InjectModel(Board.name) boardModel: Model<Board>, cacheService: CacheService) {
+  constructor(
+    @InjectModel(Board.name) boardModel: Model<Board>,
+    cacheService: CacheService,
+    private readonly accountService: AccountService,
+  ) {
     super(boardModel, cacheService);
   }
 
@@ -24,12 +29,46 @@ export class BoardService extends Repository<Board> {
     return { message: "Board created success" };
   }
 
-  async getUserBoards(accountId?: DocumentId): Promise<Array<UserBoardDto>> {
-    if (!accountId) throw new BadRequestException("User not found");
+  async getBoardDetail(signature: DocumentId | string, accountId?: DocumentId) {
+    const board = await this.find({
+      $or: [
+        {
+          seoName: signature,
+        },
+        {
+          _id: isValidObjectId(signature) ? new Types.ObjectId(signature) : new Types.ObjectId(),
+        },
+      ],
+    });
+
+    if (board.isPrivate && board.accountId.toString() != accountId?.toString()) {
+      throw new ForbiddenException();
+    }
+
+    return board;
+  }
+
+  async getUserBoards(signature: DocumentId | string): Promise<Array<UserBoardDto>> {
+    if (!signature) throw new BadRequestException("User not found");
+
+    const account = await this.accountService.exists({
+      $or: [
+        {
+          userName: signature,
+        },
+        {
+          _id: isValidObjectId(signature) ? new Types.ObjectId(signature) : new Types.ObjectId(),
+        },
+      ],
+    });
 
     return await this.findMultiple<UserBoardDto>(
       [
-        { $match: { accountId } },
+        {
+          $match: {
+            accountId: account._id,
+          },
+        },
         {
           $lookup: {
             from: "pins",
@@ -76,6 +115,7 @@ export class BoardService extends Repository<Board> {
             _id: 1,
             name: 1,
             description: 1,
+            seoName: 1,
             isPrivate: 1,
             totalPins: 1,
             latestPins: 1,

@@ -7,11 +7,14 @@ import { loadProfile } from "@app/lib/actions";
 type ProfileLayoutProps = {
   children: ReactNode;
   createdBoards: ReactNode;
+  informations: ReactNode;
   params: Promise<{ signature: string }>;
 };
 
-const ProfileLayout: FC<ProfileLayoutProps> = async ({ children, params, createdBoards }) => {
+const ProfileLayout = async ({ children, params, createdBoards, informations }: ProfileLayoutProps) => {
   const { signature } = await params;
+
+  console.log(signature);
 
   const profile: ProfileDetail | null = await loadProfile(signature != "me" ? signature : undefined);
 
@@ -34,11 +37,13 @@ const ProfileLayout: FC<ProfileLayoutProps> = async ({ children, params, created
           <TabsContent value="boards" className="w-full">
             {createdBoards}
           </TabsContent>
-          <TabsContent value="informations">{/* <BoardListing /> */}</TabsContent>
+          <TabsContent value="informations" className="w-full">
+            {informations}
+          </TabsContent>
         </Tabs>
-
-        {children}
       </div>
+
+      {children}
     </div>
   );
 };

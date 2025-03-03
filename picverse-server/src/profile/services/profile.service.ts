@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model, Types } from "mongoose";
+import { isValidObjectId, Model, Types } from "mongoose";
 
 import { Profile, ProfileDetailDto } from "../models";
 import { AccountService } from "@modules/account";
@@ -19,36 +19,46 @@ export class ProfileService extends Repository<Profile> {
     super(ProfileModel, cacheService);
   }
 
-  async getProfileDetail(type: "own" | "other", accountId: DocumentId, targetAccountId?: DocumentId): Promise<ProfileDetailDto> {
-    const id = type === "own" ? accountId : targetAccountId;
+  async getProfileDetail(type: "own" | "other", accountId?: DocumentId, targetSignature?: DocumentId | string): Promise<ProfileDetailDto> {
+    const isOwnProfile = type === "own";
 
-    const account = await this.accountService.find(
-      {
-        _id: id,
-        isActive: true,
-      },
-      { select: ["email", "inboxCofig"], force: true },
-    );
+    const accountQuery = this.accountService.find(accountId, {
+      select: ["_id", "email", "inboxConfig"],
+    });
 
-    if (!account) throw new NotFoundException("Profile not found");
+    let targetAccountQuery: Promise<any> | null = null;
 
-    let isFollowed = false;
-
-    const profile = await this.find({ accountId: id, isPublic: true }, { select: ["-accountId"], force: true });
-
-    if (accountId && targetAccountId) {
-      isFollowed = !!(await this.followService.exists({
-        followerId: new Types.ObjectId(accountId),
-        followingId: new Types.ObjectId(targetAccountId),
-      }));
+    if (!isOwnProfile) {
+      targetAccountQuery = this.accountService.find(
+        {
+          $or: [{ userName: targetSignature }, { _id: isValidObjectId(targetSignature) ? new Types.ObjectId(targetSignature) : new Types.ObjectId() }],
+          isActive: true,
+        },
+        { select: ["_id", "email", "inboxConfig"] },
+      );
     }
 
+    const [account, targetAccount] = await Promise.all([accountQuery, targetAccountQuery]);
+
+    if ((isOwnProfile && !account) || (!isOwnProfile && !targetAccount)) throw new NotFoundException("Profile not foundd");
+
+    const profile = await this.find({ accountId: isOwnProfile ? account._id : targetAccount._id, isPublic: true }, { select: ["-accountId"] });
+
     if (!profile) throw new NotFoundException("Profile not found");
+    let isFollowed = false;
+
+    if (!isOwnProfile) {
+      isFollowed = !!(await this.followService.exists({
+        followerId: account._id,
+        followingId: targetAccount._id,
+      }));
+    }
 
     return {
       ...account,
       ...profile,
       isFollowed,
+      isOwnProfile,
     };
   }
 }

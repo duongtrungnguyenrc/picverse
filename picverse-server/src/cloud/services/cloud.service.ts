@@ -245,8 +245,6 @@ export class CloudService {
       throw new NotFoundException("File not found");
     }
 
-    console.log(resource);
-
     if (resource.accountId.toString() !== accountId?.toString() && resource.isPrivate) {
       throw new ForbiddenException("Unable to access private resources, please contact the author and request viewing permission");
     }

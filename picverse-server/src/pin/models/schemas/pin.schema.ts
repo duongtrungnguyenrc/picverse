@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document, Types } from "mongoose";
+import { Document, Model, Types } from "mongoose";
 
 import { Resource } from "@modules/cloud";
+import { generateUniqueSlug } from "@modules/common/utils";
 
 @Schema({ timestamps: true })
 export class Pin extends Document<Types.ObjectId> {
@@ -35,6 +36,9 @@ export class Pin extends Document<Types.ObjectId> {
   @Prop({ type: String, select: false })
   vectorId: string;
 
+  @Prop({ type: String, unique: true })
+  seoName: string;
+
   @Prop({ select: false })
   textEmbedding: number[];
 
@@ -46,3 +50,10 @@ export class Pin extends Document<Types.ObjectId> {
 }
 
 export const PinSchema = SchemaFactory.createForClass(Pin);
+
+PinSchema.pre<Pin>("save", async function (next) {
+  if (this.isModified("title") || this.isNew) {
+    this.seoName = await generateUniqueSlug(this.constructor as Model<Pin>, this.title);
+  }
+  next();
+});

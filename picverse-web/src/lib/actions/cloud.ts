@@ -7,13 +7,19 @@ import { httpFetchClient, objectToFormData } from "../utils";
 import { CloudTags } from "../constants";
 
 export const loadResources = async (parentId?: string, pagination?: Pagination): Promise<GetResourcesResponse> => {
-  return await httpFetchClient.get<GetResourcesResponse>("/cloud/resources", {
-    next: { revalidate: 5, tags: [CloudTags.RESOURCES] },
-    query: {
-      parentId,
-      ...pagination,
-    },
-  });
+  try {
+    return await httpFetchClient.get<GetResourcesResponse>("/cloud/resources", {
+      next: { revalidate: 5, tags: [CloudTags.RESOURCES] },
+      query: {
+        parentId,
+        ...pagination,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+
+    throw error;
+  }
 };
 
 export const revalidateCloudResources = async () => revalidateTag(CloudTags.RESOURCES);

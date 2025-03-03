@@ -15,19 +15,18 @@ import {
 import { loadResources } from "@app/lib/actions";
 
 type CloudPageProps = {
-  params: Promise<{ parentIds: Array<string> }>;
+  searchParams: Promise<{ parentId?: string }>;
 };
 
 export const metadata: Metadata = {
   title: "Cloud",
 };
 
-const CloudPage: FC<CloudPageProps> = async ({ params }) => {
-  const { parentIds } = await params;
+const CloudPage: FC<CloudPageProps> = async ({ searchParams }) => {
+  const { parentId } = await searchParams;
 
-  if (parentIds?.length > 1) notFound();
+  console.log("access cloud");
 
-  const parentId = parentIds?.length > 0 ? parentIds[0] : undefined;
   const firstPageResources = await loadResources(parentId, { page: 1, limit: 20 });
 
   return (

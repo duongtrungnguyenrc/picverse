@@ -41,7 +41,7 @@ const Profile: FC<ProfileProps> = ({ profile, signature }) => {
             ) : null}
           </Avatar>
 
-          {!isMyProfile && profile && (
+          {!profile.isOwnProfile && (
             <Button
               onClick={onStartNewConversation}
               size="icon"

@@ -1,65 +1,66 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiResponseProperty } from "@nestjs/swagger";
 import { Types } from "mongoose";
 
 class ResourceDto {
-  @ApiProperty()
+  @ApiResponseProperty()
   _id: Types.ObjectId;
 
-  @ApiProperty()
+  @ApiResponseProperty()
   name: string;
 
-  @ApiProperty()
+  @ApiResponseProperty()
   type: string;
 
-  @ApiProperty()
+  @ApiResponseProperty()
   storage: string;
 
-  @ApiProperty()
+  @ApiResponseProperty()
   size: number;
 
-  @ApiProperty({ required: false })
+  @ApiResponseProperty()
   width?: number;
 
-  @ApiProperty({ required: false })
+  @ApiResponseProperty()
   height?: number;
 
-  @ApiProperty()
+  @ApiResponseProperty()
   mimeType: string;
 }
 
 class PinDto {
-  @ApiProperty()
+  @ApiResponseProperty()
   _id: Types.ObjectId;
 
-  @ApiProperty()
+  @ApiResponseProperty()
   title: string;
 
-  @ApiProperty({ type: () => ResourceDto })
+  @ApiResponseProperty({ type: () => ResourceDto })
   resource: ResourceDto;
 }
 
 export class UserBoardDto {
-  @ApiProperty()
+  @ApiResponseProperty()
   _id: Types.ObjectId;
 
-  @ApiProperty()
+  @ApiResponseProperty()
   name: string;
 
-  @ApiProperty()
+  @ApiResponseProperty()
   description: string;
 
-  @ApiProperty()
+  @ApiResponseProperty()
   isPrivate: boolean;
 
-  @ApiProperty()
+  @ApiResponseProperty()
   totalPins: number;
 
-  @ApiProperty({ type: () => [PinDto] })
+  @ApiResponseProperty({ type: () => [PinDto] })
   latestPins: PinDto[];
 
-  @ApiProperty()
+  @ApiResponseProperty()
+  @ApiResponseProperty()
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiResponseProperty()
   updatedAt: Date;
 }

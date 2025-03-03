@@ -36,6 +36,9 @@ export class PinDetailDto {
   vectorId: string;
 
   @ApiResponseProperty()
+  seoName: string;
+
+  @ApiResponseProperty()
   createdAt: Date;
 
   @ApiResponseProperty()

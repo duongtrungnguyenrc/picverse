@@ -4,7 +4,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 
 import { CreatePinDto, UpdatePinDto, PinDetailDto, Pin, CommentDetailDto } from "../models";
 import { ApiPagination, Auth, AuthUid, Pagination } from "@common/decorators";
-import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
+import { InfiniteResponse, PaginationResponse, StatusResponseDto } from "@common/dtos";
 import { PinService } from "../services";
 
 @Controller("/pin")
@@ -48,11 +48,13 @@ export class PinController {
     return await this.pinService.deletePin(accountId, pinId);
   }
 
-  @Get("/")
-  @ApiOperation({ summary: "Get all pins" })
-  @ApiOkResponse({ description: "Returns all pins of the user", type: [Pin] })
-  async getAllPins(@AuthUid() accountId: DocumentId): Promise<Pin[]> {
-    return await this.pinService.getAllPins(accountId);
+  @Get("/:signature/all")
+  @ApiPagination()
+  @ApiOperation({ summary: "Get pins by boards" })
+  @ApiParam({ name: "signature", description: "Board id" })
+  @ApiOkResponse({ type: PaginationResponse<Pin> })
+  async getPinsByBoard(@Param("signature") signature: DocumentId | string, @Pagination() pagination: Pagination, @AuthUid() accountId?: DocumentId) {
+    return await this.pinService.getPinsByBoard(signature, pagination, accountId);
   }
 
   @Get("/:pinId")

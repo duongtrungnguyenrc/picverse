@@ -31,7 +31,6 @@ type SettingProfileFormProps = {
 const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
   const { mutate: updateProfile } = useUpdateProfile();
 
-  console.log(profile);
 
   const form = useForm<UpdateProfileRequest>({
     defaultValues: {

@@ -20,7 +20,7 @@ import {
   UpdateAccountConfigDto,
 } from "../models";
 import { ACTIVATE_ACCOUNT_TRANSACTION_CACHE_PREFIX, OTP_TTL, RESET_PASSOWRD_TRANSACTION_CACHE_PREFIX } from "../constants";
-import { generateOtp, hashPassword, Repository, withMutateTransaction } from "@common/utils";
+import { generateOtp, generateUniqueSlug, hashPassword, Repository, withMutateTransaction } from "@common/utils";
 import { CacheService, joinCacheKey } from "@modules/cache";
 import { SessionService } from "@modules/session";
 import { ProfileService } from "@modules/profile";
@@ -41,37 +41,25 @@ export class AccountService extends Repository<Account> {
   }
 
   async signUp(data: SignUpRequestDto): Promise<StatusResponseDto> {
-    return await withMutateTransaction<Account, StatusResponseDto>(this.getModel(), async (session: ClientSession) => {
-      const { email, password, ...profileInfo } = data;
+    return withMutateTransaction<Account, StatusResponseDto>(this.getModel(), async (session: ClientSession) => {
+      const { email, password, firstName, lastName, ...profileInfo } = data;
 
-      const hashedPassword: string = await hashPassword(password);
+      const [hashedPassword, userName] = await Promise.all([hashPassword(password), generateUniqueSlug(this._model, `${firstName} ${lastName}`, "userName")]);
 
-      const createdAccount: Account = await this.create(
-        {
-          email,
-          password: hashedPassword,
-        },
-        { session },
-      );
+      const createdAccount = await this.create({ email, password: hashedPassword, userName }, { session });
 
-      await this.profileService.create({ accountId: createdAccount._id, ...profileInfo }, { session });
+      await this.profileService.create({ accountId: createdAccount._id, firstName, lastName, ...profileInfo }, { session });
 
-      try {
-        this.mailerService.sendMail({
+      void this.mailerService
+        .sendMail({
           subject: MailSubject.ACCOUNT_REGISTERD,
-          to: createdAccount.email,
+          to: email,
           template: "account-registered",
-          context: {
-            fullName: `${profileInfo.firstName} ${profileInfo.lastName}`,
-          },
-        });
-      } catch (error) {
-        console.log("Send mail error: ", error);
-      }
+          context: { fullName: `${firstName} ${lastName}` },
+        })
+        .catch((error) => console.log("Send mail error: ", error));
 
-      return {
-        message: "Sign up success",
-      };
+      return { message: "Sign up success" };
     });
   }
 

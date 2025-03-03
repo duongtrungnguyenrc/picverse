@@ -20,7 +20,7 @@ export class ResponseInterceptor implements NestInterceptor {
           if (obj instanceof Date) {
             return formatDate(obj);
           } else if (isDateString(obj)) {
-            return formatDate(new Date(obj));
+            return obj;
           } else if (Array.isArray(obj)) {
             return obj.map(transformResponseObject);
           } else if (obj instanceof Types.ObjectId) {
@@ -32,6 +32,7 @@ export class ResponseInterceptor implements NestInterceptor {
 
           return obj;
         };
+
 
         return transformResponseObject(data);
       }),

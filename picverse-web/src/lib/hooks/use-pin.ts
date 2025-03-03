@@ -1,20 +1,30 @@
 "use client";
 
 import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useTransition } from "react";
 
-import { getPinDetail, createPin, getSimilarPins, getPinComments } from "../actions";
+import { getPinDetail, createPin, getSimilarPins, getPinComments, createPinByResource } from "../actions";
 import { PinInteractionContext } from "../contexts";
 import { QueryKeys } from "../constants";
-import { showToastError } from "../utils";
+import toast from "react-hot-toast";
 
 export const usePinInteraction = () => useContext(PinInteractionContext);
 
 export const useCreatePin = () => {
-  return useMutation({
-    mutationFn: createPin,
-    onError: showToastError,
-  });
+  const [isPending, startTransition] = useTransition();
+
+  const handleCreatePin = (data: CreatePinRequest | CreatePinByResourceRequest, onSuccess: VoidFunction) =>
+    startTransition(async () => {
+      try {
+        const response = await ("resourceId" in data ? createPinByResource(data) : createPin(data));
+
+        toast.success(response.message);
+        onSuccess();
+      } catch (error) {
+        toast.error(String(error));
+      }
+    });
+  return { isPending, handleCreatePin };
 };
 
 export const useSimilarPins = (pinId: string) => {

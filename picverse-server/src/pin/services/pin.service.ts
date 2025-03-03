@@ -1,17 +1,18 @@
-import { NotAcceptableException, Injectable, NotFoundException } from "@nestjs/common";
+import { NotAcceptableException, Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
 import { multerToBlobUrl, Repository } from "@common/utils";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model, Types } from "mongoose";
+import { isValidObjectId, Model, Types } from "mongoose";
 import { randomUUID } from "crypto";
 
 import { CreatePinDto, UpdatePinDto, PinDetailDto, Pin, CommentDetailDto } from "../models";
 import { ImageModerationService, TextModerationService } from "@modules/moderation";
-import { InfiniteResponse, StatusResponseDto } from "@common/dtos";
+import { InfiniteResponse, PaginationResponse, StatusResponseDto } from "@common/dtos";
 import { CloudService, Resource } from "@modules/cloud";
 import { CommentService } from "./comment.service";
 import { VectorService } from "@modules/vector";
 import { CacheService } from "@modules/cache";
 import { AccountService } from "@modules/account";
+import { BoardService } from "@modules/board";
 
 @Injectable()
 export class PinService extends Repository<Pin> {
@@ -24,13 +25,16 @@ export class PinService extends Repository<Pin> {
     private readonly textModerationService: TextModerationService,
     private readonly commentService: CommentService,
     private readonly accountService: AccountService,
+    private readonly boardService: BoardService,
   ) {
     super(pinModel, cacheService, Pin.name);
   }
 
   async createPin(accountId: DocumentId, file: Express.Multer.File, payload: CreatePinDto): Promise<StatusResponseDto> {
+    const fileBlobUrl = multerToBlobUrl(file);
+
     const [imageModerationResult, textModerationResult] = await Promise.all([
-      this.imageModerationService.moderateContent(multerToBlobUrl(file)),
+      this.imageModerationService.moderateContent(fileBlobUrl),
       this.textModerationService.moderateContent(`${payload.title}; ${payload.description}`),
     ]);
 
@@ -67,7 +71,7 @@ export class PinService extends Repository<Pin> {
         allowComment: accountConfig.allowComment,
         ...payload,
         authorId: accountId,
-        resource: uploadedResource._id,
+        resource: new Types.ObjectId(uploadedResource._id),
         vectorId,
         textEmbedding,
         imageEmbedding,
@@ -76,6 +80,8 @@ export class PinService extends Repository<Pin> {
       this.vectorService.insertEmbedding(PinService.name, vectorId, textEmbedding, imageEmbedding),
     ]);
 
+    URL.revokeObjectURL(fileBlobUrl);
+
     return { message: "Pin created success" };
   }
 
@@ -83,9 +89,11 @@ export class PinService extends Repository<Pin> {
     const resource = await this.cloudService.getFile(resourceId);
     if (!resource) throw new NotFoundException("Resource not found");
 
+    const imageUrl = URL.createObjectURL(await this.cloudService.getFile(resourceId));
+
     const [textEmbedding, imageEmbedding] = await Promise.all([
       this.vectorService.generateTextEmbedding(payload.title, payload.description, payload.tags),
-      this.vectorService.generateImageEmbedding(URL.createObjectURL(await this.cloudService.getFile(resourceId))),
+      this.vectorService.generateImageEmbedding(imageUrl),
     ]);
 
     const vectorId: string = randomUUID();
@@ -94,7 +102,7 @@ export class PinService extends Repository<Pin> {
       this.vectorService.insertEmbedding(PinService.name, vectorId, textEmbedding, imageEmbedding),
     ]);
 
-    console.log(pin);
+    URL.revokeObjectURL(imageUrl);
 
     return { message: "Pin created" };
   }
@@ -107,6 +115,36 @@ export class PinService extends Repository<Pin> {
     await this.update(pin._id, payload);
 
     return { message: "Pin updated success" };
+  }
+
+  async getPinsByBoard(signature: DocumentId | string, pagination: Pagination, accountId?: DocumentId): Promise<PaginationResponse<Pin>> {
+    const board = await this.boardService.find(
+      {
+        $or: [
+          { seoName: signature },
+          {
+            _id: isValidObjectId(signature) ? new Types.ObjectId(signature) : new Types.ObjectId(),
+          },
+        ],
+      },
+      { select: ["isPrivate", "accountId"] },
+    );
+
+    if (!board) {
+      throw new NotFoundException("Board not found");
+    }
+
+    if (board.isPrivate && accountId.toString() !== board.accountId.toString()) {
+      throw new ForbiddenException("Forbidden to load board data");
+    }
+
+    return this.findMultiplePaging(
+      {
+        boardId: board._id,
+      },
+      pagination,
+      { populate: "resource" },
+    );
   }
 
   async getPinDetail(pinId: Types.ObjectId, accountId?: Types.ObjectId): Promise<PinDetailDto> {

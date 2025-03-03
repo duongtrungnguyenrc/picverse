@@ -5,10 +5,10 @@ import { revalidateTag } from "next/cache";
 import { httpFetchClient } from "../utils";
 import { BoardTags } from "../constants";
 
-export const loadUserBoards = async (id?: string) => {
+export const loadUserBoards = async (signature?: string) => {
   return await httpFetchClient.get<Array<UserBoard>>(`/board/user`, {
     query: {
-      id: id,
+      signature: signature,
     },
     next: {
       revalidate: 5,
@@ -24,4 +24,8 @@ export const createBoard = async (payload: CreateBoardRequest) => {
 
   revalidateUserBoards();
   return response;
+};
+
+export const loadBoard = async (id: string) => {
+  return await httpFetchClient.get<Board>(`/board/${id}`);
 };

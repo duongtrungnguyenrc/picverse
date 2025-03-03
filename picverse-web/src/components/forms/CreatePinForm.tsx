@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { FC } from "react";
 
-import { ContentSection, ImagePicker, TagInput } from "../core";
+import { ContentSection, ImagePicker, PicverseImage, TagInput } from "../core";
 import { useCreatePin } from "@app/lib/hooks";
 import {
   Form,
@@ -27,12 +27,13 @@ import {
 
 type CreatePinFormProps = {
   boards: UserBoard[];
+  resourceId?: string;
 };
 
 type CreatePinFormType = CreatePinRequest & { choosenImage: Partial<ChoosenImage> };
 
-const CreatePinForm: FC<CreatePinFormProps> = ({ boards }) => {
-  const { mutate } = useCreatePin();
+const CreatePinForm: FC<CreatePinFormProps> = ({ boards, resourceId }) => {
+  const { handleCreatePin } = useCreatePin();
   const form = useForm<CreatePinFormType>({
     defaultValues: {
       title: "",
@@ -44,12 +45,23 @@ const CreatePinForm: FC<CreatePinFormProps> = ({ boards }) => {
     },
   });
 
-  const onCreatePin = form.handleSubmit((data) => {
-    mutate(data, {
-      onSuccess() {
-        toast.success("Pin created success");
-        form.reset();
-      },
+  const onCreatePin = form.handleSubmit((data: CreatePinFormType) => {
+    if (resourceId) {
+      handleCreatePin(
+        {
+          ...data,
+          resourceId,
+        },
+        () => {
+          form.reset();
+        },
+      );
+
+      return;
+    }
+
+    handleCreatePin(data, () => {
+      form.reset();
     });
   });
 
@@ -72,11 +84,22 @@ const CreatePinForm: FC<CreatePinFormProps> = ({ boards }) => {
                   <FormItem className="h-full flex flex-col space-y-4">
                     <FormLabel>Media</FormLabel>
                     <FormControl>
-                      <ImagePicker
-                        onChange={field.onChange}
-                        chosenImage={form.getValues("choosenImage")}
-                        setChosenImage={onSetChoosenImage}
-                      />
+                      {resourceId ? (
+                        <div className="min-h-[300px] flex-1 flex-center flex-col rounded-lg border border-dashed cursor-pointer group relative overflow-hidden">
+                          <PicverseImage
+                            id={resourceId}
+                            alt="Preview image"
+                            layout="fill"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <ImagePicker
+                          onChange={field.onChange}
+                          chosenImage={form.getValues("choosenImage")}
+                          setChosenImage={onSetChoosenImage}
+                        />
+                      )}
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -11,6 +11,7 @@ import { decode } from "jsonwebtoken";
 import { genSalt, hash } from "bcrypt";
 import { Socket } from "socket.io";
 import { Request } from "express";
+import slugify from "slugify";
 
 import { AccountErrorMessage } from "@modules/account";
 import { TOKEN_TYPE, OTP_LENGTH } from "../constants";
@@ -129,3 +130,16 @@ export const cacheable = async <T>(service: CacheService, action: () => Promise<
 
   return data;
 };
+
+export async function generateUniqueSlug(model: Model<any>, name: string, field: string = "seoName"): Promise<string> {
+  const baseSlug = slugify(name, { lower: true, strict: true });
+  let seoName = baseSlug;
+  let count = 1;
+
+  while (await model.exists({ [field]: seoName })) {
+    seoName = `${baseSlug}-${count}`;
+    count++;
+  }
+
+  return seoName;
+}
