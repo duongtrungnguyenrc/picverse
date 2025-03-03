@@ -3,7 +3,7 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { QueryKeys } from "../constants";
-import { httpClient } from "../utils";
+import { httpFetchClient } from "../utils";
 import { useAuth } from "./use-auth";
 import { useContext } from "react";
 import { NotificationContext } from "../contexts";
@@ -31,14 +31,12 @@ export const useNotifications = () => {
   return useInfiniteQuery({
     queryKey: [QueryKeys.NOTIFICATIONS],
     queryFn: async ({ pageParam }) => {
-      const query = new URLSearchParams({
-        limit: String(10),
-        page: String(pageParam),
+      return await httpFetchClient.get<InfiniteResponse<Noti>>(`/social/notifications`, {
+        query: {
+          limit: String(10),
+          page: String(pageParam),
+        },
       });
-
-      const response = await httpClient.get<InfiniteResponse<Noti>>(`/social/notifications?${query}`);
-
-      return response.data;
     },
     enabled: isAuthenticated,
     refetchOnWindowFocus: false,

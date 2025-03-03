@@ -19,3 +19,9 @@ export enum ESearchTarget {
   PROFILE = "profile",
   PIN = "pin",
 }
+
+export enum EInboxConfig {
+  ALL = "all",
+  FOLLOWING = "following",
+  OFF = "off",
+}

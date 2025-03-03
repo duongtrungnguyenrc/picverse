@@ -13,6 +13,14 @@ import { JWTRefreshAuthGuard } from "@common/guards";
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Auth()
+  @Get()
+  auth(@AuthUid() accountId: string) {
+    return {
+      accountId,
+    };
+  }
+
   @Post("/sign-in")
   @ApiOperation({ summary: "Sign in to web" })
   @ApiBody({ type: SignInRequestDto })

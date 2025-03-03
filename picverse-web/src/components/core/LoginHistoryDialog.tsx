@@ -11,13 +11,13 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "../shadcn";
 import { useAcessRecords } from "@app/lib/hooks";
 import Pagination from "./Pagination";
+import Typography from "./Typography";
 
 type LoginHistoryDialogProps = {
   children: ReactNode;
@@ -31,12 +31,12 @@ const LoginHistoryDialog: FC<LoginHistoryDialogProps> = ({ children }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="min-w-[60vw]">
+      <DialogContent className="min-w-[60vw] min-h-[70vh] max-h-screen lg:max-h-[70vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Login history</DialogTitle>
         </DialogHeader>
 
-        <div>
+        <div className="w-full overflow-auto flex-1">
           <Table>
             <TableHeader>
               <TableRow>
@@ -59,29 +59,16 @@ const LoginHistoryDialog: FC<LoginHistoryDialogProps> = ({ children }) => {
                 );
               })}
             </TableBody>
-
-            <TableFooter className="bg-transparent hover:bg-transparent pt-5">
-              {records?.data.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center">
-                    No records found
-                  </TableCell>
-                </TableRow>
-              )}
-
-              <TableRow>
-                <TableCell colSpan={4}>
-                  <div className="w-full flex-center">
-                    <Pagination
-                      currentPage={records?.meta.page || 1}
-                      pageCount={records?.meta.pages || 0}
-                      onChangePage={setPage}
-                    />
-                  </div>
-                </TableCell>
-              </TableRow>
-            </TableFooter>
           </Table>
+        </div>
+        <div className="bg-transparent hover:bg-transparent flex-center w-full pt-5">
+          {records?.data.length === 0 && <Typography>No records found</Typography>}
+
+          <Pagination
+            currentPage={records?.meta.page || 1}
+            pageCount={records?.meta.pages || 0}
+            onChangePage={setPage}
+          />
         </div>
       </DialogContent>
     </Dialog>

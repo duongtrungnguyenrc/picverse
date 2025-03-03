@@ -15,7 +15,7 @@ import { AuthTags, BASE_URL, REFRESH_TOKEN_PREFIX } from "../constants";
 export const auth = async (): Promise<Auth> => {
   try {
     const [account, tokenPair] = await Promise.all([
-      httpFetchClient.get<Account>("/account", {
+      httpFetchClient.get<BaseModel>("/auth", {
         next: {
           tags: [AuthTags.AUTH],
           revalidate: 60 * 60, // 1 hours in minutes

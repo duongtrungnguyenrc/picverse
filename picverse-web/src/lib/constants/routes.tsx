@@ -1,4 +1,4 @@
-import { Bell, Fingerprint, KeyRound, Shield, ThumbsUp, User } from "lucide-react";
+import { Bell, KeyRound, Shield, ThumbsUp, User } from "lucide-react";
 
 export const settingRoutes: Array<Route> = [
   {
@@ -24,11 +24,5 @@ export const settingRoutes: Array<Route> = [
     path: "/settings/permissions",
     icon: <ThumbsUp size={16} />,
     description: "Manage your social media permissions and connections.",
-  },
-  {
-    name: "Notifications",
-    path: "/settings/notifications",
-    icon: <Bell size={16} />,
-    description: "Configure your notification preferences and alerts.",
   },
 ];

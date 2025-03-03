@@ -1,7 +1,7 @@
-import { ApiBody, ApiParam, ApiTags, ApiCreatedResponse, ApiOperation } from "@nestjs/swagger";
+import { ApiBody, ApiParam, ApiTags, ApiCreatedResponse, ApiOperation, ApiOkResponse } from "@nestjs/swagger";
 import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
 
-import { ChangePasswordRequestDto, ForgotPasswordDto, LockAccountDto, RequestActiveAccountDto, ResetPasswordDto, SignUpRequestDto } from "../models";
+import { AccountConfigDto, ChangePasswordRequestDto, ForgotPasswordDto, LockAccountDto, RequestActiveAccountDto, ResetPasswordDto, SignUpRequestDto, UpdateAccountConfigDto } from "../models";
 import { Auth, AuthTokenPayload, AuthUid, IpAddress } from "@common/decorators";
 import { StatusResponseDto } from "@common/dtos";
 import { AccountService } from "../services";
@@ -30,10 +30,27 @@ export class AccountController {
   }
 
   @Auth()
+  @Put("/config")
+  @ApiOperation({ summary: "Update account config" })
+  @ApiBody({ type: UpdateAccountConfigDto })
+  @ApiCreatedResponse({ description: "Update account config success. Return status", type: StatusResponseDto })
+  async updateAccountConfig(@AuthUid() accountId: DocumentId, @Body() payload: UpdateAccountConfigDto): Promise<StatusResponseDto> {
+    return await this.accountService.updateConfig(accountId, payload);
+  }
+
+  @Auth()
   @Get("/")
   @ApiOperation({ summary: "Get Account" })
   async getAccount(@AuthUid() accountId: DocumentId): Promise<Account> {
     return await this.accountService.getAccount(accountId);
+  }
+
+  @Auth()
+  @Get("/config")
+  @ApiOperation({ summary: "Get Account config" })
+  @ApiOkResponse({ description: "Get account config success. Return account config", type: AccountConfigDto })
+  async getAccountConfig(@AuthUid() accountId: DocumentId): Promise<AccountConfigDto> {
+    return await this.accountService.getAccountConfig(accountId);
   }
 
   @Post("/forgot-password")

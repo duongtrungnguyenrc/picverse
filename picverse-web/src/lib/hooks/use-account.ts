@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-import { signUp, forgotPassword, resetPassword, changePassword } from "../actions";
+import { signUp, forgotPassword, resetPassword, changePassword, updateAccountConfig } from "../actions";
 
 export const useSignUp = () => {
   const [isPending, startTransition] = useTransition();
@@ -78,4 +78,22 @@ export const useChangePassword = () => {
   };
 
   return { handleChangePassword, isPending };
+};
+
+export const useUpdateAccountConfig = () => {
+  const [isPending, startTransition] = useTransition();
+
+  const handleUpdateAccountConfig = (data: UpdateAccountConfigRequest) => {
+    startTransition(async () => {
+      try {
+        const response = await updateAccountConfig(data);
+
+        toast.success(response.message);
+      } catch (error) {
+        toast.error("Failed to update: " + error);
+      }
+    });
+  };
+
+  return { handleUpdateAccountConfig, isPending };
 };

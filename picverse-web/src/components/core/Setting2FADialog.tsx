@@ -2,7 +2,7 @@
 
 import { Loader2, QrCode, ShieldCheck, ShieldOff } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
-import { useState } from "react";
+import { FC, ReactNode, useState } from "react";
 
 import { useAuth, useEnable2FA, useVerify2FA } from "@app/lib/hooks";
 import {
@@ -21,12 +21,13 @@ import {
 import Disable2FADialog from "./Disable2FADialog";
 import { revalidateAuth } from "@app/lib/actions";
 
-const Setting2FADialog: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+type Setting2FADialogProps = { children: ReactNode; config: AccountConfig };
+
+const Setting2FADialog: FC<Setting2FADialogProps> = ({ children, config }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
 
-  const { account } = useAuth();
   const { mutate: enableTwoFactor, isPending: isEnabling } = useEnable2FA();
   const { mutate: verifyTwoFactor, isPending: isVerifying } = useVerify2FA();
 
@@ -60,7 +61,7 @@ const Setting2FADialog: React.FC<{ children: React.ReactNode }> = ({ children })
           <DialogDescription>Enhance your account security by enabling two-factor authentication.</DialogDescription>
         </DialogHeader>
         <div className="mt-4 space-y-4">
-          {account?.enable2FA ? (
+          {config?.enable2FA ? (
             <>
               <Alert>
                 <ShieldCheck className="h-4 w-4" />

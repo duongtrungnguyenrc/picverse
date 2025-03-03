@@ -143,7 +143,7 @@ const GridResourceItem: FC<GridResourceItemProps> = ({ resource, onDrop }) => {
     "client only";
 
     const url: string = isFile
-      ? `${process.env.NEXT_PUBLIC_API_SERVER_ORIGIN}/api/cloud/file/${_id}`
+      ? `${window.location.origin}/public/image?id=${_id}`
       : `${window.location.origin}/cloud/${_id}`;
 
     navigator.clipboard.writeText(url).then(() => {

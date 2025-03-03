@@ -59,6 +59,8 @@ export { default as SettingHeader } from "./SettingHeader";
 export { default as ChangePasswordDialog } from "./ChangePasswordDialog";
 export { default as Disable2FADialog } from "./Disable2FADialog";
 export { default as LoginHistoryDialog } from "./LoginHistoryDialog";
+export { default as WhreLoggedInDialog } from "./WhereLoggedInDialog";
+export { default as Setting2FADialog } from "./Setting2FADialog";
 
 /* LISTING COMPONENTS */
 

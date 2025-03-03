@@ -1,5 +1,5 @@
 type AuthContextType = {
-  account?: Account;
+  account?: BaseModel;
   isAuthenticated: boolean;
   signOut: () => Promise<void>;
   accessToken?: string;
@@ -7,7 +7,7 @@ type AuthContextType = {
 };
 
 declare type Auth = Partial<TokenPair> & {
-  account?: Account;
+  account?: BaseModel;
 };
 
 declare type Require2FAResponse = {

@@ -1,15 +1,15 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
 import { useContext, useEffect, useState, useTransition } from "react";
-
-import { httpClient, showAxiosToastError } from "../utils";
-import { ACCESS_TOKEN_PREFIX, AuthTags, MutationKeys, QueryKeys } from "../constants";
-import { AuthContext } from "../contexts";
-import { getAuthCookie, getClientSecret, googleSignIn, refreshToken, signIn, signOut } from "../actions";
-import { jwtDecode } from "jwt-decode";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+import { jwtDecode } from "jwt-decode";
+
+import { getAuthCookie, getClientSecret, googleSignIn, refreshToken, signIn, signOut } from "../actions";
+import { ACCESS_TOKEN_PREFIX, AuthTags, MutationKeys, QueryKeys } from "../constants";
+import { httpFetchClient, showToastError } from "../utils";
+import { AuthContext } from "../contexts";
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -54,7 +54,7 @@ export const useSession = () => {
         },
       });
 
-      return response.json();
+      return await response.json();
     },
   });
 };
@@ -88,7 +88,7 @@ export const useSignIn = (redirect?: boolean) => {
 };
 
 export const useGoogleSignIn = () => {
-  const mutationResult = useMutation<void, AxiosError>({
+  const mutationResult = useMutation<void, Error>({
     mutationKey: [MutationKeys.GOOGLE_SIGN_IN],
     mutationFn: async () => {
       const secret = await getClientSecret();
@@ -102,47 +102,43 @@ export const useGoogleSignIn = () => {
 };
 
 export const useSignOut = () => {
-  return useMutation<void, AxiosError>({
+  return useMutation<void, Error>({
     mutationKey: [MutationKeys.SIGN_OUT],
     mutationFn: signOut,
     onSuccess: async () => {
       toast.success("Sign out success");
     },
-    onError: showAxiosToastError,
+    onError: showToastError,
   });
 };
 
 export const useEnable2FA = () => {
-  return useMutation<string, AxiosError>({
+  return useMutation<string, Error>({
     mutationFn: async () => {
-      const response = await httpClient.post<string>("/auth/2fa/enable");
-      return response.data;
+      return await httpFetchClient.post<string>("/auth/2fa/enable");
     },
-    onError: showAxiosToastError,
+    onError: showToastError,
   });
 };
 
 export const useDisable2FA = () => {
-  return useMutation<StatusResponse, AxiosError, Disable2FARequest>({
+  return useMutation<StatusResponse, Error, Disable2FARequest>({
     mutationFn: async (data) => {
-      const response = await httpClient.post<StatusResponse>("/auth/2fa/disable", data);
-      return response.data;
+      return await httpFetchClient.post<StatusResponse>("/auth/2fa/disable", JSON.stringify(data));
     },
     onSuccess: (data) => {
       toast.success(data.message);
     },
-    onError: showAxiosToastError,
+    onError: showToastError,
   });
 };
 
 export const useVerify2FA = () => {
-  return useMutation<StatusResponse, AxiosError, Verify2FARequest>({
+  return useMutation<StatusResponse, Error, Verify2FARequest>({
     mutationFn: async (data) => {
-      const response = await httpClient.post("/auth/2fa/verify", data);
-
-      return response.data;
+      return await httpFetchClient.post("/auth/2fa/verify", JSON.stringify(data));
     },
-    onError: showAxiosToastError,
+    onError: showToastError,
   });
 };
 

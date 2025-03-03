@@ -11,6 +11,7 @@ import { CloudModule } from "@modules/cloud";
 import { SocialModule } from "@modules/social";
 import { ProfileModule } from "@modules/profile";
 import { BoardModule } from "@modules/board";
+import { AccountModule } from "@modules/account";
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { BoardModule } from "@modules/board";
     SocialModule,
     ProfileModule,
     BoardModule,
-    
+    AccountModule,
   ],
   controllers: [PinController],
   providers: [PinService, CommentService, LikeService, PinInteractionService, PinInteractionGateway],

@@ -1,5 +1,5 @@
 import { MongooseModule } from "@nestjs/mongoose";
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 
 import { Follow, FollowSchema, Notification, NotificationSchema } from "./models/schemas";
 import { FollowService, NotificationService } from "./services";
@@ -19,10 +19,10 @@ import { SocialGateway } from "./gatewaies";
         schema: NotificationSchema,
       },
     ]),
-    ProfileModule,
+    forwardRef(() => ProfileModule),
   ],
   controllers: [SocialController],
   providers: [FollowService, NotificationService, SocialGateway],
-  exports: [NotificationService],
+  exports: [NotificationService, FollowService],
 })
 export class SocialModule {}

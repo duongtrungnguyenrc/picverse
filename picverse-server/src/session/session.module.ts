@@ -1,5 +1,5 @@
 import { MongooseModule } from "@nestjs/mongoose";
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 
 import { AccessRecord, AccessRecordSchema, Session, SessionSchema } from "./models";
 import { AccessRecordService, SessionService } from "./services";
@@ -18,7 +18,7 @@ import { ProfileModule } from "@modules/profile";
         schema: AccessRecordSchema,
       },
     ]),
-    ProfileModule,
+    forwardRef(() => ProfileModule),
   ],
   controllers: [SessionController],
   providers: [AccessRecordService, SessionService],

@@ -16,6 +16,8 @@ import {
   Account,
   MailSubject,
   AccountErrorMessage,
+  AccountConfigDto,
+  UpdateAccountConfigDto,
 } from "../models";
 import { ACTIVATE_ACCOUNT_TRANSACTION_CACHE_PREFIX, OTP_TTL, RESET_PASSOWRD_TRANSACTION_CACHE_PREFIX } from "../constants";
 import { generateOtp, hashPassword, Repository, withMutateTransaction } from "@common/utils";
@@ -150,6 +152,12 @@ export class AccountService extends Repository<Account> {
     return { message: "Change password success" };
   }
 
+  async updateConfig(accountId: DocumentId, payload: UpdateAccountConfigDto): Promise<StatusResponseDto> {
+    await this.update(accountId, payload);
+
+    return { message: "Update account config success" };
+  }
+
   async lockAccount(accountId: DocumentId, payload: LockAccountDto): Promise<StatusResponseDto> {
     const account: Account = await this.find(accountId, {
       select: ["_id", "password", "isActive"],
@@ -223,6 +231,14 @@ export class AccountService extends Repository<Account> {
 
   async getAccount(accountId: DocumentId): Promise<Account> {
     return await this.find(accountId);
+  }
+
+  async getAccountConfig(accountId: DocumentId): Promise<AccountConfigDto> {
+    const config: AccountConfigDto = await this.find(accountId, {
+      select: ["_id", "isActive", "allowComment", "allowNotify", "allowEmail", "enable2FA", "inboxConfig"],
+    });
+
+    return config;
   }
 
   /* Private helpers */

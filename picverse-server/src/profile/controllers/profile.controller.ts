@@ -16,7 +16,7 @@ export class ProfileController {
   @ApiBody({ type: UpdateProfileDto })
   @ApiResponse({ status: 200, description: "Profile updated success. Return status", type: StatusResponseDto })
   async updateProfile(@AuthUid() accountId: DocumentId, @Body() payload: UpdateProfileDto): Promise<StatusResponseDto> {
-    await this.profileService.update({ account: accountId }, payload);
+    await this.profileService.update({ accountId }, payload);
     return { message: "Profile updated success" };
   }
 
@@ -25,6 +25,6 @@ export class ProfileController {
   @ApiOperation({ summary: "Get profile detail" })
   @ApiResponse({ status: 200, description: "Get profile success. Return profile", type: ProfileDetailDto })
   async getProfile(@Query("id") targetAccountId?: DocumentId, @AuthUid() accountId?: DocumentId): Promise<ProfileDetailDto> {
-    return await this.profileService.getProfileDetail(targetAccountId ? targetAccountId : accountId);
+    return await this.profileService.getProfileDetail(targetAccountId ? "other" : "own", accountId, targetAccountId);
   }
 }

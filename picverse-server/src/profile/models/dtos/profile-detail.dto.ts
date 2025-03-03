@@ -1,3 +1,4 @@
+import { EInboxConfig } from "@modules/account";
 import { ApiResponseProperty } from "@nestjs/swagger";
 
 export class ProfileDetailDto {
@@ -27,6 +28,12 @@ export class ProfileDetailDto {
 
   @ApiResponseProperty()
   isPublic: boolean;
+
+  @ApiResponseProperty()
+  isFollowed: boolean;
+
+  @ApiResponseProperty()
+  inboxConfig: EInboxConfig;
 
   @ApiResponseProperty()
   createdAt: Date;

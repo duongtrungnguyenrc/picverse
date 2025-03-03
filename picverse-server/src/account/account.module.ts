@@ -1,5 +1,5 @@
 import { MongooseModule } from "@nestjs/mongoose";
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 
 import { Account, AccountSchema } from "./models/schemas";
 import { AccountController } from "./controllers";
@@ -15,7 +15,7 @@ import { AccountService } from "./services";
         schema: AccountSchema,
       },
     ]),
-    ProfileModule,
+    forwardRef(() => ProfileModule),
     SessionModule,
   ],
   controllers: [AccountController],

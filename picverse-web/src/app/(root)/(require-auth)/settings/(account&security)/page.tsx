@@ -1,16 +1,14 @@
-"use client";
-
 import { ChevronRight, ShieldCheck } from "lucide-react";
 import { FC } from "react";
 
-import { ContentSection, ChangePasswordDialog, LoginHistoryDialog } from "@app/components";
-import Setting2FADialog from "@app/components/core/Setting2FADialog";
-import { useAuth } from "@app/lib/hooks";
+import { ContentSection, ChangePasswordDialog, LoginHistoryDialog, WhreLoggedInDialog } from "@app/components";
+import { Setting2FADialog } from "@app/components";
+import { loadAccountConfig } from "@app/lib/actions";
 
 type SettingAccountPageProps = {};
 
-const SettingAccountPage: FC<SettingAccountPageProps> = ({}) => {
-  const { account } = useAuth();
+const SettingAccountPage: FC<SettingAccountPageProps> = async ({}) => {
+  const config = await loadAccountConfig();
 
   return (
     <div>
@@ -28,11 +26,11 @@ const SettingAccountPage: FC<SettingAccountPageProps> = ({}) => {
 
           <hr />
 
-          <Setting2FADialog>
+          <Setting2FADialog config={config}>
             <li className="text-sm flex items-center justify-between p-5 hover:bg-gray-50 cursor-pointer transition-all font-medium">
               Two factor authentication
               <div className="flex items-center space-x-2">
-                {account?.enable2FA ? (
+                {config?.enable2FA ? (
                   <>
                     <ShieldCheck className="text-primary" size={16} />
                     <span className="text-primary">Enabled</span>
@@ -67,10 +65,12 @@ const SettingAccountPage: FC<SettingAccountPageProps> = ({}) => {
             </li>
           </LoginHistoryDialog>
           <hr />
-          <li className="text-sm flex items-center justify-between p-5 hover:bg-gray-50 cursor-pointer transition-all font-medium">
-            Where you&apos;re logged in
-            <ChevronRight size={20} />
-          </li>
+          <WhreLoggedInDialog>
+            <li className="text-sm flex items-center justify-between p-5 hover:bg-gray-50 cursor-pointer transition-all font-medium">
+              Where you&apos;re logged in
+              <ChevronRight size={20} />
+            </li>
+          </WhreLoggedInDialog>
         </ul>
       </ContentSection>
     </div>

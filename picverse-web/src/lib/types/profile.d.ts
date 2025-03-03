@@ -15,6 +15,7 @@ declare type Profile = BaseModel &
 
 declare type ProfileDetail = Omit<Profile, "accountId"> & {
   email: string;
+  isFollowed?: boolean;
 };
 
 declare type UpdateProfileRequest = Partial<Omit<Profile, "account">>;

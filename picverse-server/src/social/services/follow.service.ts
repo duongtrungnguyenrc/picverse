@@ -1,4 +1,4 @@
-import { BadGatewayException, BadRequestException, Injectable } from "@nestjs/common";
+import { BadGatewayException, BadRequestException, forwardRef, Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
@@ -13,7 +13,7 @@ export class FollowService extends Repository<Follow> {
   constructor(
     @InjectModel(Follow.name) FollowModel: Model<Follow>,
     cacheService: CacheService,
-    private readonly profileService: ProfileService,
+    @Inject(forwardRef(() => ProfileService)) private readonly profileService: ProfileService,
     private readonly notificationService: NotificationService,
   ) {
     super(FollowModel, cacheService);
@@ -33,7 +33,7 @@ export class FollowService extends Repository<Follow> {
 
     if (existedFollow) throw new BadGatewayException(SocialErrorMessages.ALREADY_FOLLOw);
 
-    const createdFollow: Follow = await this.create({ follower: profile._id, following: targetProfileId });
+    const createdFollow: Follow = await this.create({ followerId: profile._id, followingId: targetProfileId });
 
     this.notificationService.sendNotification({
       to: accountId,

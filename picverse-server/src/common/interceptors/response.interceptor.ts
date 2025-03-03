@@ -13,7 +13,7 @@ export class ResponseInterceptor implements NestInterceptor {
         };
 
         const formatDate = (date: Date): string => {
-          return date.toString();
+          return date.toISOString();
         };
 
         const transformResponseObject = (obj: any): any => {

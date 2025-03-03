@@ -11,6 +11,7 @@ import { CloudService, Resource } from "@modules/cloud";
 import { CommentService } from "./comment.service";
 import { VectorService } from "@modules/vector";
 import { CacheService } from "@modules/cache";
+import { AccountService } from "@modules/account";
 
 @Injectable()
 export class PinService extends Repository<Pin> {
@@ -22,6 +23,7 @@ export class PinService extends Repository<Pin> {
     private readonly imageModerationService: ImageModerationService,
     private readonly textModerationService: TextModerationService,
     private readonly commentService: CommentService,
+    private readonly accountService: AccountService,
   ) {
     super(pinModel, cacheService, Pin.name);
   }
@@ -56,8 +58,13 @@ export class PinService extends Repository<Pin> {
       this.vectorService.generateImageEmbedding(file),
     ]);
 
+    const accountConfig = await this.accountService.find(accountId, {
+      select: ["allowComment"],
+    });
+
     await Promise.all([
       this.create({
+        allowComment: accountConfig.allowComment,
         ...payload,
         authorId: accountId,
         resource: uploadedResource._id,

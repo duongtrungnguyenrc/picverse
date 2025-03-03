@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { FC, useEffect } from "react";
+import { FC } from "react";
 
 import {
   Avatar,
@@ -31,7 +31,13 @@ type SettingProfileFormProps = {
 const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
   const { mutate: updateProfile } = useUpdateProfile();
 
-  const form = useForm<UpdateProfileRequest>({});
+  console.log(profile);
+
+  const form = useForm<UpdateProfileRequest>({
+    defaultValues: {
+      ...profile,
+    },
+  });
 
   const onUpdateProfile = form.handleSubmit(async (data) => {
     updateProfile(data);
@@ -104,12 +110,7 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
               <FormItem>
                 <FormLabel>Gender:</FormLabel>
                 <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    value={field.value || ""}
-                    className="flex gap-10"
-                  >
+                  <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-10">
                     {Object.values(EGender).map((gender) => {
                       return (
                         <div key={`upt:profile:gender:${gender}`} className="flex items-center space-x-2">
@@ -149,11 +150,12 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
             name="bio"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Bio:</FormLabel>
+                <FormLabel>Bio: {field.value?.length}/50</FormLabel>
                 <FormControl>
                   <Textarea
                     className="text-sm placeholder:text-sm h-[50px] rounded-lg"
                     placeholder="Tell about your story"
+                    maxLength={50}
                     {...field}
                   />
                 </FormControl>
@@ -169,7 +171,16 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
               <FormItem>
                 <FormLabel>Birth:</FormLabel>
                 <FormControl>
-                  <Input type="date" className="text-sm placeholder:text-sm h-[50px] rounded-lg" {...field} />
+                  <Input
+                    type="date"
+                    className="text-sm placeholder:text-sm h-[50px] rounded-lg"
+                    {...field}
+                    value={field.value ? new Date(field.value).toISOString().split("T")[0] : ""}
+                    onChange={(e) => {
+                      const date = new Date(e.target.value);
+                      field.onChange(date.toISOString());
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -183,7 +194,7 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
               <h4 className="h4">Lock your profile</h4>
               <p>Temporary lock your profile. You can reactive every time</p>
             </div>
-            <Button className="text-red-500 rounded-full" variant="outline">
+            <Button type="button" className="text-red-500 rounded-full" variant="outline">
               Lock profile
             </Button>
           </div>
@@ -193,15 +204,17 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
               <h4 className="h4">Delete profile and all data</h4>
               <p>Delete your profile and all data. You can&apos;t recover your profile</p>
             </div>
-            <Button className="text-red-500 rounded-full" variant="outline">
+            <Button type="button" className="text-red-500 rounded-full" variant="outline">
               Delete profile
             </Button>
           </div>
         </ContentSection>
 
-        <div className="flex justify-end gap-3">
-          <Button>Update</Button>
-        </div>
+        {form.formState.isDirty && (
+          <Button type="submit" className="w-full animate-in">
+            Save Changes
+          </Button>
+        )}
       </form>
     </Form>
   );

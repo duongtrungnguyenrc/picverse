@@ -17,12 +17,12 @@ export class UpdateProfileDto {
   @ApiProperty()
   @IsDateString()
   @IsOptional()
-  birth?: Date;
+  birth?: string;
 
   @ApiProperty()
   @IsEnum(EGender)
   @IsOptional()
-  gender?: string;
+  gender?: EGender;
 
   @ApiProperty()
   @IsString()

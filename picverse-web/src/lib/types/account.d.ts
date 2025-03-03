@@ -2,12 +2,17 @@ declare type Account = BaseModel &
   TimeStampModel & {
     email: string;
     userName: string;
-    allowNotify: boolean;
-    allowEmail: boolean;
-    enable2FA: boolean;
-    isActive: boolean;
     createdAt: Date;
   };
+
+declare type AccountConfig = {
+  inboxConfig: import("../enums").EInboxConfig;
+  allowComment: boolean;
+  allowNotify: boolean;
+  allowEmail: boolean;
+  enable2FA: boolean;
+  isActive: boolean;
+};
 
 declare type MutatePassword<T> = T & {
   confirmPassword: string;
@@ -24,12 +29,7 @@ declare type SignUpRequest = {
   phone: string;
 };
 
-declare type UpdateAccountRequest = {
-  email?: string;
-  enable2FA?: boolean;
-  allowNotify?: boolean;
-  allowEmail?: boolean;
-};
+declare type UpdateAccountConfigRequest = Partial<AccountConfig>;
 
 declare type ForgotPasswordRequest = {
   emailOrUserName: string;
