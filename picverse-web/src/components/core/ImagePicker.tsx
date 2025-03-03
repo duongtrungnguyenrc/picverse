@@ -87,9 +87,9 @@ const ImagePicker: FC<ImagePickerProps> = ({ accept, className, onChange, chosen
   );
 
   useEffect(() => {
-    if (cldImage) {
-      onDelete(cldImage.public_id);
-    }
+    return () => {
+      onDelete();
+    };
   }, [cldImage]);
 
   useEffect(() => {
@@ -140,7 +140,7 @@ const ImagePicker: FC<ImagePickerProps> = ({ accept, className, onChange, chosen
               </ImageAiTransformDialog>
             )}
 
-            <Button onClick={() => onDelete()} size="sm" variant="outline">
+            <Button type="button" onClick={() => onDelete()} size="sm" variant="outline">
               <Trash />
             </Button>
           </div>

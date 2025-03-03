@@ -209,12 +209,14 @@ const GridResourceItem: FC<GridResourceItemProps> = ({ resource, onDrop }) => {
           Make {isPrivate ? "public" : "private"}
           <ContextMenuShortcut>{isPrivate ? <Earth size={16} /> : <Lock size={16} />}</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem>
-          Create pin
-          <ContextMenuShortcut>
-            <Pin size={16} />
-          </ContextMenuShortcut>
-        </ContextMenuItem>
+        <Link href={`/new-pin?resource=${resource._id}`}>
+          <ContextMenuItem>
+            Create pin
+            <ContextMenuShortcut>
+              <Pin size={16} />
+            </ContextMenuShortcut>
+          </ContextMenuItem>
+        </Link>
         <ContextMenuItem onSelect={handleCopyUrl}>
           Copy url
           <ContextMenuShortcut>

@@ -6,6 +6,7 @@ import { FC } from "react";
 
 import { getResourceUrl } from "@app/lib/utils";
 import Link from "next/link";
+import PicverseImage from "./PicverseImage";
 
 type BoardProps = {
   board: UserBoard;
@@ -33,9 +34,9 @@ const Board: FC<BoardProps> = ({ board }) => {
                 key={["board", "pin", pin._id, index].join(":")}
                 className="rounded-xl overflow-hidden border border-white w-[150px] h-full relative transform z-30"
               >
-                <Image
+                <PicverseImage
                   className="object-cover w-full h-full"
-                  src={getResourceUrl(pin.resource._id)}
+                  id={pin.resource._id}
                   alt=""
                   width={pin.resource.width}
                   height={pin.resource.height}

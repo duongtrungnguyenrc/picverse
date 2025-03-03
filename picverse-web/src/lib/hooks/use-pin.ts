@@ -2,13 +2,30 @@
 
 import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext, useEffect, useTransition } from "react";
-
-import { getPinDetail, createPin, getSimilarPins, getPinComments, createPinByResource } from "../actions";
-import { PinInteractionContext } from "../contexts";
-import { QueryKeys } from "../constants";
 import toast from "react-hot-toast";
 
+import { getPinDetail, getSimilarPins, getPinComments, revalidateCloudResources } from "../actions";
+import { httpFetchClient, objectToFormData } from "../utils";
+import { PinInteractionContext } from "../contexts";
+import { QueryKeys } from "../constants";
+
 export const usePinInteraction = () => useContext(PinInteractionContext);
+
+async function createPin(payload: CreatePinRequest) {
+  const response = await httpFetchClient.post<StatusResponse>("/pin", objectToFormData(payload));
+  revalidateCloudResources();
+
+  return response;
+}
+
+async function createPinByResource(payload: CreatePinByResourceRequest) {
+  const { resourceId, ...restPayload } = payload;
+
+  const response = await httpFetchClient.post<StatusResponse>(`/pin/${resourceId}`, objectToFormData(restPayload));
+  revalidateCloudResources();
+
+  return response;
+}
 
 export const useCreatePin = () => {
   const [isPending, startTransition] = useTransition();

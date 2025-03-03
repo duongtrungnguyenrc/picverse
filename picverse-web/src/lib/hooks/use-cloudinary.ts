@@ -3,6 +3,8 @@
 import { useMutation } from "@tanstack/react-query";
 
 import { MutationKeys, CLOUDINARY_API_BASE_URL, CLOUDINARY_API_KEY, CLOUDINARY_UPLOAD_PRESET } from "../constants";
+import { generateCloudinarySignature } from "../utils";
+import { timeStamp } from "console";
 
 export const useUploadCloudinaryImage = () => {
   return useMutation<CloudinaryImage, Error, File>({
@@ -38,10 +40,17 @@ export const useDeleteCloudinaryImage = () => {
     mutationFn: (id: string) => {
       return new Promise(async (resolve, reject) => {
         try {
-          const response = await fetch(`${CLOUDINARY_API_BASE_URL}/image/destroy`, {
+          const params = { timestamp: Math.floor(Date.now() / 1000), public_id: id };
+
+          const data: FormData = new FormData();
+          data.append("api_key", CLOUDINARY_API_KEY);
+          data.append("timestamp", String(params.timestamp));
+          data.append("public_id", id);
+          data.append("signature", String(generateCloudinarySignature(params)));
+
+          const response = await fetch(`${CLOUDINARY_API_BASE_URL}/dzkrqcjd9/image/destroy`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ public_id: id }),
+            body: data,
           });
 
           if (response.ok) {
@@ -50,6 +59,8 @@ export const useDeleteCloudinaryImage = () => {
             reject("Failed to delete media");
           }
         } catch (error) {
+          console.log(error);
+
           reject("Error deleting media:" + error);
         }
       });

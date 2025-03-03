@@ -16,22 +16,6 @@ export const getPinDetail = async (pinId: string, raw: boolean = true): Promise<
   }
 };
 
-export async function createPin(payload: CreatePinRequest) {
-  const response = await httpFetchClient.post<StatusResponse>("/pin", objectToFormData(payload));
-  revalidateCloudResources();
-
-  return response;
-}
-
-export async function createPinByResource(payload: CreatePinByResourceRequest) {
-  const { resourceId, ...restPayload } = payload;
-
-  const response = await httpFetchClient.post<StatusResponse>(`/pin/${resourceId}`, objectToFormData(restPayload));
-  revalidateCloudResources();
-
-  return response;
-}
-
 export async function getSimilarPins(pinId: string, page: number = 1) {
   const response = await httpFetchClient.get<InfiniteResponse<Pin>>(`/pin/similar/${pinId}/`, {
     query: {

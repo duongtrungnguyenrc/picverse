@@ -3,6 +3,8 @@ import { twMerge } from "tailwind-merge";
 import toast from "react-hot-toast";
 import crypto from "crypto";
 
+import { CLOUDINARY_API_SECRET } from "../constants";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -188,3 +190,18 @@ export const objectToFormData = (payload: Object) => {
 
   return data;
 };
+
+
+export function generateCloudinarySignature(
+  params: Record<string, string | number>,
+  algorithm: "sha1" | "sha256" = "sha1"
+): string {
+  const sortedParams = Object.keys(params)
+    .sort()
+    .map((key) => `${key}=${params[key]}`)
+    .join("&");
+
+  const stringToSign = `${sortedParams}${CLOUDINARY_API_SECRET}`;
+
+  return crypto.createHash(algorithm).update(stringToSign).digest("hex");
+}

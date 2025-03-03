@@ -58,11 +58,11 @@ const CreatePinForm: FC<CreatePinFormProps> = ({ boards, resourceId }) => {
       );
 
       return;
+    } else {
+      handleCreatePin(data, () => {
+        form.reset();
+      });
     }
-
-    handleCreatePin(data, () => {
-      form.reset();
-    });
   });
 
   const onSetChoosenImage = (image?: Partial<ChoosenImage>) => {
@@ -172,7 +172,7 @@ const CreatePinForm: FC<CreatePinFormProps> = ({ boards, resourceId }) => {
                   <FormItem>
                     <FormLabel>Tags</FormLabel>
                     <FormControl>
-                      <TagInput tags={field.value} setTags={() => {}} />
+                      <TagInput tags={field.value} setTags={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
