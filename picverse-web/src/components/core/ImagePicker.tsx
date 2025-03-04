@@ -127,14 +127,14 @@ const ImagePicker: FC<ImagePickerProps> = ({ accept, className, onChange, chosen
             )}
 
             <ImageTransformDialog onTransformed={onTransformedImage} mediaUrl={previewUrl}>
-              <Button size="sm" variant="outline">
+              <Button type="button" size="sm" variant="outline">
                 <SlidersHorizontal />
               </Button>
             </ImageTransformDialog>
 
             {cldImage && (
               <ImageAiTransformDialog onTransformed={onTransformedImage} cldImage={cldImage}>
-                <Button size="sm" variant="outline">
+                <Button type="button" size="sm" variant="outline">
                   <Sparkles />
                 </Button>
               </ImageAiTransformDialog>

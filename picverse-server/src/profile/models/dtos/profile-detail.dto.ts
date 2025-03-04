@@ -21,6 +21,9 @@ export class ProfileDetailDto {
   phone: string;
 
   @ApiResponseProperty()
+  accountId: DocumentId;
+
+  @ApiResponseProperty()
   avatar: string;
 
   @ApiResponseProperty()

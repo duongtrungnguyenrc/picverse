@@ -42,7 +42,7 @@ export class ProfileService extends Repository<Profile> {
 
     if ((isOwnProfile && !account) || (!isOwnProfile && !targetAccount)) throw new NotFoundException("Profile not foundd");
 
-    const profile = await this.find({ accountId: isOwnProfile ? account._id : targetAccount._id, isPublic: true }, { select: ["-accountId"] });
+    const profile = await this.find({ accountId: isOwnProfile ? account._id : targetAccount._id, isPublic: true });
 
     if (!profile) throw new NotFoundException("Profile not found");
     let isFollowed = false;
@@ -57,6 +57,7 @@ export class ProfileService extends Repository<Profile> {
     return {
       ...account,
       ...profile,
+      accountId: account._id,
       isFollowed,
       isOwnProfile,
     };

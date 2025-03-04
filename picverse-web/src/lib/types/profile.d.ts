@@ -13,7 +13,7 @@ declare type Profile = BaseModel &
     isPublic: string;
   };
 
-declare type ProfileDetail = Omit<Profile, "accountId"> & {
+declare type ProfileDetail = Profile & {
   email: string;
   isFollowed?: boolean;
   isOwnProfile?: boolean;

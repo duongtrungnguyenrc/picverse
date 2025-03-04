@@ -8,11 +8,9 @@ import { useChat } from "@app/lib/hooks";
 
 type ProfileProps = {
   profile: ProfileDetail;
-  signature: string;
 };
 
-const Profile: FC<ProfileProps> = ({ profile, signature }) => {
-  const isMyProfile = signature === "me";
+const Profile: FC<ProfileProps> = ({ profile }) => {
   const { setCurrent } = useChat();
 
   const onStartNewConversation = () => {
@@ -20,7 +18,7 @@ const Profile: FC<ProfileProps> = ({ profile, signature }) => {
       setCurrent({
         isOpen: true,
         conversation: {
-          receiverId: signature,
+          receiverId: profile.accountId,
           members: [],
           otherMemberProfiles: [profile],
         },

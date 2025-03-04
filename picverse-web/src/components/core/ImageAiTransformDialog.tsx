@@ -131,7 +131,9 @@ export default function ImageTransformDialog({ children, cldImage, onTransformed
           </Form>
         </div>
         <DialogFooter>
-          <Button onClick={onApplyTransformation}>Apply Transformation</Button>
+          <Button type="button" onClick={onApplyTransformation}>
+            Apply Transformation
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

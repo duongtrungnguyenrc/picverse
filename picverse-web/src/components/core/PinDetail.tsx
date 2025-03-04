@@ -1,9 +1,8 @@
 "use client";
 
 import { Bookmark, Heart, Share } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import type { FC } from "react";
+import Link from "next/link";
 
 import {
   Avatar,
@@ -18,40 +17,27 @@ import {
   Skeleton,
   Typography,
 } from "@app/components";
-import { usePinDetail, usePinLikes } from "@app/lib/hooks";
+import { usePinLikes } from "@app/lib/hooks";
 import { getResourceUrl, skeletonPlaceholder } from "@app/lib/utils";
 
 type PinDetailProps = {
-  pinId: string;
-  prefetchedPin: PinDetail;
+  pin: PinDetail;
 };
 
-const PinDetailComponent: FC<PinDetailProps> = ({ pinId, prefetchedPin }) => {
-  const { data, isFetching } = usePinDetail(pinId, prefetchedPin);
-  const isLoading = !data || isFetching;
-
+const PinDetailComponent: FC<PinDetailProps> = ({ pin }) => {
   return (
     <main className="py-6 space-y-5">
       {/* Header Section */}
       <section className="container mb-8 space-y-4">
-        {isLoading ? (
-          <>
-            <Skeleton className="h-10 w-3/4" />
-            <Skeleton className="h-5 w-1/2" />
-          </>
-        ) : (
-          <>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{data.title}</h1>
-            <div className="flex flex-wrap gap-2">
-              {data.tags.map((tag) => (
-                <Badge key={`pin:dtl:tag:${tag}`} className="text-sm rounded-lg">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </>
-        )}
-        {!isLoading && <Typography className="text-muted-foreground">{data.description}</Typography>}
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{pin.title}</h1>
+        <div className="flex flex-wrap gap-2">
+          {pin.tags.map((tag) => (
+            <Badge key={`pin:dtl:tag:${tag}`} className="text-sm rounded-lg">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+        <Typography className="text-muted-foreground">{pin.description}</Typography>
       </section>
 
       {/* Main Content */}
@@ -59,32 +45,28 @@ const PinDetailComponent: FC<PinDetailProps> = ({ pinId, prefetchedPin }) => {
         {/* Image Section */}
         <section>
           <div className="relative flex-center w-full overflow-hidden rounded-lg bg-muted h-fit">
-            {isLoading ? (
-              <Skeleton className="absolute inset-0" />
-            ) : (
-              <PicverseImage
-                id={data.resource._id}
-                alt={data.title || ""}
-                width={data.resource.width}
-                height={data.resource.height}
-                className="object-contain"
-                placeholder="blur"
-                blurDataURL={skeletonPlaceholder}
-                priority
-              />
-            )}
+            <PicverseImage
+              id={pin.resource._id}
+              alt={pin.title || ""}
+              width={pin.resource.width}
+              height={pin.resource.height}
+              className="object-contain"
+              placeholder="blur"
+              blurDataURL={skeletonPlaceholder}
+              priority
+            />
           </div>
         </section>
 
         {/* Interactions & Comments Section */}
         <section className="space-y-6 max-h-full">
-          <InteractionButtons isLoading={isLoading} pinId={pinId} data={data} isLiked={data?.liked} />
-          <PinCommentsSection pinId={pinId} />
+          <InteractionButtons isLoading={false} pinId={pin._id} data={pin} isLiked={pin?.liked} />
+          <PinCommentsSection pinId={pin._id} />
         </section>
       </div>
 
       {/* Author Section */}
-      <AuthorSection isLoading={isLoading} data={data} />
+      <AuthorSection isLoading={false} data={pin} />
     </main>
   );
 };

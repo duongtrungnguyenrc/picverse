@@ -14,8 +14,6 @@ type ProfileLayoutProps = {
 const ProfileLayout = async ({ children, params, createdBoards, informations }: ProfileLayoutProps) => {
   const { signature } = await params;
 
-  console.log(signature);
-
   const profile: ProfileDetail | null = await loadProfile(signature != "me" ? signature : undefined);
 
   if (!profile) notFound();
@@ -23,7 +21,7 @@ const ProfileLayout = async ({ children, params, createdBoards, informations }: 
   return (
     <div className="header-spacing">
       <div className="container">
-        <Profile profile={profile} signature={signature} />
+        <Profile profile={profile} />
 
         <Tabs defaultValue="boards" className="mx-auto flex flex-col items-center mt-5">
           <div className="flex justify-between w-full mb-5">
