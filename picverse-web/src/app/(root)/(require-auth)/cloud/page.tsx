@@ -25,13 +25,11 @@ export const metadata: Metadata = {
 const CloudPage: FC<CloudPageProps> = async ({ searchParams }) => {
   const { parentId } = await searchParams;
 
-  console.log("access cloud");
-
   const firstPageResources = await loadResources(parentId, { page: 1, limit: 20 });
 
   return (
     <div className="header-spacing p-5 md:p-10">
-      <ContentSection heading="Cloud control" className="sticky top-0 h-fit">
+      <ContentSection heading="Cloud control" className="h-fit">
         <ul className="grid grid-cols-2 md:gid-cols-3 lg:grid-cols-8 gap-3 max-w-full">
           <li>
             <CloudUploadFileButton parentId={parentId}>

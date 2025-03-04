@@ -43,7 +43,6 @@ export const getTokens = async (): Promise<Partial<TokenPair>> => {
 };
 
 export const revalidateAuth = async () => {
-  revalidateTag(AuthTags.TOKENS);
   revalidateTag(AuthTags.AUTH);
 };
 

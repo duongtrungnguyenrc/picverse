@@ -7,7 +7,7 @@ import { toast } from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
 
 import { getAuthCookie, getClientSecret, googleSignIn, refreshToken, signIn, signOut } from "../actions";
-import { ACCESS_TOKEN_PREFIX, AuthTags, MutationKeys, QueryKeys } from "../constants";
+import { ACCESS_TOKEN_PREFIX, MutationKeys, QueryKeys } from "../constants";
 import { httpFetchClient, showToastError } from "../utils";
 import { AuthContext } from "../contexts";
 
@@ -41,22 +41,6 @@ export const useAuthCheck = () => {
 
     return () => clearInterval(interval);
   }, []);
-};
-
-export const useSession = () => {
-  return useQuery({
-    queryKey: [],
-    queryFn: async () => {
-      const response = await fetch("/api/sessions", {
-        next: {
-          tags: [AuthTags.TOKENS],
-          revalidate: 60 * 60, // 1 hours in minutes
-        },
-      });
-
-      return await response.json();
-    },
-  });
 };
 
 export const useSignIn = (redirect?: boolean) => {

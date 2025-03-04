@@ -13,7 +13,7 @@ export const usePinInteraction = () => useContext(PinInteractionContext);
 
 async function createPin(payload: CreatePinRequest) {
   const response = await httpFetchClient.post<StatusResponse>("/pin", objectToFormData(payload));
-  revalidateCloudResources();
+  await revalidateCloudResources();
 
   return response;
 }
@@ -22,7 +22,7 @@ async function createPinByResource(payload: CreatePinByResourceRequest) {
   const { resourceId, ...restPayload } = payload;
 
   const response = await httpFetchClient.post<StatusResponse>(`/pin/${resourceId}`, objectToFormData(restPayload));
-  revalidateCloudResources();
+  await revalidateCloudResources();
 
   return response;
 }

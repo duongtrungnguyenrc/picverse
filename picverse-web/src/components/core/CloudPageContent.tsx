@@ -57,7 +57,7 @@ const CloudPageContent: FC<CloudPageContentProps> = ({ firstPageResources }) => 
   }
   return (
     <ContextMenu>
-      <ContextMenuTrigger>
+      <ContextMenuTrigger asChild>
         <DndProvider backend={HTML5Backend}>
           <Tabs defaultValue="grid">
             <ContentSection
