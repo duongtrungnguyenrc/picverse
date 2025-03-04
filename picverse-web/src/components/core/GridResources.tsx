@@ -176,7 +176,7 @@ const GridResourceItem: FC<GridResourceItemProps> = ({ resource, onDrop }) => {
                 <DialogHeader>
                   <DialogTitle>{name}</DialogTitle>
                 </DialogHeader>
-                <Image layout="fill" src={getResourceUrl(_id)} alt="" className="object-contain pt-20" />
+                <PicverseImage layout="fill" id={_id} alt="" className="object-contain pt-20" />
               </DialogContent>
             </Dialog>
           ) : (
