@@ -34,14 +34,15 @@ export class PinService extends Repository<Pin> {
   async createPin(accountId: DocumentId, file: Express.Multer.File, payload: CreatePinDto): Promise<StatusResponseDto> {
     const fileBlobUrl = multerToBlobUrl(file);
 
-    const [imageModerationResult, textModerationResult] = await Promise.all([
-      this.imageModerationService.moderateContent(fileBlobUrl),
-      this.textModerationService.moderateContent(`${payload.title}; ${payload.description}`),
-    ]);
+    const imageModerationResult = await this.imageModerationService.moderateContent(fileBlobUrl);
 
     if (imageModerationResult) {
       throw new NotAcceptableException(`${imageModerationResult.join(", ")} media content is not allowed`);
     }
+
+    URL.revokeObjectURL(fileBlobUrl);
+
+    const textModerationResult = await this.textModerationService.moderateContent(`${payload.title}; ${payload.description}`);
 
     if (textModerationResult) {
       throw new NotAcceptableException(`${textModerationResult.join(", ")} content is not allowed`);
@@ -80,8 +81,6 @@ export class PinService extends Repository<Pin> {
       }),
       this.vectorService.insertEmbedding(PinService.name, vectorId, textEmbedding, imageEmbedding),
     ]);
-
-    URL.revokeObjectURL(fileBlobUrl);
 
     return { message: "Pin created success" };
   }
