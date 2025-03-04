@@ -224,7 +224,7 @@ export class PinService extends Repository<Pin> {
       },
     ];
 
-    const result = await this.aggregate(pipeline);
+    const result = await this.aggregate(pipeline, { force: true });
     return result[0] || null;
   }
 
