@@ -9,6 +9,7 @@ export enum CloudTags {
 
 export enum BoardTags {
   USER_BOARDS = "user-boards",
+  USER_BOARD = "USER_BOARD",
 }
 
 export enum ProfileTags {

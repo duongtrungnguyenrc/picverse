@@ -4,7 +4,14 @@ import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient }
 import { useContext, useEffect, useTransition } from "react";
 import toast from "react-hot-toast";
 
-import { getPinDetail, getSimilarPins, getPinComments, revalidateCloudResources } from "../actions";
+import {
+  getPinDetail,
+  getSimilarPins,
+  getPinComments,
+  revalidateCloudResources,
+  revalidateUserBoards,
+  revalidateUserBoard,
+} from "../actions";
 import { httpFetchClient, objectToFormData } from "../utils";
 import { PinInteractionContext } from "../contexts";
 import { QueryKeys } from "../constants";
@@ -13,7 +20,8 @@ export const usePinInteraction = () => useContext(PinInteractionContext);
 
 async function createPin(payload: CreatePinRequest) {
   const response = await httpFetchClient.post<StatusResponse>("/pin", objectToFormData(payload));
-  await revalidateCloudResources();
+
+  void (await Promise.all([revalidateCloudResources(), revalidateUserBoards(), revalidateUserBoard()]));
 
   return response;
 }
@@ -22,7 +30,8 @@ async function createPinByResource(payload: CreatePinByResourceRequest) {
   const { resourceId, ...restPayload } = payload;
 
   const response = await httpFetchClient.post<StatusResponse>(`/pin/${resourceId}`, objectToFormData(restPayload));
-  await revalidateCloudResources();
+
+  void (await Promise.all([revalidateCloudResources(), revalidateUserBoards(), revalidateUserBoard()]));
 
   return response;
 }

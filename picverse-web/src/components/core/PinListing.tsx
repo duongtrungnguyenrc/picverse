@@ -19,8 +19,17 @@ const PinListing: FC<PinListingProps> = ({ initialData }) => {
           if (typeof pin.resource === "string") return null;
 
           return (
-            <div key={["board", "dtl", pin._id].join(":")} className="col-span-6 md:col-span-4 lg:col-span-3">
-              <PicverseImage id={pin._id} alt={pin.title} width={pin.resource.width} height={pin.resource.height} />
+            <div
+              key={["board", "dtl", pin._id].join(":")}
+              className="col-span-6 md:col-span-4 lg:col-span-3 max-h-[200px]"
+            >
+              <PicverseImage
+                id={pin.resource._id}
+                alt={pin.title}
+                width={pin.resource.width}
+                height={pin.resource.height}
+                className="w-full h-full object-contain"
+              />
             </div>
           );
         })}

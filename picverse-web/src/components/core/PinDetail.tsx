@@ -11,6 +11,7 @@ import {
   AvatarImage,
   Badge,
   Button,
+  PicverseImage,
   PinCommentsSection,
   RequireAuthFeature,
   ShareResourceDialog,
@@ -61,8 +62,8 @@ const PinDetailComponent: FC<PinDetailProps> = ({ pinId, prefetchedPin }) => {
             {isLoading ? (
               <Skeleton className="absolute inset-0" />
             ) : (
-              <Image
-                src={getResourceUrl(data.resource._id) || ""}
+              <PicverseImage
+                id={data.resource._id}
                 alt={data.title || ""}
                 width={data.resource.width}
                 height={data.resource.height}

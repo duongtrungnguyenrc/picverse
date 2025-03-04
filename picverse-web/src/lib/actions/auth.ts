@@ -66,7 +66,7 @@ export const refreshToken = async (): Promise<string> => {
 
     const data = await response.json();
 
-    await setAuthCookie(data)
+    await setAuthCookie(data);
 
     return data;
   } catch (error) {
@@ -90,7 +90,7 @@ export const signIn = async (payload: SignInRequest) => {
 
   if (!("require2FA" in response)) {
     await setAuthCookie(response);
-    revalidateAuth();
+    void revalidateAuth();
     return;
   }
 
@@ -101,7 +101,7 @@ export const twoFactorSignIn = async (payload: SignInWithTwoFactorRequest) => {
   const response = await httpFetchClient.post<TokenPair>("/auth/sign-in/2fa", JSON.stringify(payload));
 
   await setAuthCookie(response);
-  revalidateAuth();
+  void revalidateAuth();
   redirect("/", RedirectType.replace);
 };
 
@@ -109,7 +109,7 @@ export const signOut = async () => {
   await httpFetchClient.post("/auth/sign-out");
 
   await clearAuthCookie();
-  revalidateTag(AuthTags.AUTH);
+  revalidateAuth();
 };
 
 export const googleSignIn = async (secret: string) => {
@@ -138,6 +138,6 @@ export async function handleAuthCallback(token: string) {
   const { secret: decodedSecret, ...tokenPair } = decodedToken;
 
   await setAuthCookie(tokenPair);
-  revalidateTag("auth");
-  redirect("/");
+  void revalidateAuth();
+  void redirect("/");
 }

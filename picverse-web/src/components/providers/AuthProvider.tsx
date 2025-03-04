@@ -18,10 +18,10 @@ const AuthProvider: FC<AuthProviderProps> = ({ children, authState }) => {
   useAuthCheck();
 
   useEffect(() => {
-    const handleFocus = () => {
+    const handleFocus = async () => {
       const currentTime = Date.now();
       if (currentTime - lastFetchTime.current > SLATE_TIME) {
-        revalidateAuth();
+        void (await revalidateAuth());
       }
     };
 
