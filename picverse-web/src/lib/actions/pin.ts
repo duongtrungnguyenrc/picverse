@@ -2,9 +2,9 @@
 
 import { httpFetchClient } from "../utils";
 
-export const getPinDetail = async (pinId: string, raw: boolean = true): Promise<PinDetail | null> => {
+export const getPinDetail = async (pinSignature: string, raw: boolean = true): Promise<PinDetail | null> => {
   try {
-    const response = await httpFetchClient.get<PinDetail>(`/pin/${pinId}`);
+    const response = await httpFetchClient.get<PinDetail>(`/pin/${pinSignature}`);
 
     return response;
   } catch (error) {

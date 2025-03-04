@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import { FC } from "react";
 
 import { PinDetail, SimilarPinsSection } from "@app/components";
-import { getPinDetail, loadStaticFeed } from "@app/lib/actions";
-import { Metadata } from "next";
+import { getPinDetail } from "@app/lib/actions";
 import { getResourceUrl } from "@app/lib/utils";
 
 type PinPageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ signature: string }>;
 };
 
 // export const revalidate = 60;
@@ -22,11 +22,11 @@ type PinPageProps = {
 // }
 
 export async function generateMetadata({ params }: PinPageProps): Promise<Metadata> {
-  const { id } = await params;
+  const { signature } = await params;
 
-  if (!id) notFound();
+  if (!signature) notFound();
 
-  const pin = await getPinDetail(id);
+  const pin = await getPinDetail(signature);
   if (!pin) notFound();
 
   return {
@@ -48,18 +48,18 @@ export async function generateMetadata({ params }: PinPageProps): Promise<Metada
 }
 
 const PinPage: FC<PinPageProps> = async ({ params }) => {
-  const { id } = await params;
+  const { signature } = await params;
 
-  if (!id) notFound();
+  if (!signature) notFound();
 
-  const pin = await getPinDetail(id);
+  const pin = await getPinDetail(signature);
 
   if (!pin) notFound();
 
   return (
     <div className="space-y-4 header-spacing">
-      <PinDetail pinId={id} prefetchedPin={pin} />
-      <SimilarPinsSection pinId={id} />
+      <PinDetail pin={pin} />
+      <SimilarPinsSection pinId={pin._id} />
     </div>
   );
 };
