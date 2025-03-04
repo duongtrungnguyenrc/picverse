@@ -4,7 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-import { signUp, forgotPassword, resetPassword, changePassword, updateAccountConfig } from "../actions";
+import { signUp, updateAccountConfig } from "../actions";
+import { httpFetchClient } from "../utils";
 
 export const useSignUp = () => {
   const [isPending, startTransition] = useTransition();
@@ -32,11 +33,11 @@ export const useForgotPassword = () => {
   const handleForgotPassword = (data: ForgotPasswordRequest) => {
     startTransition(async () => {
       try {
-        const sessionId = await forgotPassword(data);
+        const sessionId = await httpFetchClient.post<string>("/account/forgot-password", JSON.stringify(data));
         toast.success("Check your email for reset instructions.");
         setSessionId(sessionId);
       } catch (error) {
-        toast.error("Failed to send reset email");
+        toast.error("Failed to send reset password: " + error);
       }
     });
   };
@@ -51,11 +52,11 @@ export const useResetPassword = () => {
   const handleResetPassword = (data: ResetPasswordRequest) => {
     startTransition(async () => {
       try {
-        const response = await resetPassword(data);
+        const response = await httpFetchClient.post<StatusResponse>("/account/reset-password", JSON.stringify(data));
         toast.success(response.message);
         router.replace("/sign-in");
       } catch (error) {
-        toast.error("Reset password failed");
+        toast.error("Reset password failed: " + error);
       }
     });
   };
@@ -69,10 +70,10 @@ export const useChangePassword = () => {
   const handleChangePassword = (data: ChangePasswordRequest) => {
     startTransition(async () => {
       try {
-        const response = await changePassword(data);
+        const response = await httpFetchClient.put<StatusResponse>("/account/password", JSON.stringify(data));
         toast.success(response.message);
       } catch (error) {
-        toast.error("Failed to change password");
+        toast.error("Failed to change password: " + error);
       }
     });
   };
