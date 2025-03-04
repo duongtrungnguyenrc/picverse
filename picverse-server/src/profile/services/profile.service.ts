@@ -55,9 +55,9 @@ export class ProfileService extends Repository<Profile> {
     }
 
     return {
-      ...account,
+      ...(isOwnProfile ? account : targetAccount),
       ...profile,
-      accountId: account._id,
+      accountId: isOwnProfile ? account._id : targetAccount._id,
       isFollowed,
       isOwnProfile,
     };
