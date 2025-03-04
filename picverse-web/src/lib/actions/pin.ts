@@ -8,6 +8,7 @@ export const getPinDetail = async (pinSignature: string, raw: boolean = true): P
 
     return response;
   } catch (error) {
+    console.log(error);
     if (raw) return null;
 
     throw error;

@@ -57,12 +57,12 @@ export class PinController {
     return await this.pinService.getPinsByBoard(signature, pagination, accountId);
   }
 
-  @Get("/:pinId")
+  @Get("/:pinSignature")
   @ApiOperation({ summary: "Get pin detail" })
-  @ApiParam({ name: "pinId", description: "Pin id" })
+  @ApiParam({ name: "pinSignature", description: "Pin id" })
   @ApiOkResponse({ description: "Returns pin detail", type: PinDetailDto })
-  async getPinDetail(@Param("pinId") pinId: DocumentId, @AuthUid() accountId?: DocumentId): Promise<PinDetailDto> {
-    return await this.pinService.getPinDetail(pinId, accountId);
+  async getPinDetail(@Param("pinSignature") pinSignature: DocumentId | string, @AuthUid() accountId?: DocumentId): Promise<PinDetailDto> {
+    return await this.pinService.getPinDetail(pinSignature, accountId);
   }
 
   @Get("/similar/:pinId")

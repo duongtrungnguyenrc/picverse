@@ -150,9 +150,20 @@ export class PinService extends Repository<Pin> {
     );
   }
 
-  async getPinDetail(pinId: Types.ObjectId, accountId?: Types.ObjectId): Promise<PinDetailDto> {
+  async getPinDetail(pinSignature: DocumentId | string, accountId?: Types.ObjectId): Promise<PinDetailDto> {
     const pipeline: any[] = [
-      { $match: { _id: new Types.ObjectId(pinId) } },
+      {
+        $match: {
+          $or: [
+            {
+              _id: isValidObjectId(pinSignature) ? new Types.ObjectId(pinSignature) : new Types.ObjectId(),
+            },
+            {
+              seoName: pinSignature,
+            },
+          ],
+        },
+      },
       {
         $lookup: {
           from: "resources",
@@ -213,7 +224,7 @@ export class PinService extends Repository<Pin> {
       },
     ];
 
-    const result = await this.aggregate(pipeline, { force: true });
+    const result = await this.aggregate(pipeline);
     return result[0] || null;
   }
 

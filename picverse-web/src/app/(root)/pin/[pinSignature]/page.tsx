@@ -7,7 +7,7 @@ import { getPinDetail } from "@app/lib/actions";
 import { getResourceUrl } from "@app/lib/utils";
 
 type PinPageProps = {
-  params: Promise<{ signature: string }>;
+  params: Promise<{ pinSignature: string }>;
 };
 
 // export const revalidate = 60;
@@ -22,11 +22,11 @@ type PinPageProps = {
 // }
 
 export async function generateMetadata({ params }: PinPageProps): Promise<Metadata> {
-  const { signature } = await params;
+  const { pinSignature } = await params;
 
-  if (!signature) notFound();
+  if (!pinSignature) notFound();
 
-  const pin = await getPinDetail(signature);
+  const pin = await getPinDetail(pinSignature);
   if (!pin) notFound();
 
   return {
@@ -48,11 +48,11 @@ export async function generateMetadata({ params }: PinPageProps): Promise<Metada
 }
 
 const PinPage: FC<PinPageProps> = async ({ params }) => {
-  const { signature } = await params;
+  const { pinSignature } = await params;
 
-  if (!signature) notFound();
+  if (!pinSignature) notFound();
 
-  const pin = await getPinDetail(signature);
+  const pin = await getPinDetail(pinSignature);
 
   if (!pin) notFound();
 
