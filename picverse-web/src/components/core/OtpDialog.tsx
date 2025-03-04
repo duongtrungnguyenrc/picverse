@@ -111,11 +111,13 @@ const OtpDialog: FC<OtpDialogProps> = ({ trigger, title, open, isPending, onSubm
               )}
             </div>
 
-            <AlertDialogFooter className="sm:justify-between">
-              <AlertDialogCancel type="button" className="mt-0 sm:mt-0">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction type="submit" disabled={isPending}>
+            <AlertDialogFooter className="justify-between flex-center">
+              {onCancel && (
+                <AlertDialogCancel type="button" className="mt-0 sm:mt-0 flex-1">
+                  Cancel
+                </AlertDialogCancel>
+              )}
+              <AlertDialogAction className="flex-1" type="submit" disabled={isPending}>
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

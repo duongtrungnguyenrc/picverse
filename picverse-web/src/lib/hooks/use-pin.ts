@@ -15,6 +15,7 @@ import {
 import { httpFetchClient, objectToFormData } from "../utils";
 import { PinInteractionContext } from "../contexts";
 import { QueryKeys } from "../constants";
+import { useRouter } from "next/navigation";
 
 export const usePinInteraction = () => useContext(PinInteractionContext);
 
@@ -134,6 +135,7 @@ export function usePinComments(pinId: string) {
 export function usePinLikes(pinId: string) {
   const { socket } = usePinInteraction();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   useEffect(() => {
     if (!socket || !pinId) return;
@@ -147,6 +149,7 @@ export function usePinLikes(pinId: string) {
           liked: isLiked,
         };
       });
+      router.refresh();
     });
 
     return () => {

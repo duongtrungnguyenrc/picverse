@@ -54,9 +54,9 @@ const SignInForm: FC<SignInFormProps> = ({ redirect }) => {
     [credential],
   );
 
-  const onCancel2FA = useCallback(() => {
-    set2FACredential(undefined);
-  }, [set2FACredential]);
+  // const onCancel2FA = useCallback(() => {
+  //   set2FACredential(undefined);
+  // }, [set2FACredential]);
 
   return (
     <div className="p-8 space-y-8 bg-white/80 animate-opacity-fade-in ">
@@ -167,7 +167,7 @@ const SignInForm: FC<SignInFormProps> = ({ redirect }) => {
         </form>
       </Form>
 
-      <OtpDiaglog open={!!credential} onCancel={onCancel2FA} onSubmit={onVerify2FA} title="Enter OTP code" />
+      <OtpDiaglog open={!!credential} onSubmit={onVerify2FA} title="Enter OTP code" />
     </div>
   );
 };

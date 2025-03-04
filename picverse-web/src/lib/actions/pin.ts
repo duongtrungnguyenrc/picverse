@@ -1,18 +1,28 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
+import { PinTags } from "../constants";
 import { httpFetchClient } from "../utils";
 
 export const getPinDetail = async (pinSignature: string, raw: boolean = true): Promise<PinDetail | null> => {
   try {
-    const response = await httpFetchClient.get<PinDetail>(`/pin/${pinSignature}`);
+    const response = await httpFetchClient.get<PinDetail>(`/pin/${pinSignature}`, {
+      next: {
+        revalidate: 5,
+        tags: [PinTags.DETAIL],
+      },
+    });
 
     return response;
   } catch (error) {
-    console.log(error);
     if (raw) return null;
 
     throw error;
   }
+};
+
+export const revalidatePinDetail = async () => {
+  void revalidateTag(PinTags.DETAIL);
 };
 
 export async function getSimilarPins(pinId: string, page: number = 1) {

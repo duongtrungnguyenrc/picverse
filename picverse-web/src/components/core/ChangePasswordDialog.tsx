@@ -27,7 +27,11 @@ type ChangePasswordDialogProps = {
 };
 
 const ChangePasswordDialog: FC<ChangePasswordDialogProps> = ({ children }) => {
-  const form = useForm<MutatePassword<ChangePasswordRequest>>();
+  const form = useForm<MutatePassword<ChangePasswordRequest>>({
+    defaultValues: {
+      revokeAllSessions: true,
+    },
+  });
   const { handleChangePassword, isPending } = useChangePassword();
 
   const { errors: formErrors } = form.formState;

@@ -6,7 +6,15 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
 
-import { getAuthCookie, getClientSecret, googleSignIn, refreshToken, signIn, signOut } from "../actions";
+import {
+  getAuthCookie,
+  getClientSecret,
+  googleSignIn,
+  refreshToken,
+  signIn,
+  signOut,
+  twoFactorSignIn,
+} from "../actions";
 import { ACCESS_TOKEN_PREFIX, MutationKeys, QueryKeys } from "../constants";
 import { httpFetchClient, showToastError } from "../utils";
 import { AuthContext } from "../contexts";
@@ -44,7 +52,7 @@ export const useAuthCheck = () => {
 };
 
 export const useSignIn = (redirect?: boolean) => {
-  const [credential, set2FACredential] = useState<Require2FAResponse>();
+  const [credential, set2FACredential] = useState<Require2FAResponse | undefined>();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -52,8 +60,10 @@ export const useSignIn = (redirect?: boolean) => {
     startTransition(async () => {
       try {
         const response = await signIn(data);
+
         if (response) {
           set2FACredential(response);
+          console.log("2FA required, credential set:", response);
           return;
         }
 
@@ -63,12 +73,44 @@ export const useSignIn = (redirect?: boolean) => {
 
         toast.success("Sign in success");
       } catch (error) {
-        toast.error("Sign in failed" + error);
+        toast.error("Sign in failed: " + error);
       }
     });
   };
 
-  return { handleSignIn, isPending, credential, set2FACredential };
+  const handleVerify2FA = (otpCode: string) => {
+    if (!credential) {
+      toast.error("Invalid 2FA credential");
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        await twoFactorSignIn({
+          ...credential,
+          otpCode,
+        });
+
+        set2FACredential(undefined);
+
+        if (redirect) {
+          router.back();
+        }
+
+        toast.success("Sign in success");
+      } catch (error) {
+        toast.error("2FA verification failed: " + error);
+      }
+    });
+  };
+
+  return {
+    handleSignIn,
+    handleVerify2FA,
+    isPending,
+    credential,
+    set2FACredential,
+  };
 };
 
 export const useGoogleSignIn = () => {

@@ -169,17 +169,20 @@ export class DropboxStorageService implements IExternalStorageService {
         throw new BadRequestException(`Please link ${file.storage} storage to continue`);
       }
 
-      const fileResponse = (await dropbox.filesDownload({ path: file.id.toString() })) as any;
+      const fileResponse = await dropbox.filesDownload({ path: file.referenceId.toString() });
 
-      if (!fileResponse.result.fileBinary) {
+      if (!fileResponse || !fileResponse.result || !("fileBinary" in fileResponse.result)) {
         throw new Error("No file data found.");
       }
 
-      response.setHeader("Content-Type", "application/octet-stream");
-      response.setHeader("Content-Disposition", `attachment; filename="${fileResponse.result.name}"`);
-      response.setHeader("Content-Length", fileResponse.result.fileBinary.length.toString());
+      const fileBinary = fileResponse.result.fileBinary as Buffer;
+      const fileName = fileResponse.result.name;
 
-      response.send(fileResponse.result.fileBinary);
+      response.setHeader("Content-Type", "application/octet-stream");
+      response.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+      response.setHeader("Content-Length", fileBinary.length.toString());
+
+      response.end(fileBinary);
     } catch (error) {
       console.error("Error in getFileStream:", error.message);
       response.status(404).send("File not found.");

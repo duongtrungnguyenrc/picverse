@@ -16,6 +16,10 @@ export enum ProfileTags {
   PROFILE = "profile",
 }
 
+export enum PinTags {
+  DETAIL = "pin-detail",
+}
+
 export enum AccountTags {
   ACCOUNT = "account",
   ACOUNT_CONFIG = "account-config",

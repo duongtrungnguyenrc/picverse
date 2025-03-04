@@ -10,6 +10,7 @@ declare type Pin = BaseModel &
     isPublic: boolean;
     allowComment: boolean;
     allowShare: boolean;
+    seoName?: string;
     createdAt: Date;
   };
 

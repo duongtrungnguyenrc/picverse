@@ -35,7 +35,7 @@ export class Resource extends Document<DocumentId> {
   @Prop()
   mimeType: string;
 
-  @Prop({ default: true })
+  @Prop({ default: false })
   isPrivate: boolean;
 }
 

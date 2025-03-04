@@ -76,7 +76,7 @@ export const refreshToken = async (): Promise<string> => {
   }
 };
 
-export const signIn = async (payload: SignInRequest) => {
+export const signIn = async (payload: SignInRequest): Promise<Require2FAResponse | undefined> => {
   const response = await httpFetchClient.post<TokenPair | Require2FAResponse>(
     "/auth/sign-in",
     JSON.stringify(payload),

@@ -122,7 +122,7 @@ const MansoryPinGallery: FC<MansoryPinGalleryProps> = ({
 
             return (
               <div key={["pin", "glr", pin._id, keyPrefix].join(":")} className="relative cursor-pointer p-1.5">
-                <Link href={`/pin/${pin._id}`}>
+                <Link href={`/pin/${pin.seoName || pin._id}`}>
                   <PicverseImage
                     className="w-full rounded-2xl overflow-hidden"
                     id={pin.resource._id}
