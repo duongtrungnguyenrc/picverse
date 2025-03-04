@@ -9,13 +9,15 @@ import { Dialog, DialogHeader, DialogTitle, DialogTrigger, DialogContent, Button
 
 type ShareResourceDialogProps = {
   url: string;
-  imageUrl?: string;
+  resourceId: string;
   description?: string;
   children: ReactNode;
 };
 
-const ShareResourceDialog: FC<ShareResourceDialogProps> = ({ url, imageUrl, description, children }) => {
+const ShareResourceDialog: FC<ShareResourceDialogProps> = ({ url, resourceId, description, children }) => {
   const [copied, setCopied] = useState(false);
+
+  const imageUrl = `${window.location.origin}/public/image?id=${resourceId}`;
 
   const encodedUrl = encodeURIComponent(url);
   const encodedDescription = encodeURIComponent(description || "");

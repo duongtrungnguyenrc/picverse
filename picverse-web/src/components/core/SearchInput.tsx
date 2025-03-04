@@ -131,7 +131,7 @@ const SearchResults: FC<{ profiles: Profile[]; pins: Pin[] }> = ({ profiles, pin
         {profiles.map((profile) => (
           <li key={profile._id}>
             <Link
-              href={`/${profile.accountId}`}
+              href={`/profile/${profile.accountId}`}
               className="p-2 rounded-lg border text-sm font-semibold flex-center space-x-2"
             >
               <UserCircle /> <span>{`${profile.firstName} ${profile.lastName}`}</span>
@@ -144,9 +144,12 @@ const SearchResults: FC<{ profiles: Profile[]; pins: Pin[] }> = ({ profiles, pin
       <ul className="flex flex-wrap gap-2 overflow-x-auto mt-5">
         {pins.map((pin) => (
           <li key={pin._id}>
-            <div className="w-[150px] h-[100px] relative rounded-lg overflow-hidden">
+            <Link
+              href={`/pin/${pin.seoName || pin._id}`}
+              className="w-[150px] h-[100px] relative rounded-lg overflow-hidden"
+            >
               <Image src={getResourceUrl(pin.resource.toString())} alt="" layout="fill" />
-            </div>
+            </Link>
           </li>
         ))}
       </ul>

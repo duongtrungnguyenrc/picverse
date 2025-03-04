@@ -14,7 +14,7 @@ declare type Pin = BaseModel &
     createdAt: Date;
   };
 
-declare type PinDetail = Omit<Pin, "authorId" | "boardId"> & {
+declare type PinDetail = Omit<Pin, "boardId"> & {
   author: Pick<Profile, "_id" | "accountId" | "firstName" | "lastName" | "avatar">;
   board?: Board;
   resource: Resource;

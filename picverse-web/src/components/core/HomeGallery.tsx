@@ -23,7 +23,7 @@ const HomeGallery: FC<HomeGalleryProps> = ({ firstPageData }) => {
 
   return (
     <div id="gallery" className="lg:px-10 header-spacing">
-      <section className="flex flex-col px-1.5">
+      {/* <section className="flex flex-col px-1.5">
         <ul className="items-center flex max-w-full overflow-x-auto">
           <li>
             <Button variant="ghost">All</Button>
@@ -38,7 +38,7 @@ const HomeGallery: FC<HomeGalleryProps> = ({ firstPageData }) => {
             <Button variant="ghost">Images</Button>
           </li>
         </ul>
-      </section>
+      </section> */}
 
       <MansoryPinGallery pins={pins} loadMore={hasNextPage ? fetchNextPage : undefined} isFetching={isFetching} />
     </div>

@@ -146,7 +146,6 @@ export class CloudService {
       },
       {
         ...updates,
-        parentId: parentId ? new Types.ObjectId(parentId) : null,
       },
     );
 

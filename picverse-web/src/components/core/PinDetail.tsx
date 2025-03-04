@@ -25,6 +25,8 @@ type PinDetailProps = {
 };
 
 const PinDetailComponent: FC<PinDetailProps> = ({ pin }) => {
+  console.log(pin);
+
   return (
     <main className="py-6 space-y-5">
       {/* Header Section */}
@@ -74,7 +76,7 @@ const PinDetailComponent: FC<PinDetailProps> = ({ pin }) => {
 type InteractionButtonsProps = {
   isLoading: boolean;
   pinId: string;
-  data?: PinDetail;
+  data: PinDetail;
   isLiked?: boolean;
 };
 
@@ -92,13 +94,13 @@ const InteractionButtons: FC<InteractionButtonsProps> = ({ isLoading, pinId, dat
   return (
     <div className="flex gap-3">
       <PinLikeButton isLiked={isLiked} pinId={pinId} />
-      <Button variant="outline" size="icon" className="rounded-full">
+      {/* <Button variant="outline" size="icon" className="rounded-full">
         <Bookmark className="h-4 w-4" />
         <span className="sr-only">Bookmark</span>
-      </Button>
+      </Button> */}
       <ShareResourceDialog
         url={typeof window !== "undefined" ? window.location.href : ""}
-        imageUrl={data ? getResourceUrl(data.resource._id) : ""}
+        resourceId={data.resource._id}
         description={data?.description || ""}
       >
         <Button variant="outline" size="icon" className="rounded-full">
@@ -144,7 +146,7 @@ const AuthorSection: FC<AuthorSectionProps> = ({ isLoading, data }) => {
               <Typography variant="body1" className="mt-2 text-muted-foreground">
                 {data?.description}
               </Typography>
-              <Link href={`/${data?.author.accountId}`} className="mt-4 inline-block">
+              <Link href={`/profile/${data?.authorId}`} className="mt-4 inline-block">
                 <Button className="rounded-full" size="sm">
                   Get in touch
                 </Button>

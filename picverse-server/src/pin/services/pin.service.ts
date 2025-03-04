@@ -177,7 +177,7 @@ export class PinService extends Repository<Pin> {
         $lookup: {
           from: "profiles",
           let: { authorId: "$authorId" },
-          pipeline: [{ $match: { $expr: { $eq: ["$accountId", "$$authorId"] } } }, { $project: { _id: 1, authorId: 1, firstName: 1, lastName: 1, avatar: 1 } }],
+          pipeline: [{ $match: { $expr: { $eq: ["$accountId", "$$authorId"] } } }, { $project: { _id: 1, accountId: 1, firstName: 1, lastName: 1, avatar: 1 } }],
           as: "author",
         },
       },
