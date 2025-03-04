@@ -43,7 +43,7 @@ export class CloudService {
     const linkedCredentials = await this.cloudCredentialsModel.find({ accountId }, "storage");
 
     const defaultStatus: GetStorageLinkStatusResponseDto = Object.values(ECloudStorage).reduce(
-      (prev, storage) => ({ ...prev, [storage]: false }),
+      (prev, storage) => ({ ...prev, [storage]: storage === ECloudStorage.LOCAL ? true : false }),
       {} as GetStorageLinkStatusResponseDto,
     );
 
@@ -69,7 +69,7 @@ export class CloudService {
       throw new BadRequestException(`You do not link with ${storage} storage to unlink`);
     }
 
-    await this.resourceService.deleteMultiple({ accountId });
+    await this.resourceService.deleteMultiple({ accountId, storage });
 
     return { message: `Unlink ${storage} storage success` };
   }

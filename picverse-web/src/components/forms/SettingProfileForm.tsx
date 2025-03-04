@@ -31,7 +31,6 @@ type SettingProfileFormProps = {
 const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
   const { mutate: updateProfile } = useUpdateProfile();
 
-
   const form = useForm<UpdateProfileRequest>({
     defaultValues: {
       ...profile,
@@ -50,7 +49,7 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
     <Form {...form}>
       <form onSubmit={onUpdateProfile}>
         <ContentSection className="space-y-5" heading="Profile information">
-          <FormField
+          {/* <FormField
             control={form.control}
             name="avatar"
             render={({ field }) => (
@@ -71,7 +70,7 @@ const SettingProfileForm: FC<SettingProfileFormProps> = ({ profile }) => {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
           <div className="grid gap-3 grid-cols-2">
             <FormField
