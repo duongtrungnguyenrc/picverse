@@ -16,7 +16,7 @@ export class VectorService implements OnModuleInit {
     const { pipeline } = await TransformersApi;
 
     this.textEmbedder = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
-    this.imageEmbedder = await pipeline("image-feature-extraction", "Xenova/clip-vit-base-patch32");
+    this.imageEmbedder = await pipeline("image-feature-extraction", "Xenova/clip-vit-base-patch16");
   }
 
   async generateTextEmbedding(title: string, description: string, tags: string[]): Promise<number[]> {

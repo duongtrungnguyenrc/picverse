@@ -1,12 +1,12 @@
 "use client";
 
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
-import { QueryKeys } from "../constants";
-import { httpFetchClient } from "../utils";
-import { useAuth } from "./use-auth";
 import { useContext } from "react";
+
 import { NotificationContext } from "../contexts";
+import { httpFetchClient } from "../utils";
+import { QueryKeys } from "../constants";
+import { useAuth } from "./use-auth";
 
 export const useNotification = (): NotificationContextType => useContext(NotificationContext);
 
