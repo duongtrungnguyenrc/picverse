@@ -22,7 +22,7 @@ export const loadResources = async (parentId?: string, pagination?: Pagination):
   }
 };
 
-export const revalidateCloudResources = async () => revalidateTag(CloudTags.RESOURCES);
+export const revalidateCloudResources = async () => void revalidateTag(CloudTags.RESOURCES);
 
 export const uploadFile = async (payload: UploadFileRequest) => {
   const { parentId, ...restPayload } = payload;

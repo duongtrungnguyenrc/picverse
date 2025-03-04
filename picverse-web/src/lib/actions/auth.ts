@@ -43,7 +43,7 @@ export const getTokens = async (): Promise<Partial<TokenPair>> => {
 };
 
 export const revalidateAuth = async () => {
-  revalidateTag(AuthTags.AUTH);
+  void revalidateTag(AuthTags.AUTH);
 };
 
 export const refreshToken = async (): Promise<string> => {
@@ -90,7 +90,7 @@ export const signIn = async (payload: SignInRequest) => {
 
   if (!("require2FA" in response)) {
     await setAuthCookie(response);
-    void revalidateAuth();
+    revalidateAuth();
     return;
   }
 
@@ -101,7 +101,7 @@ export const twoFactorSignIn = async (payload: SignInWithTwoFactorRequest) => {
   const response = await httpFetchClient.post<TokenPair>("/auth/sign-in/2fa", JSON.stringify(payload));
 
   await setAuthCookie(response);
-  void revalidateAuth();
+  revalidateAuth();
   redirect("/", RedirectType.replace);
 };
 
@@ -138,6 +138,6 @@ export async function handleAuthCallback(token: string) {
   const { secret: decodedSecret, ...tokenPair } = decodedToken;
 
   await setAuthCookie(tokenPair);
-  void revalidateAuth();
+  revalidateAuth();
   void redirect("/");
 }

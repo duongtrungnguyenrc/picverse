@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
 import { ProfileTags } from "../constants";
 import { httpFetchClient } from "../utils";
 
@@ -18,6 +19,4 @@ export const loadProfile = async (signature?: string): Promise<ProfileDetail | n
   }
 };
 
-export const updateProfile = async (payload: UpdateProfileRequest) => {
-  return await httpFetchClient.put<StatusResponse>("/profile", JSON.stringify(payload));
-};
+export const revalidateProfile = async () => void revalidateTag(ProfileTags.PROFILE);

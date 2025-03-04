@@ -3,13 +3,14 @@
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-import { showToastError } from "../utils";
-import { updateProfile } from "../actions";
+import { httpFetchClient, showToastError } from "../utils";
+import { revalidateProfile } from "../actions";
 
 export const useUpdateProfile = () => {
   return useMutation<StatusResponse, Error, UpdateProfileRequest>({
-    mutationFn: updateProfile,
-    onSuccess: (data) => {
+    mutationFn: (data) => httpFetchClient.put<StatusResponse>("/profile", JSON.stringify(data)),
+    onSuccess: async (data) => {
+      await revalidateProfile();
       toast.success(data.message);
     },
     onError: showToastError,

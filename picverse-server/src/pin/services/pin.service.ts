@@ -7,7 +7,7 @@ import { randomUUID } from "crypto";
 import { CreatePinDto, UpdatePinDto, PinDetailDto, Pin, CommentDetailDto } from "../models";
 import { ImageModerationService, TextModerationService } from "@modules/moderation";
 import { InfiniteResponse, PaginationResponse, StatusResponseDto } from "@common/dtos";
-import { CloudService, Resource } from "@modules/cloud";
+import { CloudService, Resource, ResourceService } from "@modules/cloud";
 import { CommentService } from "./comment.service";
 import { VectorService } from "@modules/vector";
 import { CacheService } from "@modules/cache";
@@ -26,6 +26,7 @@ export class PinService extends Repository<Pin> {
     private readonly commentService: CommentService,
     private readonly accountService: AccountService,
     private readonly boardService: BoardService,
+    private readonly resourceService: ResourceService,
   ) {
     super(pinModel, cacheService, Pin.name);
   }
@@ -97,10 +98,15 @@ export class PinService extends Repository<Pin> {
     ]);
 
     const vectorId: string = randomUUID();
-    const [pin] = await Promise.all([
+
+    await Promise.all([
       this.create({ ...payload, authorId: accountId, resource: resourceId, vectorId, textEmbedding, imageEmbedding }),
-      this.vectorService.insertEmbedding(PinService.name, vectorId, textEmbedding, imageEmbedding),
+      void this.vectorService.insertEmbedding(PinService.name, vectorId, textEmbedding, imageEmbedding),
     ]);
+
+    void (await this.resourceService.update(resourceId, {
+      isPrivate: false,
+    }));
 
     URL.revokeObjectURL(imageUrl);
 

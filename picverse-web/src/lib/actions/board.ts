@@ -17,8 +17,8 @@ export const loadUserBoards = async (signature?: string) => {
   });
 };
 
-export const revalidateUserBoards = async () => revalidateTag(BoardTags.USER_BOARDS);
-export const revalidateUserBoard = async () => revalidateTag(BoardTags.USER_BOARD);
+export const revalidateUserBoards = async () => void revalidateTag(BoardTags.USER_BOARDS);
+export const revalidateUserBoard = async () => void revalidateTag(BoardTags.USER_BOARD);
 
 export const createBoard = async (payload: CreateBoardRequest) => {
   const response = await httpFetchClient.post<StatusResponse>("/board", JSON.stringify(payload));

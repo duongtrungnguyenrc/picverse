@@ -13,7 +13,7 @@ export const loadAccountConfig = async (): Promise<AccountConfig> => {
 };
 
 export const revalidateAccountConfig = async () => {
-  revalidateTag(AccountTags.ACOUNT_CONFIG);
+  void revalidateTag(AccountTags.ACOUNT_CONFIG);
 };
 
 export const signUp = async (payload: SignUpRequest): Promise<StatusResponse> => {

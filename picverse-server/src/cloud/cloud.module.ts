@@ -37,6 +37,6 @@ import { ConfigService } from "@nestjs/config";
   ],
   providers: [ResourceService, CloudService, DropboxStorageService, DriveStorageService, LocalStorageService],
   controllers: [CloudStorageController],
-  exports: [CloudService],
+  exports: [CloudService, ResourceService],
 })
 export class CloudModule {}
