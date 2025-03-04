@@ -59,10 +59,8 @@ export class PinService extends Repository<Pin> {
     );
 
     const vectorId: string = randomUUID();
-    const [textEmbedding, imageEmbedding] = await Promise.all([
-      this.vectorService.generateTextEmbedding(payload.title, payload.description, payload.tags),
-      this.vectorService.generateImageEmbedding(file),
-    ]);
+    const textEmbedding = await this.vectorService.generateTextEmbedding(payload.title, payload.description, payload.tags);
+    const imageEmbedding = await this.vectorService.generateImageEmbedding(file);
 
     const accountConfig = await this.accountService.find(accountId, {
       select: ["allowComment"],

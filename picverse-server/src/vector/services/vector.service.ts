@@ -1,31 +1,38 @@
 import { FeatureExtractionPipeline, ImageFeatureExtractionPipeline } from "@xenova/transformers";
-import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { QdrantClient } from "@qdrant/js-client-rest";
 
 import { multerToBlobUrl } from "@common/utils";
 
 @Injectable()
-export class VectorService implements OnModuleInit {
-  private textEmbedder: FeatureExtractionPipeline;
-  private imageEmbedder: ImageFeatureExtractionPipeline;
-
+export class VectorService {
   constructor(@Inject("QDRANT_DB") private readonly client: QdrantClient) {}
 
-  async onModuleInit() {
+  async loadTextEmbeddingModel(): Promise<FeatureExtractionPipeline> {
     const TransformersApi = Function('return import("@xenova/transformers")')();
     const { pipeline } = await TransformersApi;
 
-    this.textEmbedder = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
-    this.imageEmbedder = await pipeline("image-feature-extraction", "Xenova/clip-vit-base-patch16");
+    return await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
+  }
+
+  async loadImageEmbeddingModel(): Promise<ImageFeatureExtractionPipeline> {
+    const TransformersApi = Function('return import("@xenova/transformers")')();
+    const { pipeline } = await TransformersApi;
+
+    return await pipeline("image-feature-extraction", "Xenova/clip-vit-base-patch16");
   }
 
   async generateTextEmbedding(title: string, description: string, tags: string[]): Promise<number[]> {
+    const embedder = await this.loadTextEmbeddingModel();
+
     const text = `${title} ${description} ${tags?.join(" ")}`;
-    const output = await this.textEmbedder(text, { pooling: "mean", normalize: true });
+    const output = await embedder(text, { pooling: "mean", normalize: true });
     return Array.from(output.data);
   }
 
   async generateImageEmbedding(urlOrMulterFile: string | Express.Multer.File): Promise<number[]> {
+    const embedder = await this.loadImageEmbeddingModel();
+
     if (typeof urlOrMulterFile != "string") {
       const url: string = multerToBlobUrl(urlOrMulterFile);
 
@@ -35,7 +42,7 @@ export class VectorService implements OnModuleInit {
       });
     }
 
-    const output = await this.imageEmbedder(urlOrMulterFile);
+    const output = await embedder(urlOrMulterFile);
 
     return Array.from(output.data).slice(0, 384);
   }
