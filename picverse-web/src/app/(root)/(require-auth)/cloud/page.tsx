@@ -49,7 +49,7 @@ const CloudPage: FC<CloudPageProps> = async ({ searchParams }) => {
             </CloudCreateFolderButton>
           </li>
 
-          <li>
+          {/* <li>
             <Link
               className="p-3 w-full flex flex-col text-sm font-semibold gap-1 rounded-xl hover:bg-primary hover:text-white hover:border-primary border transition-all"
               href=""
@@ -57,7 +57,7 @@ const CloudPage: FC<CloudPageProps> = async ({ searchParams }) => {
               <Share size={16} />
               <span>Share</span>
             </Link>
-          </li>
+          </li> */}
 
           <li>
             <CloudStorageStatisticDialog>

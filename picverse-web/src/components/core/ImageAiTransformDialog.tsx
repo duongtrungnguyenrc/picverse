@@ -150,6 +150,7 @@ const SidebarTabs = ({
   <div className="lg:w-60 border-r pr-4">
     {Object.values(transformationFeatures).map((feat) => (
       <button
+        type="button"
         key={feat.key}
         onClick={() => onTabChange(feat.key)}
         className={`flex items-center w-full px-4 py-2 space-x-2 text-left text-sm font-semibold mb-2 rounded-lg transition-colors ${
