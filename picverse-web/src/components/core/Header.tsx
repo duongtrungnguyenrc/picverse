@@ -1,75 +1,185 @@
-import { FC } from "react";
+"use client";
 
-import { SignedIn, SignedOut, SignOutButton } from "@clerk/nextjs";
-import { ArrowRight, LogOut, Menu, Settings, User } from "lucide-react";
 import Link from "next/link";
+import { Cloud, LogIn, LogOut, Settings, User, Menu, ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Logo } from ".";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "../shadcn";
+import { CreateBoardDialog, SignedIn, SignedOut } from ".";
+import { preventSelectDefault, cn } from "@app/lib/utils";
+import { useSignOut } from "@app/lib/hooks";
+import { usePathname } from "next/navigation";
 import SearchInput from "./SearchInput";
-import { Button, Popover, PopoverContent, PopoverTrigger } from "../shadcn";
 
-type HeaderProps = {};
+const ExpandHandler = ({ setIsExpand }: { setIsExpand: (expand: boolean) => void }) => {
+  const pathname = usePathname();
 
-const Header: FC<HeaderProps> = async ({}) => {
+  useEffect(() => {
+    if (pathname === "/") {
+      const handleScroll = () => {
+        setIsExpand(window.scrollY <= 200);
+      };
+
+      window.addEventListener("scroll", handleScroll);
+      handleScroll();
+
+      return () => window.removeEventListener("scroll", handleScroll);
+    } else {
+      setIsExpand(pathname.startsWith("/cloud"));
+    }
+  }, [pathname, setIsExpand]);
+
+  return null;
+};
+
+const Header = () => {
+  const [isExpand, setIsExpand] = useState(true);
+
   return (
-    <header className="p-5 fixed top-0 left-0 w-screen z-50">
-      <nav className="lg:max-w-6xl xl:max-w-7xl flex items-center gap-3 bg-shadow  border filter-[blur(3px)] mx-auto p-3 rounded-2xl">
-        <div className="flex-1">
-          <Link className="cursor-pointer" href="/">
-            <div className="w-10 h-10 rounded-full bg-gray-200"></div>
-          </Link>
-        </div>
-        <div className="flex items-center">
-          <SearchInput />
-          <SignedOut>
-            <Link className="ms-3" href="/sign-in">
-              <Button variant="outline" className="text-sm rounded-lg">
-                Sign in
-              </Button>
+    <header className="lg:py-5 fixed top-0 left-0 w-screen z-50">
+      <ExpandHandler setIsExpand={setIsExpand} />
+      <div
+        className={cn(
+          "transition-all duration-700 mx-auto",
+          isExpand ? "max-w-full md:px-10" : "max-w-full lg:container",
+        )}
+      >
+        <nav className="flex items-center gap-3 bg-white border-b lg:border filter-[blur(3px)] mx-auto p-3 lg:rounded-2xl">
+          <div className="flex-1 flex space-x-2 lg:space-x-3 items-center">
+            <Link className="cursor-pointer" href="/">
+              <Logo />
             </Link>
-          </SignedOut>
-
-          <SignedIn>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="text-sm rounded-lg ms-3">
-                  <Menu />
+          </div>
+          <div className="flex items-center space-x-2">
+            <SearchInput />
+            <MenuDropdown />
+            <SignedIn>
+              <Link href="/cloud">
+                <Button size="sm" className="h-10 text-sm rounded-lg">
+                  <span className="hidden lg:block">Cloud</span> <ArrowRight size={16} />
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent className="max-w-fit flex flex-col gap-2 rounded-lg p-3">
-                <ul>
-                  <li>
-                    <Link
-                      className="w-full flex gap-2 items-center text-gray-500 hover:text-black py-1 transition-all text-sm"
-                      href={`/me`}
-                    >
-                      <User size={16} /> My profile
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="w-full flex gap-2 items-center text-gray-500 hover:text-black py-1 transition-all text-sm"
-                      href={`/settings`}
-                    >
-                      <Settings size={16} /> Settings
-                    </Link>
-                  </li>
-                  <li>
-                    <SignOutButton>
-                      <div className="flex gap-2 items-center text-gray-500 hover:text-black py-1 transition-all text-sm">
-                        <LogOut size={16} /> Sign out
-                      </div>
-                    </SignOutButton>
-                  </li>
-                </ul>
-              </PopoverContent>
-            </Popover>
-          </SignedIn>
-          <Button className="text-sm rounded-lg ms-3">
-            Explore <ArrowRight size={16} />
-          </Button>
-        </div>
-      </nav>
+              </Link>
+            </SignedIn>
+          </div>
+        </nav>
+      </div>
     </header>
+  );
+};
+
+const MenuDropdown = () => {
+  const { mutate: signOut } = useSignOut();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon" className="h-10 rounded-lg">
+          <Menu className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel>Menu</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+
+        <SignedOut>
+          <DropdownMenuItem asChild>
+            <Link href="/sign-in" className="w-full flex items-center">
+              <LogIn className="mr-2 h-4 w-4" />
+              <span>Sign in</span>
+            </Link>
+          </DropdownMenuItem>
+        </SignedOut>
+
+        <SignedIn>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>New</DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem asChild>
+                  <Link href="/new-pin" className="w-full h-full">
+                    Pin
+                  </Link>
+                </DropdownMenuItem>
+                <CreateBoardDialog>
+                  <DropdownMenuItem onSelect={preventSelectDefault}>Board</DropdownMenuItem>
+                </CreateBoardDialog>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+
+          <DropdownMenuItem asChild>
+            <Link href="/profile/me" className="w-full flex items-center">
+              <span>Profile</span>
+              <DropdownMenuShortcut>
+                <User className="h-4 w-4" />
+              </DropdownMenuShortcut>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/cloud" className="w-full flex items-center">
+              <span>Cloud</span>
+              <DropdownMenuShortcut>
+                <Cloud className="h-4 w-4" />
+              </DropdownMenuShortcut>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/settings" className="w-full flex items-center">
+              <span>Settings</span>
+              <DropdownMenuShortcut>
+                <Settings className="h-4 w-4" />
+              </DropdownMenuShortcut>
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem onSelect={preventSelectDefault}>
+                <span>Sign out</span>
+                <DropdownMenuShortcut>
+                  <LogOut className="h-4 w-4" />
+                </DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="rounded-3xl">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>This will permanently sign you out of your account.</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => signOut()}>Continue</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </SignedIn>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

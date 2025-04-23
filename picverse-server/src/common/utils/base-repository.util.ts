@@ -1,15 +1,4 @@
-import {
-  FilterQuery,
-  Model,
-  PopulateOptions,
-  Document,
-  UpdateQuery,
-  AnyKeys,
-  CreateOptions,
-  InferId,
-  SortOrder,
-  QueryOptions,
-} from "mongoose";
+import { FilterQuery, Model, Document, UpdateQuery, AnyKeys, CreateOptions, InferId, QueryOptions, PipelineStage, Query } from "mongoose";
 
 import { InfiniteResponse, PaginationResponse } from "@common/dtos";
 import { CacheService, joinCacheKey } from "@modules/cache";
@@ -35,12 +24,10 @@ export class Repository<T extends Document> {
 
   public async create(docs: Array<AnyKeys<T>>, options?: CreateOptions): Promise<Array<T>>;
   public async create(doc: AnyKeys<T>, options?: CreateOptions): Promise<T>;
-  public async create(docOrDocs: AnyKeys<T> | Array<AnyKeys<T>>, options?: CreateOptions): Promise<T | Array<T>> {
-    const isArrayInput = Array.isArray(docOrDocs);
+  public async create(docOrDocs: AnyKeys<T> | Array<AnyKeys<T>>, options: CreateOptions = {}): Promise<T | Array<T>> {
+    const isArrayInput: boolean = Array.isArray(docOrDocs);
 
-    const result = isArrayInput
-      ? await this._model.create(docOrDocs as Array<AnyKeys<T>>, options)
-      : await new this._model(docOrDocs as AnyKeys<T>).save(options);
+    const result = isArrayInput ? await this._model.create(docOrDocs as Array<AnyKeys<T>>, options) : await new this._model(docOrDocs as AnyKeys<T>).save(options);
 
     if (this.cacheService) {
       const docsToCache = isArrayInput ? (result as Array<T>) : [result as T];
@@ -50,19 +37,17 @@ export class Repository<T extends Document> {
           return this.cacheService?.set(cacheKey, doc);
         }),
       );
+
+      await this.invalidateCache();
     }
 
     return result;
   }
 
-  public async find(
-    idOrFilter: string | FilterQuery<T>,
-    select?: string | string[] | Record<string, number | boolean | string | object>,
-    populate?: PopulateOptions | Array<PopulateOptions | string>,
-    force: boolean = false,
-    cachePostfix: string = "",
-  ): Promise<T | null> {
+  public async find(idOrFilter: string | FilterQuery<T>, options: Repository.FindOptions = {}): Promise<T | null> {
     if (!idOrFilter) return null;
+
+    const { select, populate, force, cachePostfix } = options;
 
     const boundCacheKey = joinCacheKey(this.cachePrefix, JSON.stringify({ idOrFilter, select }), cachePostfix);
 
@@ -76,7 +61,7 @@ export class Repository<T extends Document> {
     if (select) query.select(select);
     if (populate) query.populate(populate);
 
-    const document = await query.exec();
+    const document: T = await query.lean<T>();
 
     if (document && this.cacheService) {
       await this.cacheService.set(boundCacheKey, document);
@@ -85,26 +70,28 @@ export class Repository<T extends Document> {
     return document;
   }
 
+  public async findMultiple(filter: FilterQuery<T>, options?: Repository.FindMultipleOptions<T>): Promise<Array<T>>;
+  public async findMultiple<K>(pipeline: PipelineStage[], options?: Repository.FindMultipleOptions<T>): Promise<Array<K>>;
   public async findMultiple(
-    filter: FilterQuery<T>,
-    select?: string | string[] | Record<string, number | boolean | string | object>,
-    populate?: PopulateOptions | Array<PopulateOptions | string>,
-    sort?: string | { [key: string]: SortOrder | { $meta: any } } | [string, SortOrder][] | undefined | null,
-    force: boolean = false,
-    cachePostfix: string = "",
+    filterOrPipeline: FilterQuery<T> | PipelineStage[],
+    options: Repository.FindMultipleOptions<T> = { postProcessData: (data) => data },
   ): Promise<Array<T>> {
-    const cacheKey = joinCacheKey(this.cachePrefix, "listing", JSON.stringify({ filter, select, populate, sort }), cachePostfix);
+    const { select, populate, sort, force, cachePostfix } = options;
+    const cacheKey = joinCacheKey(this.cachePrefix, "listing", JSON.stringify({ filterOrPipeline, select, populate, sort }), cachePostfix);
 
     if (!force && this.cacheService) {
       const cachedDocuments = await this.cacheService.get<Array<T>>(cacheKey);
       if (cachedDocuments) return cachedDocuments;
     }
 
-    const query = this._model.find(filter);
+    const isAggregate = Array.isArray(filterOrPipeline);
+    const query = isAggregate ? this._model.aggregate(filterOrPipeline) : this._model.find(filterOrPipeline);
 
-    if (select) query.select(select);
-    if (populate) query.populate(populate);
-    if (sort) query.sort(sort);
+    if (!isAggregate) {
+      if (select) (query as Query<Array<T>, T>).select(select);
+      if (populate) (query as Query<Array<T>, T>).populate(populate);
+      if (sort) (query as Query<Array<T>, T>).sort(sort);
+    }
 
     const documents = await query.exec();
 
@@ -112,45 +99,44 @@ export class Repository<T extends Document> {
       await this.cacheService.set(cacheKey, documents);
     }
 
-    return documents;
+    return options.postProcessData?.(documents) || documents;
   }
 
+  public async findMultiplePaging(filter: FilterQuery<T>, pagination: Pagination, options?: Repository.FindMultipleOptions<T>): Promise<PaginationResponse<T>>;
+  public async findMultiplePaging(pipeline: PipelineStage[], pagination: Pagination, options?: Repository.FindMultipleOptions<T>): Promise<PaginationResponse<T>>;
   public async findMultiplePaging(
-    filter: FilterQuery<T>,
+    filterOrPipeline: FilterQuery<T> | PipelineStage[],
     pagination: Pagination,
-    select?: string | string[] | Record<string, number | boolean | string | object>,
-    populate?: PopulateOptions | Array<PopulateOptions | string>,
-    sort?: string | { [key: string]: SortOrder | { $meta: any } } | [string, SortOrder][] | undefined | null,
-    force?: boolean,
-    cachePostfix?: string,
+    options: Repository.FindMultipleOptions<T> = { postProcessData: (data) => data },
   ): Promise<PaginationResponse<T>> {
     const { page, limit } = pagination;
+    const { select, populate, sort, force, cachePostfix } = options;
+    const isAggregate = Array.isArray(filterOrPipeline);
 
     const cacheKey = joinCacheKey(
       this.cachePrefix,
-      "listing",
-      JSON.stringify({ pagination, filter, select, populate, sort }),
+      "pagination-listing",
+      isAggregate ? "aggregate" : "query",
+      JSON.stringify({ pagination, filterOrPipeline, select, populate, sort }),
       cachePostfix,
     );
-
-    const cachedDocuments: PaginationResponse<T> | null = force
-      ? null
-      : await this.cacheService?.get<PaginationResponse<T>>(cacheKey);
-
+    const cachedDocuments: PaginationResponse<T> | null = force ? null : await this.cacheService?.get<PaginationResponse<T>>(cacheKey);
     if (cachedDocuments) return cachedDocuments;
 
     const skip: number = (page - 1) * limit;
-    const query = this._model.find(filter).skip(skip).limit(limit);
+    const query = isAggregate ? this._model.aggregate([...filterOrPipeline, { $skip: skip }, { $limit: limit }]) : this._model.find(filterOrPipeline).skip(skip).limit(limit);
 
-    if (select) query.select(select);
-    if (populate) query.populate(populate);
-    if (sort) query.sort(sort);
+    if (!isAggregate) {
+      if (select) (query as Query<Array<T>, T>).select(select);
+      if (populate) (query as Query<Array<T>, T>).populate(populate);
+      if (sort) (query as Query<Array<T>, T>).sort(sort);
+    }
 
-    const [documents, documentCount] = await Promise.all([query.exec(), this._model.countDocuments(filter)]);
+    const [documents, documentCount] = await Promise.all([query.exec(), Array.isArray(filterOrPipeline) ? this.count({}) : this._model.countDocuments(filterOrPipeline)]);
     const pages: number = Math.ceil(documentCount / limit);
 
     const response: PaginationResponse<T> = {
-      data: documents,
+      data: (await options.postProcessData?.(documents)) || documents,
       meta: {
         page,
         limit,
@@ -163,44 +149,49 @@ export class Repository<T extends Document> {
     return response;
   }
 
+  public async findMultipleInfinite(filter: FilterQuery<T>, pagination: Pagination, options?: Repository.FindMultipleOptions<T>): Promise<InfiniteResponse<T>>;
+  public async findMultipleInfinite(pipeline: PipelineStage[], pagination: Pagination, options?: Repository.FindMultipleOptions<T>): Promise<InfiniteResponse<T>>;
   public async findMultipleInfinite(
-    filter: FilterQuery<T>,
-    page: number,
-    limit: number,
-    select?: string | string[] | Record<string, number | boolean | string | object>,
-    populate?: PopulateOptions | Array<PopulateOptions | string>,
-    sort?: string | { [key: string]: SortOrder | { $meta: any } } | [string, SortOrder][] | undefined | null,
-    force?: boolean,
-    cachePostfix?: string,
+    filterOrPipeline: FilterQuery<T> | PipelineStage[],
+    pagination: Pagination,
+    options: Repository.FindMultipleOptions<T> = { postProcessData: (data) => data },
   ): Promise<InfiniteResponse<T>> {
+    const { select, populate, sort, force, cachePostfix } = options;
+    const isAggregate = Array.isArray(filterOrPipeline);
+    const { page, limit } = pagination;
+
     const cacheKey = joinCacheKey(
       this.cachePrefix,
       "infinite-listing",
-      JSON.stringify({ page, limit, filter, select, populate, sort }),
+      isAggregate ? "aggregate" : "query",
+      JSON.stringify({ page, limit, filterOrPipeline, select, populate, sort }),
       cachePostfix,
     );
-
     if (!force && this.cacheService) {
       const cachedDocuments = await this.cacheService.get<InfiniteResponse<T>>(cacheKey);
       if (cachedDocuments) return cachedDocuments;
     }
 
-    const [documentsCount, documents] = await Promise.all([
-      this.count(filter),
-      this._model
-        .find(filter)
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .select(select)
-        .populate(populate)
-        .sort(sort)
-        .exec(),
-    ]);
+    const skip: number = (page - 1) * limit;
+    const query = isAggregate
+      ? this._model.aggregate([...filterOrPipeline, { $skip: skip }, { $limit: limit }])
+      : this._model
+          .find(filterOrPipeline)
+          .skip((page - 1) * limit)
+          .limit(limit);
 
-    const nextCursor = documentsCount < limit ? page + 1 : undefined;
+    if (!isAggregate) {
+      if (select) (query as Query<Array<T>, T>).select(select);
+      if (populate) (query as Query<Array<T>, T>).populate(populate);
+      if (sort) (query as Query<Array<T>, T>).sort(sort);
+    }
+
+    const documents = await query.exec();
+
+    const nextCursor = documents.length === limit ? page + 1 : undefined;
 
     const response: InfiniteResponse<T> = {
-      data: documents,
+      data: (await options.postProcessData?.(documents)) || documents,
       nextCursor,
     };
 
@@ -211,16 +202,31 @@ export class Repository<T extends Document> {
     return response;
   }
 
-  public async update(
-    idOrFilter: string | FilterQuery<T>,
-    updateData: UpdateQuery<T>,
-    options?: QueryOptions,
-  ): Promise<T | null> {
+  public async aggregate<T = any>(pipeline: PipelineStage[], options: Repository.AggregateOptions = {}): Promise<T[]> {
+    const { force, cachePostfix } = options;
+
+    const cacheKey = joinCacheKey(this.cachePrefix, "aggregate", JSON.stringify(pipeline), cachePostfix);
+
+    if (!force && this.cacheService) {
+      const cachedResult = await this.cacheService.get<T[]>(cacheKey);
+      if (cachedResult) return cachedResult;
+    }
+
+    const result = await this._model.aggregate(pipeline).exec();
+
+    if (result.length > 0 && this.cacheService) {
+      await this.cacheService.set(cacheKey, result);
+    }
+
+    return result;
+  }
+
+  public async update(idOrFilter: string | FilterQuery<T>, updateData: UpdateQuery<T>, options: QueryOptions = {}): Promise<T | null> {
     const query = typeof idOrFilter === "string" ? { _id: idOrFilter } : idOrFilter;
     const updatedDocument = await this._model.findOneAndUpdate(query, updateData, { ...options, new: true }).exec();
 
     if (updatedDocument) {
-      await this.refreshCache(updatedDocument._id.toString());
+      await this.invalidateCache(updatedDocument._id.toString());
     }
 
     return updatedDocument;
@@ -231,7 +237,28 @@ export class Repository<T extends Document> {
     const deletedDocument = await this._model.findOneAndDelete(query).exec();
 
     if (deletedDocument) {
-      await this.refreshCache(deletedDocument._id.toString());
+      await this.invalidateCache(deletedDocument._id.toString());
+    }
+
+    return !!deletedDocument;
+  }
+
+  public async deleteMultiple(idOrFilter: string | FilterQuery<T>): Promise<boolean> {
+    const query = typeof idOrFilter === "string" ? { _id: idOrFilter } : idOrFilter;
+    const deletedDocument = await this._model.find(query, "_id").exec();
+
+    if (deletedDocument.length === 0) {
+      return false;
+    }
+
+    await this._model.deleteMany(query);
+
+    if (deletedDocument) {
+      await Promise.all(
+        deletedDocument.map(async (doc) => {
+          return this.invalidateCache(doc._id.toString());
+        }),
+      );
     }
 
     return !!deletedDocument;
@@ -246,15 +273,14 @@ export class Repository<T extends Document> {
     return this._model.exists(filter);
   }
 
-  private async refreshCache(id: string, pattern?: RegExp): Promise<void> {
-    if (!this.cacheService) return;
+  private async invalidateCache(id?: string, pattern?: RegExp): Promise<void> {
+    if (id) {
+      const withIdPattern: RegExp = pattern || new RegExp(`.*${id}.*$`);
+      this.cacheService?.del(withIdPattern, this.cachePrefix);
+    }
 
-    const withIdPattern = pattern || new RegExp(`.*${id}.*$`);
-    const allStringPattern = new RegExp(`.*listing.*$`);
+    const allStringPattern: RegExp = new RegExp(`.*listing.*$`);
 
-    await Promise.all([
-      this.cacheService.del(withIdPattern, this.cachePrefix),
-      this.cacheService.del(allStringPattern, this.cachePrefix),
-    ]);
+    this.cacheService?.del(allStringPattern, this.cachePrefix);
   }
 }

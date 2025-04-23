@@ -4,16 +4,29 @@ import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 
 import { HttpExceptionFilter, MongoExceptionFilter } from "@common/filters";
+import { LoggingInterceptor, ResponseInterceptor } from "@common/interceptors";
 import { AppModule } from "@modules/app";
+import { AppLogger } from "./common/utils";
 
 async function bootstrap() {
   const app: INestApplication = await NestFactory.create(AppModule);
 
   const configService: ConfigService = app.get(ConfigService);
 
+  // app.useLogger(new AppLogger());
+  app.enableCors({
+    origin: [configService.get<string>("CLIENT_ORIGIN")],
+  });
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalFilters(new MongoExceptionFilter());
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+      whitelist: true,
+    }),
+  );
+  app.useGlobalInterceptors(new ResponseInterceptor(), new LoggingInterceptor());
   app.setGlobalPrefix("/api");
 
   const config = new DocumentBuilder()
@@ -33,7 +46,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("/", app, document, {
-    jsonDocumentUrl: "swagger/json",
+    jsonDocumentUrl: "/json",
   });
 
   await app.listen(configService.get<number>("APPLICATION_RUNNING_PORT"));

@@ -25,7 +25,7 @@ export class MongoExceptionFilter implements ExceptionFilter {
       case MongoErrorCodes.DUPLICATE_KEY:
         return {
           statusCode: HttpStatus.CONFLICT,
-          message: this.getDuplicateKeyErrorMessage(exception),
+          message: this.getDuplicateKeyAccountErrorMessage(exception),
         };
 
       case MongoErrorCodes.CANNOT_CREATE_INDEX:
@@ -66,7 +66,7 @@ export class MongoExceptionFilter implements ExceptionFilter {
     }
   }
 
-  private getDuplicateKeyErrorMessage(exception: MongoServerError): string {
+  private getDuplicateKeyAccountErrorMessage(exception: MongoServerError): string {
     const key: string = Object.keys(exception.keyValue)[0];
     return `${key} already exists. Please use a different ${key}.`;
   }

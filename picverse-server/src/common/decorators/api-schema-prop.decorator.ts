@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptions, ApiResponseProperty } from "@nestjs/swagger";
+import { ApiPropertyOptions, ApiResponseProperty } from "@nestjs/swagger";
 import { Prop, PropOptions } from "@nestjs/mongoose";
 import { applyDecorators } from "@nestjs/common";
 

@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 import * as UAParser from "ua-parser-js";
 
-export const RequestAgent = createParamDecorator((data: unknown, ctx: ExecutionContext): [string, string] => {
+export const RequestAgent = createParamDecorator((data: unknown, ctx: ExecutionContext): RequestAgent => {
   const request = ctx.switchToHttp().getRequest();
   const userAgent = request.headers["user-agent"];
 
@@ -10,5 +10,5 @@ export const RequestAgent = createParamDecorator((data: unknown, ctx: ExecutionC
 
   const deviceInfo = `${device.vendor} ${device.model}`;
   const browserInfo = `${browser.name} ${os.name}`;
-  return [deviceInfo, browserInfo];
+  return { deviceInfo, browserInfo };
 });

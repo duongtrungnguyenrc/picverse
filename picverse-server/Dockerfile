@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:20-buster-slim as builder
 
 WORKDIR /app
 
@@ -10,6 +10,6 @@ COPY . .
 
 RUN npm run build
 
-CMD ["node", "dist/main"]
+CMD ["npm", "run", "start:prod"]
 
 EXPOSE 3000

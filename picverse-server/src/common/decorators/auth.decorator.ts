@@ -1,15 +1,8 @@
-import { applyDecorators, CanActivate, SetMetadata, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiHeader } from "@nestjs/swagger";
+import { applyDecorators, CanActivate, Type, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
-import { JWTAccessAuthGuard } from "@modules/auth";
+import { JWTAccessAuthGuard } from "@common/guards";
 
-export type ValidRole = Role | "*";
-
-export const Auth = (roles: ValidRole[] = ["*"], guard: CanActivate | Function = JWTAccessAuthGuard) => {
-  return applyDecorators(
-    SetMetadata("roles", roles),
-    UseGuards(guard),
-    ApiBearerAuth("Authorization"),
-    ApiHeader({ name: "authorization", required: true, description: "" }),
-  );
+export const Auth = (guard: Type<CanActivate> = JWTAccessAuthGuard) => {
+  return applyDecorators(UseGuards(guard), ApiBearerAuth("Authorization"));
 };
