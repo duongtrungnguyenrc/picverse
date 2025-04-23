@@ -13,6 +13,7 @@ export class CacheService {
 
   async set<T>(key: string, value: T, ttl?: number): Promise<void> {
     await this.keyv.set(key, value, ttl);
+    this.keyv._getKeyPrefix
   }
 
   async del(regex: RegExp, prefix?: string): Promise<void>;
